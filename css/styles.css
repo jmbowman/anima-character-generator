@@ -1,0 +1,17 @@
+body {
+  /*background: black;
+  color: white;*/
+}
+
+input.two-digit {
+  width: 25px;
+}
+
+div.label-parent
+{
+  line-height: 28px;
+}
+
+.error {
+  padding: 0.1em;
+}

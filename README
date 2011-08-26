@@ -1,0 +1,56 @@
+Anima Character Generator
+-------------------------
+
+This is a browser-based utility for generating characters for the Anima: Beyond
+Fantasy role-playing game.  It doesn't require an internet connection or even a
+local server; everything is done in JavaScript within the browser.  Character
+data will be saved and reloaded by copying and pasting it (using a JSON text
+format).  It isn't finished enough to be particularly useful yet, but should be
+within the next few weeks.
+
+Background
+----------
+
+I'm currently running an Anima game, and while the players and I really like
+the system, character generation is rather time-consuming; there are a lot of
+options to consider and calculations to make, and there aren't any official
+electronic aids beyond a printable character sheet.  Some players of the game
+have helped remedy this by creating editable PDF versions of the character
+sheet, but these still require you to do a lot of calculations by hand and
+require a full sheet of paper for each character; this is cumbersome when the
+party encounters a mixed group of opponents, and I really just want an
+overview of their main statistics.
+
+Other players have created Excel spreadsheets for generating Anima characters,
+which mostly solve the problem of needing to do manual calculations, but I find
+myself skipping all over the sheet to fill in the blanks, having trouble
+remembering what's left to fill out, and getting distracted by the display of
+intermediate calculations.  Also, there are some rules in the game which are
+rather ambiguous, and the spreadsheet authors have sometimes chosen a
+different way of interpreting them than I have (which affects the
+calculations).  And then there's the problem of needing a spreadsheet window
+for each opponent.  These tools can be quite useful for players to keep track
+of their characters, but are only a modest improvement over the editable PDF
+forms for a GM with many characters to run.
+
+Since I and several of my players are web application developers, we decided to
+write our own utility to deal with this.  It interprets the rules as I run
+them (although it may eventually have options to use alternate rule
+interpretations).  It separates the raw data that needs to be input from the
+display of the resulting character statistics.  It has a handy display right
+at the top for the next step remaining to be done in order to finish the
+character.  It has a summary display that shows just the information I usually
+need in order to run a monster or NPC effectively.  And it is capable of
+showing the summaries for several characters at a time, and easily editing any
+of them.
+
+Status
+------
+The basic data format and many of the core calculations have been implemented.
+The first several steps in character generation are fully working, as well as
+pieces of the steps beyond.  The visual design of the page is still pretty
+basic, as things are going to move around later.  It isn't yet useful for
+generating a finished character, although it's coming along fairly quickly.
+The code has been uploaded to Github in order to make it easier for the players
+in my game to contribute to its development.  Once it's far enough along to be
+useful to non-developers, I'll mention it on the Anima forums.
