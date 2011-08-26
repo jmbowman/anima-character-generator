@@ -1,6 +1,5 @@
 Anima Character Generator
 -------------------------
-
 This is a browser-based utility for generating characters for the Anima: Beyond
 Fantasy role-playing game.  It doesn't require an internet connection or even a
 local server; everything is done in JavaScript within the browser.  Character
@@ -10,7 +9,6 @@ within the next few weeks.
 
 Background
 ----------
-
 I'm currently running an Anima game, and while the players and I really like
 the system, character generation is rather time-consuming; there are a lot of
 options to consider and calculations to make, and there aren't any official

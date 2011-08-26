@@ -44,6 +44,29 @@ update_text = function(name) {
   }
 };
 
+update_cp = function() {
+  var total = $char.cp_total();
+  var used = $char.cp_used();
+  $('#cp_left').text(total - used);
+  $('#cp_total').text(total);
+  if (total - used > 0) {
+    $('#add_advantage').show();
+  }
+  else {
+    $('#add_advantage').hide();
+  }
+  var content = '';
+  var i = 0;
+  for (name in $char.Advantages) {
+    if (i > 0) {
+      content += ', ';
+    }
+    content += '<a href="#">' + name + '</a>';
+    i++;
+  }
+  $('#Advantages').html(content);
+};
+
 update_display = function() {
   update_int('STR');
   update_int('DEX');

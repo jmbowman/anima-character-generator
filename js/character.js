@@ -46,7 +46,21 @@ var char_funcs = {
   },
   
   advantage_allowed: function(name, parameter) {
+    var advantage = $advantages[name];
+    if ('Category' in advantage) {
+      if (advantage.Category == 'Magic' && !('The Gift' in this.Advantages)) {
+        return false;
+      }
+      if (advantage.Category == 'Psychic'
+          && !('Free Access to Any Psychic Discipline' in this.Advantages)
+          && !('Access to One Psychic Discipline' in this.Advantages)) {
+        return false;   
+      }
+    }
     if (name == 'Add One Point to a Characteristic') {
+      if (!parameter) {
+        return true;
+      }
       var value = this.characteristic(parameter);
       if (value > 13) {
         return false;
@@ -62,6 +76,16 @@ var char_funcs = {
     if (name in this.Advantages) {
       return false;
     }
+    var cp_remaining = this.cp_total() - this.cp_used();
+    if ($.isArray(advantage.Cost)) {
+       if (advantage.Cost[0] > cp_remaining) {
+         return false;
+       }
+    }
+    else if (advantage.Cost > cp_remaining) {
+      return false;
+    }
+    return true;
   },
   
   appearance: function() {
@@ -86,32 +110,6 @@ var char_funcs = {
       total += 2;
     }
     return total;
-  },
-  
-  barred_advantages: function() {
-    var list = [];
-    return list;
-  },
-  
-  barred_disadvantages: function() {
-    var list = [];
-    if (this.Race == "Duk'zarist Nephilim") {
-      list.push('Atrophied Limb');
-      list.push('Blind');
-      list.push('Deafness');
-      list.push('Mute');
-      list.push('Nearsighted');
-      list.push('Physical Weakness');
-      list.push('Serious Illness');
-      list.push('Sickly');
-      list.push('Susceptible to Poisons');
-    }
-    else if (this.Race == 'Sylvan Nephilim') {
-      list.push('Sickly');
-      list.push('Serious Illness');
-      list.push('Susceptible to Magic');
-    }
-    return list;
   },
   
   change_class: function(level, class_name) {
@@ -231,9 +229,46 @@ var char_funcs = {
     return result;
   },
   
-  cp_available: function() {
+  cp_total: function() {
     var total = 3;
+    $.each(this.Disadvantages, function(i, name) {
+      total += $disadvantages[name].Benefit;
+    });
     return total;
+  },
+  
+  cp_used: function() {
+    var used = 0;
+    for (name in this.Advantages) {
+      var params = this.Advantages[name];
+      if ($.isPlainObject(params) && 'Cost' in params) {
+        used += params.Cost;
+      }
+      else if ($.isArray(params)) {
+        used += $advantages[name].Cost * params.length;
+      }
+      else if (!isNaN(parseInt(params))) {
+        used += parseInt(params);
+      }
+      else {
+        used += $advantages[name].Cost;
+      }
+    }
+    return used;
+  },
+  
+  disadvantage_allowed: function(name, parameter) {
+    if (this.Race == "Duk'zarist Nephilim") {
+      if (name in ['Atrophied Limb', 'Blind', 'Deafness', 'Mute', 'Nearsighted', 'Physical Weakness', 'Serious Illness', 'Sickly', 'Susceptible to Poisons']) {
+        return false;
+      }
+    }
+    else if (this.Race == 'Sylvan Nephilim') {
+      if (name in ['Sickly', 'Serious Illness', 'Susceptible to Magic']) {
+        return false;
+      }
+    }
+    return true;
   },
   
   discipline_access: function() {
