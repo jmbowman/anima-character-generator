@@ -45,8 +45,77 @@ var char_funcs = {
     total += bonuses + this.modifier(ability.Characteristic);
   },
   
+  add_advantage: function(name, cost, params) {
+    if (name == 'Access to Natural Psychic Powers') {
+      this.Advantages[name] = {Points: cost, Power: params}
+      return;
+    }
+    else if (name == 'Aptitude in a Subject') {
+      this.Advantages[name] = {Points: cost, Subject: params};
+      return;
+    }
+    else if (name == 'Repeat a Characteristics Roll') {
+      if (!(name in this.Advantages)) {
+        this.Advantages[name] = [];
+      }
+      this.Advantages[name].push(params);
+      return;
+    }
+    else if (['Contacts', 'Powerful Ally'].indexOf(name) != -1) {
+      this.Advantages[name] = {Points: cost, Name: params};
+    }
+    var advantage = $advantages[name];
+    if ($.isArray(advantage.Cost)) {
+      this.Advantages[name] = cost;
+    }
+    else if ('Options' in advantage) {
+      if (advantage.Multiple) {
+        if (name in this.Advantages) {
+          this.Advantages[name].push(params);
+        }
+        else {
+          this.Advantages[name] = [params];
+        }
+      }
+      else {
+        this.Advantages[name] = params;
+      }
+    }
+    else {
+      this.Advantages[name] = advantage.Cost;
+    }
+  },
+  
+  add_disadvantage: function(name, benefit, param) {
+    var disadvantage = $disadvantages[name];
+    if (name == 'Powerful Enemy') {
+      this.Disadvantages[name] = {Points: benefit, Name: param};
+    }
+    else if ($.isArray(disadvantage.Benefit)) {
+      this.Disadvantages[name] = benefit;
+    }
+    else if ('Options' in advantage) {
+      this.Disadvantages[name] = param;
+    }
+    else {
+      this.Disadvantages[name] = disadvantage.Benefit;
+    }
+  },
+  
   advantage_allowed: function(name, parameter) {
     var advantage = $advantages[name];
+    var cp_remaining = this.cp_remaining('Common');
+    if ('Category' in advantage) {
+      cp_remaining += this.cp_remaining(advantage.Category);
+    }
+    if ($.isArray(advantage.Cost)) {
+       if (advantage.Cost[0] > cp_remaining) {
+         return false;
+       }
+    }
+    else if (advantage.Cost > cp_remaining) {
+      return false;
+    }
     if ('Category' in advantage) {
       if (advantage.Category == 'Magic' && !('The Gift' in this.Advantages)) {
         return false;
@@ -65,27 +134,77 @@ var char_funcs = {
       if (value > 13) {
         return false;
       }
-      else if (value > 11 && parameter in ['STR', 'DEX', 'AGI', 'CON']) {
+      else if (value > 11 && ['STR', 'DEX', 'AGI', 'CON'].indexOf(parameter) != -1) {
         return false;
       }
       return true;
     }
-    if (name in ['Increase One Characteristic to Nine', 'Repeat a Characteristics Roll']) {
+    if (['Increase One Characteristic to Nine', 'Repeat a Characteristics Roll'].indexOf(name) != -1) {
       return true;
     }
     if (name in this.Advantages) {
       return false;
     }
-    var cp_remaining = this.cp_total() - this.cp_used();
-    if ($.isArray(advantage.Cost)) {
-       if (advantage.Cost[0] > cp_remaining) {
-         return false;
-       }
-    }
-    else if (advantage.Cost > cp_remaining) {
-      return false;
-    }
     return true;
+  },
+  
+  advantage_cost: function(name) {
+    var params = this.Advantages[name];
+    if ($.isPlainObject(params) && 'Points' in params) {
+      return params.Points;
+    }
+    else if ($.isArray(params)) {
+      return $advantages[name].Cost * params.length;
+    }
+    else if (!isNaN(parseInt(params))) {
+      return parseInt(params);
+    }
+    else {
+      return $advantages[name].Cost;
+    }
+  },
+  
+  advantage_summary: function(name) {
+    var result = name;
+    var advantage = $advantages[name];
+    var params = this.Advantages[name];
+    if (name == 'Repeat a Characteristics Roll') {
+      result += ': ';
+      $.each(params, function(i, reroll) {
+        if (i > 0) {
+          result += ', ';
+        }
+        result += reroll.Characteristic + ' (' + reroll.Roll + ')';
+      });
+      return result;
+    }
+    if ($.isArray(advantage.Cost)) {
+      result += ' (' + this.advantage_cost(name) + ')';
+    }
+    if ('Options' in advantage) {
+      result += ': ';
+      if (name == 'Access to Natural Psychic Powers') {
+        result += params.Power;
+      }
+      else if (name == 'Aptitude in a Subject') {
+        result += params.Subject;
+      }
+      else if (['Contacts', 'Powerful Ally'].indexOf(name) != -1) {
+        result += params.Name;
+      }
+      else if ($.isArray(params)) {
+        $.each(params, function(i, param) {
+          if (i > 0) {
+            result += ', ';
+          }
+          result += param;
+        });
+      }
+      else {
+        result += params;
+      }
+    }
+    return result;
   },
   
   appearance: function() {
@@ -229,35 +348,80 @@ var char_funcs = {
     return result;
   },
   
+  cp_remaining: function(category) {
+    var total = (!category || category == 'Common') ? 3 : 0;
+    for (name in this.Disadvantages) {
+      if (!category) {
+        total += this.disadvantage_benefit(name);
+      }
+      else {
+        var disadvantage = $disadvantages[name];
+        if (!('Category' in disadvantage)) {
+          if (category == 'Common') {
+            total += this.disadvantage_benefit(name);
+          }
+        }
+        else if (disadvantage.Category == category) {
+          total += this.disadvantage_benefit(name);
+        }
+      }
+    }
+    for (name in this.Advantages) {
+      if (!category) {
+        total -= this.advantage_cost(name);
+      }
+      else {
+        var advantage = $advantages[name];
+        if (!('Category' in advantage)) {
+          if (category == 'Common') {
+            total -= this.advantage_cost(name);
+          }
+        }
+        else if (advantage.Category == category) {
+          total -= this.advantage_cost(name);
+        }
+      }
+    }
+    if (total < 0) {
+      total = 0;
+    }
+    return total;
+  },
+  
   cp_total: function() {
     var total = 3;
-    $.each(this.Disadvantages, function(i, name) {
-      total += $disadvantages[name].Benefit;
-    });
+    for (name in this.Disadvantages) {
+      total += this.disadvantage_benefit(name);
+    }
     return total;
   },
   
   cp_used: function() {
     var used = 0;
     for (name in this.Advantages) {
-      var params = this.Advantages[name];
-      if ($.isPlainObject(params) && 'Cost' in params) {
-        used += params.Cost;
-      }
-      else if ($.isArray(params)) {
-        used += $advantages[name].Cost * params.length;
-      }
-      else if (!isNaN(parseInt(params))) {
-        used += parseInt(params);
-      }
-      else {
-        used += $advantages[name].Cost;
-      }
+      used += this.advantage_cost(name);
     }
     return used;
   },
   
   disadvantage_allowed: function(name, parameter) {
+    if (name in this.Disadvantages) {
+      return false;
+    }
+    if (Object.keys(this.Disadvantages).length > 2) {
+      return false;
+    }
+    var disadvantage = $disadvantages[name];
+    if ('Category' in disadvantage) {
+      if (disadvantage.Category == 'Magic' && !('The Gift' in this.Advantages)) {
+        return false;
+      }
+      if (disadvantage.Category == 'Psychic'
+          && !('Free Access to Any Psychic Discipline' in this.Advantages)
+          && !('Access to One Psychic Discipline' in this.Advantages)) {
+        return false;   
+      }
+    }
     if (this.Race == "Duk'zarist Nephilim") {
       if (name in ['Atrophied Limb', 'Blind', 'Deafness', 'Mute', 'Nearsighted', 'Physical Weakness', 'Serious Illness', 'Sickly', 'Susceptible to Poisons']) {
         return false;
@@ -269,6 +433,38 @@ var char_funcs = {
       }
     }
     return true;
+  },
+  
+  disadvantage_benefit: function(name) {
+    var params = this.Disadvantages[name];
+    if ($.isPlainObject(params) && 'Points' in params) {
+      return params.Points;
+    }
+    else if (!isNaN(parseInt(params))) {
+      return parseInt(params);
+    }
+    else {
+      return $disadvantages[name].Benefit;
+    }
+  },
+  
+  disadvantage_summary: function(name) {
+    var result = name;
+    var disadvantage = $disadvantages[name];
+    var params = this.Disadvantages[name];
+    if ($.isArray(disadvantage.Benefit)) {
+      result += ' (' + this.disadvantage_benefit(name) + ')';
+    }
+    if ('Options' in disadvantage) {
+      result += ': ';
+      if (name == 'Powerful Enemy') {
+        result += params.Name;
+      }
+      else {
+        result += params;
+      }
+    }
+    return result;
   },
   
   discipline_access: function() {
@@ -376,6 +572,9 @@ var char_funcs = {
     }
     if (!('Name' in this)) {
       return 'Choose a name';
+    }
+    if (this.cp_remaining() > 0) {
+      return 'Select advantages and disadvantages';
     }
     var level = this.level();
     if ((level == 0 && this.levels.length > 1)

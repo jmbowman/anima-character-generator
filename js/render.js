@@ -46,10 +46,23 @@ update_text = function(name) {
 
 update_cp = function() {
   var total = $char.cp_total();
-  var used = $char.cp_used();
-  $('#cp_left').text(total - used);
+  var remaining = '';
+  $.each(['Common', 'Background', 'Magic', 'Psychic'], function(i, category) {
+    var subtotal = $char.cp_remaining(category);
+    if (subtotal == 0) {
+      return true;
+    }
+    if (i > 0) {
+      remaining += ', ';
+    }
+    remaining += subtotal + ' ' + category;
+  });
+  if (!remaining) {
+    remaining = '0';
+  }
+  $('#cp_remaining').text(remaining);
   $('#cp_total').text(total);
-  if (total - used > 0) {
+  if (remaining != '0') {
     $('#add_advantage').show();
   }
   else {
@@ -61,10 +74,27 @@ update_cp = function() {
     if (i > 0) {
       content += ', ';
     }
-    content += '<a href="#">' + name + '</a>';
+    content += '<a href="#" onclick="return delete_advantage(\'' + name + '\');">' + $char.advantage_summary(name) + '</a>';
     i++;
   }
   $('#Advantages').html(content);
+  if (Object.keys($char.Disadvantages).length < 3) {
+    $('#add_disadvantage').show();
+  }
+  else {
+    $('#add_disadvantage').hide();
+  }
+  content = '';
+  i = 0;
+  for (name in $char.Disadvantages) {
+    if (i > 0) {
+      content += ', ';
+    }
+    content += '<a href="#" onclick="return delete_disadvantage(\'' + name + '\');">' + $char.disadvantage_summary(name) + '</a>';
+    i++;
+  }
+  $('#Disadvantages').html(content);
+  render($char, $('.container'));
 };
 
 update_display = function() {

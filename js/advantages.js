@@ -2,7 +2,7 @@ $advantages = {
   'Access to Natural Psychic Powers': {Cost: [1,2,3], Options: [], Option_Title: 'Select a Power'},
   'Access to One Psychic Discipline': {Cost: 1, Options: Object.keys($psychic_disciplines), Option_Title: 'Select a discipline'},
   'Acute Senses': {Cost: 1},
-  'Add One Point to a Characteristic': {Cost: 1, Options: ['STR', 'DEX', 'AGI', 'CON', 'INT', 'POW', 'WP', 'PER'], Option_Title: 'Select the characteristic to increase'},
+  'Add One Point to a Characteristic': {Cost: 1, Options: ['STR', 'DEX', 'AGI', 'CON', 'INT', 'POW', 'WP', 'PER'], Option_Title: 'Select the characteristic to increase', Multiple: true},
   Ambidextrous: {Cost: 1},
   'Animal Affinity': {Cost: 1},
   'Aptitude in a Field': {Cost: 2, Options: ['Athletics', 'Social', 'Perception', 'Intellectual', 'Vigor', 'Subterfuge', 'Creative'], Option_Title: 'Select a field'},
@@ -16,14 +16,14 @@ $advantages = {
   'Danger Sense': {Cost: 2},
   Disquieting: {Cost: 1},
   'Good Luck': {Cost: 1},
-  'Increase One Characteristic to Nine': {Cost: 2, Options: ['STR', 'DEX', 'AGI', 'CON', 'INT', 'POW', 'WP', 'PER'], Option_Title: 'Select the characteristic to increase'},
+  'Increase One Characteristic to Nine': {Cost: 2, Options: ['STR', 'DEX', 'AGI', 'CON', 'INT', 'POW', 'WP', 'PER'], Option_Title: 'Select the characteristic to increase', Multiple: true},
   'Jack of All Trades': {Cost: 2},
   'Ki Recovery': {Cost: [1,2,3]},
   'Martial Mastery': {Cost: [1,2,3]},
   'Mystical Armor': {Cost: 1},
   'Natural Armor': {Cost: 1},
   'Passive Concentration': {Category: 'Psychic', Cost: 2},
-  'Repeat a Characteristics Roll': {Cost: 1, Options: ['STR', 'DEX', 'AGI', 'CON', 'INT', 'POW', 'WP', 'PER'], Option_Title: 'Select the characteristic to reroll'},
+  'Repeat a Characteristics Roll': {Cost: 1, Options: ['STR', 'DEX', 'AGI', 'CON', 'INT', 'POW', 'WP', 'PER'], Option_Title: 'Select the characteristic to reroll', Multiple: true},
   'Uncommon Size': {Cost: 1, Options: [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5], Option_Title: 'Select the size modifier to apply'},
   Untiring: {Cost: [1,2,3]},
   Versatile: {Cost: 1}
@@ -31,5 +31,6 @@ $advantages = {
 
 $disadvantages = {
   'Bad Luck': {Benefit: 1},
+  'Powerful Enemy': {Category: 'Background', Benefit: [1,2], Options: [], Option_Title: 'Enter the name of the enemy'},
   Sickly: {Benefit: 1}
 };

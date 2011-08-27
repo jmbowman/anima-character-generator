@@ -30,6 +30,7 @@
       $('label').parent().addClass('label-parent');
       $('form').validate();
       $('#advantages_tabs').tabs();
+      $('#disadvantages_tabs').tabs();
       create_dialogs();
       $char = new character();
       update_cp();
@@ -124,11 +125,11 @@
   </div>
   
   <div class="span-13 last levels">
-    <div class="span-13 last"><strong>Creation Points:</strong> <span id="cp_left"></span> remaining out of <span id="cp_total"></span></div>
+    <div class="span-13 last"><strong>Creation Points:</strong> <span id="cp_remaining"></span> remaining out of <span id="cp_total"></span></div>
     <div class="span-3"><strong>Advantages</strong></div>
     <div class="span-10 last"><span id="Advantages"></span> <a id="add_advantage" href="#" onclick="return add_advantage();">+</a></div>
-    <div class="span-3"><strong>Disadvantages<strong></div>
-    <div class="span-10 last"><span id="Disadvantages"></span> <a id="add_disadvantage" href="#" onclick="return false">+</a></div>
+    <div class="span-3"><strong>Disadvantages</strong></div>
+    <div class="span-10 last"><span id="Disadvantages"></span> <a id="add_disadvantage" href="#" onclick="return add_disadvantage();">+</a></div>
 
     <div class="span-13 last"><button id="update_level" type="button">Update Level</button>
       <input type="hidden" id="dialog_level" name="dialog_level" value="" />
@@ -160,15 +161,15 @@
 
 <div id="advantage_cost_dialog" style="display: none;" title="Spend how many creation points on it?">
   <input type="hidden" id="advantage_cost_name" name="advantage_cost_name" value="" />
-  <input type="radio" id="advantage_cost_1" name="advantage_cost" value="1" /> 1<br />
-  <input type="radio" id="advantage_cost_2" name="advantage_cost" value="2" /> 2<br />
-  <input type="radio" id="advantage_cost_3" name="advantage_cost" value="3" /> 3
+  <span class="advantage_cost_1"><input type="radio" id="advantage_cost_1" name="advantage_cost" value="1" /> 1</span><br class="advantage_cost_1" />
+  <span class="advantage_cost_2"><input type="radio" id="advantage_cost_2" name="advantage_cost" value="2" /> 2</span><br class="advantage_cost_2" />
+  <span class="advantage_cost_3"><input type="radio" id="advantage_cost_3" name="advantage_cost" value="3" /> 3</span>
 </div>
 
-<div id="advantage_option_dialog" style="display: none;">
-  <input type="text" id="advantage_option_text" name="advantage_option_text" value="" />
-  <select id="advantage_option_choice" name="advantage_option_choice">
-  </select>
+<div id="advantage_options_dialog" style="display: none;">
+  <input type="hidden" id="advantage_options_name" name="advantage_options_name" value="" />
+  <input type="hidden" id="advantage_options_cost" name="advantage_options_cost" value="" />
+  <div id="advantage_options"></div>
 </div>
 
 <div id="class_dialog" style="display: none;">
@@ -209,7 +210,44 @@
   </select>
 </div>
 
+<div id="delete_advantage_dialog" style="display: none;" title="Remove this advantage?">
+  <input type="hidden" id="delete_advantage_name" value="" />
+</div>
+
+<div id="delete_disadvantage_dialog" style="display: none;" title="Remove this disadvantage?">
+  <input type="hidden" id="delete_disadvantage_name" value="" />
+</div>
+
 <div id="disadvantages_dialog" style="display: none;">
+  <div id="disadvantages_tabs">
+    <ul>
+      <li><a href="#Common_Disadvantages">Common</a></li>
+      <li><a href="#Background_Disadvantages">Background</a></li>
+      <li><a href="#Magic_Disadvantages">Magic</a></li>
+      <li><a href="#Psychic_Disadvantages">Psychic</a></li>
+    </ul>
+    <div id="Common_Disadvantages">
+      <div class="container">
+        <div id="Common_Disadvantages_1" class="span-12"></div>
+        <div id="Common_Disadvantages_2" class="span-12"></div>
+      </div>
+    </div>
+    <div id="Background_Disadvantages"></div>
+    <div id="Magic_Disadvantages"></div>
+    <div id="Psychic_Disadvantages"></div>
+  </div>
+</div>
+
+<div id="disadvantage_benefit_dialog" style="display: none;" title="Gain how many creation points from it?">
+  <input type="hidden" id="disadvantage_benefit_name" name="disadvantage_benefit_name" value="" />
+  <span class="disadvantage_benefit_1"><input type="radio" id="disadvantage_benefit_1" name="disadvantage_benefit" value="1" /> 1</span><br class="disadvantage_benefit_1" />
+  <span class="disadvantage_benefit_2"><input type="radio" id="disadvantage_benefit_2" name="disadvantage_benefit" value="2" /> 2</span>
+</div>
+
+<div id="disadvantage_option_dialog" style="display: none;">
+  <input type="hidden" id="disadvantage_option_name" name="disadvantage_option_name" value="" />
+  <input type="hidden" id="disadvantage_option_benefit" name="disadvantage_option_benefit" value="" />
+  <div id="disadvantage_option"></div>
 </div>
 
 </body>
