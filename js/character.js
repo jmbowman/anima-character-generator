@@ -1,5 +1,6 @@
 var tables = {
   characteristics: ['STR', 'DEX', 'AGI', 'CON', 'INT', 'POW', 'WP', 'PER'],
+  primary_combat_abilities: ['Attack', 'Block', 'Dodge'],
   modifiers: [0, -30, -20, -10, -5, 0, 5, 5, 10, 10, 15, 20, 20, 25, 25, 30, 35, 35, 40, 40, 45],
   base_lp: [0, 5, 20, 40, 55, 70, 85, 95, 110, 120, 135, 150, 160, 175, 185, 200, 215, 225, 240, 250, 265],
   base_zeon: [0, 5, 20, 40, 55, 70, 85, 95, 110, 120, 135, 150, 160, 175, 185, 200, 215, 225, 240, 250, 265],
@@ -7,14 +8,61 @@ var tables = {
   regeneration: [0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 12],
   resistances: {DR: 'CON', MR: 'POW', PhR: 'CON', VR: 'CON', PsR: 'WP'},
   xp_chart: [0, 100, 225, 375, 550, 750, 975, 1225, 1500, 1800, 2125, 2475, 2850, 3250, 3675, 4125]
-}
+};
 
 var char_funcs = {
-  ability: function(name) {
+  ability: function(name, specialty) {
     var ability = $abilities[name];
     var total = 0;
     var bonuses = 0;
-    var level = this.level()
+    var level = this.level();
+    var nl = 0;
+    var nlf = 0;
+    var params;
+    if ('Natural Learner' in this.Advantages) {
+      params = this.Advantages['Natural Learner'];
+      if (params.Ability == name) {
+        nl = params.Points * 10;
+      }
+    }
+    if ('Field' in ability && 'Natural Learner, Field' in this.Advantages) {
+      params = this.Advantages['Natural Learner, Field'];
+      if (params.Field == ability.Field) {
+        nlf = (params.Points - 1) * 5;
+      }
+    }
+    if ('Cultural Roots' in this.Advantages) {
+      params = this.Advantages['Cultural Roots'];
+      var background = params;
+      var choices = [];
+      if ($.isPlainObject(params)) {
+        background = params.Background;
+        choices = params.Choices;
+      }
+      var cr = $cultural_roots[background];
+      var amount;
+      if (name in cr) {
+        amount = cr[name];
+      }
+      else if (choices.indexOf(name) != -1) {
+        $.each(cr.choices, function(i, choice) {
+          for (var option in choice) {
+            if (option == name) {
+              amount = choice[option];
+            }
+          }
+        });
+      }
+      if ($.isPlainObject(amount)) {
+        var spec = Object.keys(amount)[0];
+        if (spec == specialty) {
+          bonuses += amount[spec];
+        }
+      }
+      else {
+        bonuses += amount;
+      }
+    }
     for (i = 0; i < level; i++) {
       var info = this.levels[i];
       var cls = $classes[info.Class];
@@ -22,11 +70,33 @@ var char_funcs = {
         total += info.DP[name] / this.cost(name, cls);
       }
       if (name in cls.bonuses) {
-        bonuses += cls.bonuses[name];
+        if (level === 0) {
+          bonuses += Math.floor(cls.bonuses[name] / 2);
+        }
+        else {
+          bonuses += cls.bonuses[name];
+        }
+      }
+      if ('Combat Senses' in this.Advantages && this.Advantages['Combat Senses'] == name) {
+        bonuses += 5;
+      }
+      else if ('Imperceptible Ki' in this.Advantages && name == 'Ki Concealment') {
+        bonuses += 10;
+      }
+      else if ('Ki Perception' in this.Advantages && name == 'Ki Detection') {
+        bonuses += 10;
+      }
+      else if (name == 'Wear Armor' && 'Use of Armor' in this.Advantages) {
+        bonuses += this.Advantages['Use of Armor'] * 5;
       }
       if ('Natural Bonus' in info && info['Natural Bonus'] == name) {
-        bonuses += this.modifier(ability.Characteristic, i + 1)
+        var nb = this.modifier(ability.Characteristic, i + 1);
+        if ('Increased Natural Bonus' in this.Advantages) {
+          nb *= 2;
+        }
+        bonuses += nb;
       }
+      bonuses += nl + nlf;
     }
     if ('Field' in ability) {
       if ('Jack of All Trades' in this.Advantages) {
@@ -36,10 +106,22 @@ var char_funcs = {
         total -= 30;
       }
     }
-    if (bonuses > 50 && name in ['Attack', 'Block', 'Dodge']) {
+    if (bonuses > 50 && tables.primary_combat_abilities.indexOf(name) != -1) {
       bonuses = 50;
     }
     if ('Acute Senses' in this.Advantages && name in ['Notice', 'Search']) {
+      bonuses += 30;
+    }
+    if ('Klutzy' in this.Disadvantages && ['Attack', 'Block', 'Disguise', 'Forging', 'Lock Picking', 'Sleight of Hand', 'Theft', 'Trap Lore'].indexOf(name) != -1) {
+      total -= 30;
+    }
+    if ('Psychic Immunity' in this.Advantages && name == 'Composure') {
+      bonuses += 60;
+    }
+    if ('Seducer' in this.Advantages && name == 'Persuasion' && specialty == 'seduction') {
+      bonuses += 60;
+    }
+    if ('Talented' in this.Advantages && name == 'Sleight of Hand') {
       bonuses += 30;
     }
     total += bonuses + this.modifier(ability.Characteristic);
@@ -47,48 +129,61 @@ var char_funcs = {
   
   add_advantage: function(name, cost, params) {
     if (name == 'Access to Natural Psychic Powers') {
-      this.Advantages[name] = {Points: cost, Power: params}
-      return;
+      this.Advantages[name] = {Points: cost, Power: params};
     }
-    else if (name == 'Aptitude in a Subject') {
-      this.Advantages[name] = {Points: cost, Subject: params};
-      return;
+    else if (['Aptitude in a Subject', 'Natural Learner'].indexOf(name) != -1) {
+      this.Advantages[name] = {Points: cost, Ability: params};
+    }
+    else if (name == 'Cultural Roots') {
+      if (params.Choices.length === 0) {
+        this.Advantages[name] = params.Background;
+      }
+      else {
+        this.Advantages[name] = params;
+      }
+    }
+    else if (name == 'Natural Learner, Field') {
+      this.Advantages[name] = {Points: cost, Field: params};
     }
     else if (name == 'Repeat a Characteristics Roll') {
       if (!(name in this.Advantages)) {
         this.Advantages[name] = [];
       }
       this.Advantages[name].push(params);
-      return;
     }
-    else if (['Contacts', 'Powerful Ally'].indexOf(name) != -1) {
+    else if (['Artifact', 'Contacts', 'Elan', 'Powerful Ally'].indexOf(name) != -1) {
       this.Advantages[name] = {Points: cost, Name: params};
     }
-    var advantage = $advantages[name];
-    if ($.isArray(advantage.Cost)) {
-      this.Advantages[name] = cost;
-    }
-    else if ('Options' in advantage) {
-      if (advantage.Multiple) {
-        if (name in this.Advantages) {
-          this.Advantages[name].push(params);
+    else {
+      var advantage = $advantages[name];
+      if ($.isArray(advantage.Cost)) {
+        this.Advantages[name] = cost;
+      }
+      else if ('Options' in advantage) {
+        if (advantage.Multiple) {
+          if (name in this.Advantages) {
+            this.Advantages[name].push(params);
+          }
+          else {
+            this.Advantages[name] = [params];
+          }
         }
         else {
-          this.Advantages[name] = [params];
+          this.Advantages[name] = params;
         }
       }
       else {
-        this.Advantages[name] = params;
+        this.Advantages[name] = advantage.Cost;
       }
-    }
-    else {
-      this.Advantages[name] = advantage.Cost;
     }
   },
   
   add_disadvantage: function(name, benefit, param) {
     var disadvantage = $disadvantages[name];
-    if (name == 'Powerful Enemy') {
+    if (name == 'Damned') {
+      this.Disadvantages[name] = {Points: benefit, Effect: param};
+    }
+    else if (name == 'Powerful Enemy') {
       this.Disadvantages[name] = {Points: benefit, Name: param};
     }
     else if ($.isArray(disadvantage.Benefit)) {
@@ -99,6 +194,13 @@ var char_funcs = {
     }
     else {
       this.Disadvantages[name] = disadvantage.Benefit;
+    }
+    if (name == 'Without any Natural Bonus') {
+      $.each(this.levels, function(i, level) {
+        if ('Natural Bonus' in level) {
+          delete level['Natural Bonus'];
+        }
+      });
     }
   },
   
@@ -116,13 +218,38 @@ var char_funcs = {
     else if (advantage.Cost > cp_remaining) {
       return false;
     }
+    if (name == 'Psychic Immunity') {
+      if ('Addiction' in this.Disadvantages || 'Serious Vice' in this.Disadvantages ||
+          'Cowardice' in this.Disadvantages || 'Severe Phobia' in this.Disadvantages) {
+        return false;
+      }
+    }
+    if (name == 'Supernatural Immunity') {
+      if ('The Gift' in this.Advantages || 'See Supernatural' in this.Advantages) {
+        return false;
+      }
+      var allowed = true;
+      var character = this;
+      $.each(['Sylvain', "Duk'zarist", 'Daimah'], function(i, race) {
+        if (character.Race.indexOf(race) != -1) {
+          allowed = false;
+          return false;
+        }
+      });
+      if (!allowed) {
+        return false;
+      }
+    }
+    if (['The Gift', 'See Supernatural'].indexOf(name) != -1 && 'Supernatural Immunity' in this.Advantages) {
+      return false;
+    }
     if ('Category' in advantage) {
       if (advantage.Category == 'Magic' && !('The Gift' in this.Advantages)) {
         return false;
       }
-      if (advantage.Category == 'Psychic'
-          && !('Free Access to Any Psychic Discipline' in this.Advantages)
-          && !('Access to One Psychic Discipline' in this.Advantages)) {
+      if (advantage.Category == 'Psychic' &&
+          !('Free Access to Any Psychic Discipline' in this.Advantages) &&
+          !('Access to One Psychic Discipline' in this.Advantages)) {
         return false;   
       }
     }
@@ -156,8 +283,8 @@ var char_funcs = {
     else if ($.isArray(params)) {
       return $advantages[name].Cost * params.length;
     }
-    else if (!isNaN(parseInt(params))) {
-      return parseInt(params);
+    else if (!isNaN(parseInt(params, 10))) {
+      return parseInt(params, 10);
     }
     else {
       return $advantages[name].Cost;
@@ -187,10 +314,18 @@ var char_funcs = {
         result += params.Power;
       }
       else if (name == 'Aptitude in a Subject') {
-        result += params.Subject;
+        result += params.Ability;
       }
-      else if (['Contacts', 'Powerful Ally'].indexOf(name) != -1) {
+      else if (['Artifact', 'Contacts', 'Elan', 'Powerful Ally'].indexOf(name) != -1) {
         result += params.Name;
+      }
+      else if (name == 'Cultural Roots') {
+        if ($.isPlainObject(params)) {
+          result += params.Background;
+        }
+        else {
+          result += params;
+        }
       }
       else if ($.isArray(params)) {
         $.each(params, function(i, param) {
@@ -217,10 +352,13 @@ var char_funcs = {
         total = 7;
       }
     }
+    if ('Unattractive' in this.Disadvantages) {
+      total--;
+    }
     return total;
   },
   
-  at: function(type) {
+  armor_type: function(type) {
     var total = 0;
     if ('Natural Armor' in this.Advantages && type != 'Energy') {
       total += 2;
@@ -265,12 +403,17 @@ var char_funcs = {
         }
       });
     }
+    if ('Deduct Two Points from a Characteristic' in this.Disadvantages) {
+      if (this.Disadvantages['Deduct Two Points from a Characteristic'] == name) {
+        total -= 2;
+      }
+    }
     if (this.Race == 'Jayan Nephilim' && name =='STR') {
       total += 1;
     }
     for (i = 0; i < at_level; i++) {
       var level = this.levels[i];
-      if ('Characteristic' in level && level['Characteristic'] == name) {
+      if ('Characteristic' in level && level.Characteristic == name) {
         total += 1;
       }
     }
@@ -314,8 +457,8 @@ var char_funcs = {
     if (level == 2) {
       return false;
     }
-    var previous = this.levels[level - 2].Class
-    var before_that = this.levels[level - 3].Class
+    var previous = this.levels[level - 2].Class;
+    var before_that = this.levels[level - 3].Class;
     return previous == before_that;
   },
   
@@ -338,7 +481,7 @@ var char_funcs = {
     }
     if ('Aptitude in a Subject' in this.Advantages) {
       var info = this.Advantages['Aptitude in a Subject'];
-      if (info.Subject == name) {
+      if (info.Ability == name) {
         result -= info.Points;
       }
     }
@@ -350,35 +493,50 @@ var char_funcs = {
   
   cp_remaining: function(category) {
     var total = (!category || category == 'Common') ? 3 : 0;
+    var other_categories = {Background: 0, Magic: 0, Psychic: 0};
+    var name;
+    var amount;
     for (name in this.Disadvantages) {
+      amount = this.disadvantage_benefit(name);
       if (!category) {
-        total += this.disadvantage_benefit(name);
+        total += amount;
       }
       else {
         var disadvantage = $disadvantages[name];
         if (!('Category' in disadvantage)) {
           if (category == 'Common') {
-            total += this.disadvantage_benefit(name);
+            total += amount;
           }
         }
         else if (disadvantage.Category == category) {
-          total += this.disadvantage_benefit(name);
+          total += amount;
+        }
+        else if (category == 'Common') {
+          other_categories[disadvantage.Category] += amount;
         }
       }
     }
     for (name in this.Advantages) {
+      amount = this.advantage_cost(name);
       if (!category) {
-        total -= this.advantage_cost(name);
+        total -= amount;
       }
       else {
         var advantage = $advantages[name];
         if (!('Category' in advantage)) {
           if (category == 'Common') {
-            total -= this.advantage_cost(name);
+            total -= amount;
           }
         }
         else if (advantage.Category == category) {
-          total -= this.advantage_cost(name);
+          total -= amount;
+        }
+        else if (category == 'Common') {
+          while (amount > 0 && other_categories[advantage.Category] > 0) {
+            amount--;
+            other_categories[advantage.Category]--;
+          }
+          total -= amount;
         }
       }
     }
@@ -390,18 +548,10 @@ var char_funcs = {
   
   cp_total: function() {
     var total = 3;
-    for (name in this.Disadvantages) {
+    for (var name in this.Disadvantages) {
       total += this.disadvantage_benefit(name);
     }
     return total;
-  },
-  
-  cp_used: function() {
-    var used = 0;
-    for (name in this.Advantages) {
-      used += this.advantage_cost(name);
-    }
-    return used;
   },
   
   disadvantage_allowed: function(name, parameter) {
@@ -411,14 +561,47 @@ var char_funcs = {
     if (Object.keys(this.Disadvantages).length > 2) {
       return false;
     }
+    if (name == 'Deduct Two Points from a Characteristic') {
+      if (!parameter) {
+        var allowed = false;
+        var character = this;
+        $.each(tables.characteristics, function(i, characteristic) {
+          if (character.characteristic(characteristic) > 4) {
+            allowed = true;
+            return false;
+          }
+        });
+        return allowed;
+      }
+      else if (this.characteristic(parameter) < 5) {
+        return false;
+      }
+    }
+    else if (name == 'Exclusive Weapon') {
+      var types = ['Domine', 'Fighter', 'Novel', 'Prowler'];
+      if (intersection(types, $classes[this.levels[0].Class].Archetypes) < 1) {
+        return false;
+      }
+    }
+    else if (name == 'Slow Recovery of Magic' && 'Magic Blockage' in this.Disadvantages) {
+      return false;
+    }
+    else if (name == 'Magic Blockage' && 'Slow Recovery of Magic' in this.Disadvantages) {
+      return false;
+    }
+    else if (['Addiction', 'Serious Vice', 'Cowardice', 'Severe Phobia'].indexOf(name) != -1) {
+      if ('Psychic Immunity' in this.Advantages) {
+        return false;
+      }
+    }
     var disadvantage = $disadvantages[name];
     if ('Category' in disadvantage) {
       if (disadvantage.Category == 'Magic' && !('The Gift' in this.Advantages)) {
         return false;
       }
-      if (disadvantage.Category == 'Psychic'
-          && !('Free Access to Any Psychic Discipline' in this.Advantages)
-          && !('Access to One Psychic Discipline' in this.Advantages)) {
+      if (disadvantage.Category == 'Psychic' &&
+          !('Free Access to Any Psychic Discipline' in this.Advantages) &&
+          !('Access to One Psychic Discipline' in this.Advantages)) {
         return false;   
       }
     }
@@ -440,8 +623,8 @@ var char_funcs = {
     if ($.isPlainObject(params) && 'Points' in params) {
       return params.Points;
     }
-    else if (!isNaN(parseInt(params))) {
-      return parseInt(params);
+    else if (!isNaN(parseInt(params, 10))) {
+      return parseInt(params, 10);
     }
     else {
       return $disadvantages[name].Benefit;
@@ -457,7 +640,10 @@ var char_funcs = {
     }
     if ('Options' in disadvantage) {
       result += ': ';
-      if (name == 'Powerful Enemy') {
+      if (name == 'Damned') {
+        result += params.Effect;
+      }
+      else if (name == 'Powerful Enemy') {
         result += params.Name;
       }
       else {
@@ -485,6 +671,9 @@ var char_funcs = {
     if ('Untiring' in this.Advantages) {
       total += this.Advantages.Untiring * 3;
     }
+    if ('Exhausted' in this.Disadvantages) {
+      total--;
+    }
     return total;
   },
   
@@ -498,6 +687,21 @@ var char_funcs = {
   
   initiative: function() {
     var total = 20 + this.modifier('AGI') + this.modifier('DEX');
+    if ('Quick Reflexes' in this.Advantages) {
+      var points = this.Advantages['Quick Reflexes'];
+      if (points === 1) {
+        total += 25;
+      }
+      else if (points === 2) {
+        total += 45;
+      }
+      else {
+        total += 60;
+      }
+    }
+    if ('Slow Reactions' in this.Disadvantages) {
+      total -= this.Disadvantages['Slow Reactions'] * 30;
+    }
     $.each(this.levels, function(i, level) {
       total += $classes[level.Class].Initiative;
     });
@@ -527,6 +731,7 @@ var char_funcs = {
     var result = tables.base_lp[this.characteristic('CON')];
     var level = this.level();
     var con_mod = this.modifier('CON');
+    var character = this;
     if ('levels' in this) {
       $.each(this.levels, function(i, info) {
         var cls = $classes[info.Class];
@@ -535,6 +740,9 @@ var char_funcs = {
         }
         if ('LP Multiples' in info.DP) {
           result += info.DP['LP Multiples'] * con_mod / cls.lp_multiple;
+        }
+        if ('Hard to Kill' in character.Advantages) {
+          result += character.Advantages['Hard to Kill'] * 10;
         }
       });
     }
@@ -577,12 +785,12 @@ var char_funcs = {
       return 'Select advantages and disadvantages';
     }
     var level = this.level();
-    if ((level == 0 && this.levels.length > 1)
-        || (level > 0 && level != this.levels.length)) {
+    if ((level === 0 && this.levels.length > 1) ||
+        (level > 0 && level != this.levels.length)) {
       return 'Update levels list';
     }
     $.each(this.levels, function(i, level) {
-      if ((i + 1) % 2 == 0 && !('Characteristic' in level)) {
+      if ((i + 1) % 2 === 0 && !('Characteristic' in level)) {
         result = 'Select characteristic for level ' + (i + 1) + ' bonus';
       }
     });
@@ -639,6 +847,9 @@ var char_funcs = {
     if (this.Race in ["Duk'zarist Nephilim", 'Sylvain Nephilim']) {
       total += 1;
     }
+    if ('Regeneration' in this.Advantages) {
+      total += this.Advantages.Regeneration * 2;
+    }
     if (total > 18 && this.gnosis() < 40) {
       total = 18;
     }
@@ -682,6 +893,27 @@ var char_funcs = {
       else {
         total += 5;
       }
+    }
+    if (name == 'MR') {
+      if ('Exceptional Magic Resistance' in this.Advantages) {
+        total += this.Advantages['Exceptional Magic Resistance'] * 25;
+      }
+      if ('The Gift' in this.Advantages) {
+        total += 10;
+      }
+    }
+    else if (name == 'PsR' && 'Exceptional Psychic Resistance' in this.Advantages) {
+      total += this.Advantages['Exceptional Psychic Resistance'] * 25;
+    }
+    else if (['DR', 'PhR', 'VR'].indexOf(name) != -1 &&
+        'Exceptional Physical Resistance' in this.Advantages) {
+      total += this.Advantages['Exceptional Physical Resistance'] * 25;
+    }
+    if ((name == 'DR' && 'Sickly' in this.Disadvantages) ||
+        (name == 'MR' && 'Susceptible to Magic' in this.Disadvantages) ||
+        (name == 'PhR' && 'Physical Weakness' in this.Disadvantages) ||
+        (name == 'VR' && 'Susceptible to Poisons' in this.Disadvantages)) {
+      total = Math.floor(total / 2);
     }
     return total;
   },
@@ -741,7 +973,7 @@ var char_funcs = {
 
   total_dp: function() {
     var level = this.level();
-    if (level == 0) {
+    if (level === 0) {
       return 400;
     }
     return 500 + (level * 100);
@@ -761,7 +993,7 @@ var char_funcs = {
   used_dp: function(level, primary) {
     var used = 0;
     var dp = this.levels[level - 1].DP;
-    for (item in dp) {
+    for (var item in dp) {
       if (item in $primaries[primary]) {
         used += dp[item];
       }
@@ -773,7 +1005,7 @@ var char_funcs = {
     var used = 0;
     $.each(this.levels, function(i, level) {
       if ('MK' in level) {
-        for (item in level.MK) {
+        for (var item in level.MK) {
           used += level.MK[item];
         }
       }
@@ -785,16 +1017,20 @@ var char_funcs = {
     var total = tables.base_zeon[this.characteristic('POW')];
     var data = this;
     $.each(this.levels, function(i, level) {
-      var cls = $classes[level['Class']];
+      var cls = $classes[level.Class];
       if ('Zeon' in level.DP) {
         total += level.DP.Zeon * 5 / data.cost('Zeon', cls);
       }
       if ('Zeon' in cls.bonuses) {
         total += cls.bonuses.Zeon;
       }
+      if ('Magic Nature' in this.Advantages) {
+        total += this.Advantages['Magic Nature'] * 50;
+      }
     });
+    return total;
   }
-}
+};
 
 character = function() {
   this.Advantages = {};
@@ -802,6 +1038,7 @@ character = function() {
   this.Race = 'Human';
   this.XP = 0;
   this.levels = [{Class: 'Freelancer', DP: {}}];
+  var func;
   for (func in char_funcs) {
     this[func] = char_funcs[func];
   }

@@ -59,7 +59,7 @@ $classes = {
 
 // Acrobatic Warrior
 (function() {
-  this.Archetypes = ['Fighter'],
+  this.Archetypes = ['Fighter'];
   this.LP = 10;
   this.MK = 25;
   this.Combat = 60;
@@ -96,6 +96,7 @@ $classes = {
 
 // Freelancer
 (function() {
+  this.Archetypes = ['Novel'];
   this['Innate Psychic Points'] = 2;
   this.Combat = 60;
   this.Supernatural = 60;
@@ -107,12 +108,12 @@ $classes = {
   this.Banish = 2;
   this.Psychic = 60;
   this['Psychic Projection'] = 2;
-  this.bonuses['Zeon'] = 10;
+  this.bonuses.Zeon = 10;
 }).call($classes.Freelancer);
 
 // Illusionist
 (function() {
-  this.Archetypes = ['Mystic', 'Prowler'],
+  this.Archetypes = ['Mystic', 'Prowler'];
   this.Attack = 3;
   this.Block = 3;
   this['Wear Armor'] = 3;
@@ -124,13 +125,13 @@ $classes = {
   this['Magic Projection'] = 2;
   this.Vigor = 3;
   this.reduced['Sleight of Hand'] = 1;
-  this.reduced['Persuasion'] = 1;
+  this.reduced.Persuasion = 1;
   this.bonuses = {Zeon: 75,  'Magic Appraisal': 5, Stealth: 10, Hide: 10, 'Sleight of Hand': 10, Disguise: 5, Theft: 5, Persuasion: 5};
 }).call($classes.Illusionist);
 
 // Mentalist
 (function() {
-  this.Archetypes = ['Psychic'],
+  this.Archetypes = ['Psychic'];
   this.MK = 10;
   this['Innate Psychic Points'] = 1;
   this.Attack = 3;
@@ -146,7 +147,7 @@ $classes = {
 
 //Paladin
 (function() {
-  this.Archetypes = ['Fighter'],
+  this.Archetypes = ['Fighter'];
   this.LP = 15;
   this.lp_multiple = 15;
   this.Combat = 60;
@@ -173,7 +174,7 @@ $classes = {
 
 // Ranger
 (function() {
-  this.Archetypes = ['Fighter', 'Prowler'],
+  this.Archetypes = ['Fighter', 'Prowler'];
   this.LP = 10;
   this.Combat = 60;
   this['Accumulation Multiple'] = 25;
@@ -182,8 +183,8 @@ $classes = {
   this.Vigor = 3;
   this.reduced['Trap Lore'] = 1;
   this.reduced['Herbal Lore'] = 2;
-  this.reduced['Animals'] = 1;
-  this.reduced['Medicine'] = 2;
+  this.reduced.Animals = 1;
+  this.reduced.Medicine = 2;
   this.bonuses = {Attack: 5, Notice: 10, Search: 10, Track: 10, 'Trap Lore': 5, Animals: 5, 'Herbal Lore': 5};
   this.detect_ki = function(y) {
     if (y) {
@@ -194,7 +195,7 @@ $classes = {
 
 // Shadow
 (function() {
-  this.Archetypes = ['Fighter', 'Prowler'],
+  this.Archetypes = ['Fighter', 'Prowler'];
   this.Initiative = 10;
   this.MK = 25;
   this.Combat = 60;
@@ -210,7 +211,7 @@ $classes = {
 
 // Summoner
 (function() {
-  this.Archetypes = ['Mystic'],
+  this.Archetypes = ['Mystic'];
   this.MK = 10;
   this.Attack = 3;
   this.Block = 3;
@@ -225,37 +226,37 @@ $classes = {
   this.Bind = 2;
   this.Banish = 2;
   this.Vigor = 3;
-  this.reduced['Occult'] = 1;
+  this.reduced.Occult = 1;
   this.bonuses = {Zeon: 50,  Summon: 10, Control: 10, Bind: 10, Banish: 10, 'Magic Appraisal': 5, Occult: 5};
 }).call($classes.Summoner);
 
 // Tao
 // TODO: need to capture martial art cost of only 20dp, 10dp for first one learned but not here.
 (function() {
-  this.Archetypes = ['Domine', 'Fighter'],
+  this.Archetypes = ['Domine', 'Fighter'];
   this.lp_multiple = 20;
   this.LP = 10;
   this.MK = 30;
   this.Combat = 60;
   this['Accumulation Multiple'] = 15;
   this.Intellectual = 3;
-  this.bonuses['Style'] = 5;
+  this.bonuses.Style = 5;
 }).call($classes.Tao);
 
 // Technician
 (function() {
-  this.Archetypes = ['Domine'],
+  this.Archetypes = ['Domine'];
   this.MK = 50;
   this.Combat = 60;
   this.Ki = 1;
   this['Accumulation Multiple'] = 10;
   this.Intellectual = 3;
-  this.bonuses['Attack'] = 5;
+  this.bonuses.Attack = 5;
 }).call($classes.Technician);
 
 // Thief
 (function() {
-  this.Archetypes = ['Prowler'],
+  this.Archetypes = ['Prowler'];
   this.Initiative = 10;
   this.Block = 3;
   this['Wear Armor'] = 3;
@@ -264,7 +265,7 @@ $classes = {
   this.Intellectual = 3;
   this.Vigor = 3;
   this.Subterfuge = 1;
-  this.reduced['Appraisal'] = 1;
+  this.reduced.Appraisal = 1;
   this.bonuses = {Dodge: 5, Notice: 5, Search: 5, Hide: 5, Stealth: 5, 'Trap Lore': 5, 'Sleight of Hand': 5, Theft: 10};
   this.ki_concealment = function(y) {
     if (y) {
@@ -275,7 +276,7 @@ $classes = {
 
 // Warlock
 (function() {
-  this.Archetypes = ['Fighter', 'Mystic'],
+  this.Archetypes = ['Fighter', 'Mystic'];
   this.LP = 10;
   this['Accumulation Multiple'] = 25;
   this.Zeon = 1;
@@ -290,7 +291,7 @@ $classes = {
 
 // Warrior
 (function() {
-  this.Archetypes = ['Fighter'],
+  this.Archetypes = ['Fighter'];
   this.lp_multiple = 15;
   this.LP = 15;
   this.MK = 25;
@@ -302,7 +303,7 @@ $classes = {
 
 // Warrior Summoner
 (function() {
-  this.Archetypes = ['Fighter', 'Mystic'],
+  this.Archetypes = ['Fighter', 'Mystic'];
   this.LP = 10;
   this.Zeon = 1;
   this['MA Multiple'] = 60;
@@ -316,7 +317,7 @@ $classes = {
 
 // Wizard
 (function() {
-  this.Archetypes = ['Mystic'],
+  this.Archetypes = ['Mystic'];
   this.MK = 10;
   this.Attack = 3;
   this.Block = 3;
@@ -338,7 +339,7 @@ $classes = {
 
 // Wizard Mentalist
 (function() {
-  this.Archetypes = ['Mystic' , 'Psychic'],
+  this.Archetypes = ['Mystic' , 'Psychic'];
   this.MK = 10;
   this['Innate Psychic Points'] = 1;
   this.Attack = 3;

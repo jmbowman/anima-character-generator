@@ -33,7 +33,7 @@ render = function(data, root) {
 update_int = function(name) {
   var input = $('#' + name);
   if (input.valid()) {
-    $char[name] = parseInt(input.val());
+    $char[name] = parseInt(input.val(), 10);
   }
 };
 
@@ -49,7 +49,7 @@ update_cp = function() {
   var remaining = '';
   $.each(['Common', 'Background', 'Magic', 'Psychic'], function(i, category) {
     var subtotal = $char.cp_remaining(category);
-    if (subtotal == 0) {
+    if (subtotal === 0) {
       return true;
     }
     if (i > 0) {
@@ -70,6 +70,7 @@ update_cp = function() {
   }
   var content = '';
   var i = 0;
+  var name;
   for (name in $char.Advantages) {
     if (i > 0) {
       content += ', ';
@@ -95,6 +96,61 @@ update_cp = function() {
   }
   $('#Disadvantages').html(content);
   render($char, $('.container'));
+};
+
+add_cultural_roots_choice = function(i, choice) {
+  parts = ['<select>'];
+  for (var option in choice) {
+    parts.push('<option value="');
+    parts.push(option);
+    parts.push('">');
+    ability = option;
+    parts.push(ability);
+    amount = choice[option];
+    if ($.isPlainObject(amount)) {
+	  specialty = Object.keys(amount)[0];
+	  parts.push(' (');
+	  parts.push(specialty);
+	  parts.push(')');
+	  amount = amount[specialty];
+    }
+    parts.push(' +');
+    parts.push(amount);
+    parts.push('</option>');
+  }
+  parts.push('</select><br />');
+  $('#cultural_roots').append(parts.join(''));
+};
+
+update_cultural_roots = function() {
+  $('#cultural_roots').html('');
+  var parts;
+  var background = $('#cultural_roots_background').val();
+  var bonuses = $cultural_roots[background];
+  var ability;
+  var amount;
+  var specialty;
+  for (var bonus in bonuses) {
+    if (bonus == 'choices') {
+      $.each(bonuses[bonus], add_cultural_roots_choice);
+    }
+    else {
+      ability = bonus;
+      parts = [ability];
+      amount = bonuses[bonus];
+      if ($.isPlainObject(amount)) {
+        specialty = Object.keys(amount)[0];
+        parts.push(' (');
+        parts.push(specialty);
+        parts.push(')');
+        amount = amount[specialty];
+      }
+      parts.push(' +');
+      parts.push(amount);
+      parts.push('<br />');
+      $('#cultural_roots').append(parts.join(''));
+    }
+  }
 };
 
 update_display = function() {
@@ -134,7 +190,7 @@ update_level = function() {
       var hr = $('<hr />').addClass('span-13 last level');
       $('.levels').append(hr);
     }
-    var level_number = current_level == 0 ? 0 : i + 1;
+    var level_number = current_level === 0 ? 0 : i + 1;
     var content = 'Level ' + level_number + ' (';
     if ($char.class_change_possible(level_number)) {
       content += '<a href="#" onclick="return edit_class(' + i + ');">' + level.Class + '</a>):';
@@ -142,7 +198,7 @@ update_level = function() {
     else {
       content += level.Class + '):';
     }
-    if ((i + 1) % 2 == 0) {
+    if ((i + 1) % 2 === 0) {
       content += ' <a href="#" onclick="return edit_characteristic_bonus(' + i + ');">' + (('Characteristic' in level) ? '+1 ' + level.Characteristic : 'Select characteristic bonus') + '</a>';
     }
     else if ('Characteristic' in level) {

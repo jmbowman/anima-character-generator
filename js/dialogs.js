@@ -3,9 +3,12 @@ $dialogs = {};
 create_dialogs = function() {
   var column = 1;
   var count = 1;
+  var name;
+  var link;
+  var advantage;
   for (name in $advantages) {
-    var advantage = $advantages[name];
-    var link = $('<a>', {href: '#', onclick: "return configure_advantage('" + name + "');"});
+    advantage = $advantages[name];
+    link = $('<a>', {href: '#', onclick: "return configure_advantage('" + name + "');"});
     link.text(name);
     link.append('<br />');
     if (!('Category' in advantage)) {
@@ -20,11 +23,23 @@ create_dialogs = function() {
       $('#' + advantage.Category + '_Advantages').append(link);
     }
   }
+  var parts = [];
+  for (name in $cultural_roots) {
+    parts.push('<option value="');
+    parts.push(name);
+    parts.push('">');
+    parts.push(name);
+    parts.push('</option>\n');
+  }
+  $('#cultural_roots_background').html(parts.join(''));
+  $('#cultural_roots_background').change(update_cultural_roots);
+  update_cultural_roots();
   column = 1;
   count = 1;
+  var disadvantage;
   for (name in $disadvantages) {
-    var disadvantage = $disadvantages[name];
-    var link = $('<a>', {href: '#', onclick: "return configure_disadvantage('" + name + "');"});
+    disadvantage = $disadvantages[name];
+    link = $('<a>', {href: '#', onclick: "return configure_disadvantage('" + name + "');"});
     link.text(name);
     link.append('<br />');
     if (!('Category' in disadvantage)) {
@@ -80,14 +95,14 @@ create_dialogs = function() {
     modal: true,
     width: '400px',
     buttons: {
-      'OK': function() {
+      OK: function() {
         var name = $('#advantage_options_name').val();
         var cost = $('#advantage_options_cost').val();
-        cost = cost ? parseInt(cost) : null;
+        cost = cost ? parseInt(cost, 10) : null;
         var params;
         if (name == 'Repeat a Characteristics Roll') {
           var characteristic = $('#advantage_options select').val();
-          var roll = parseInt($('#repeat_roll').val());
+          var roll = parseInt($('#repeat_roll').val(), 10);
           if (isNaN(roll)) {
             roll = 5;
           }
@@ -106,7 +121,7 @@ create_dialogs = function() {
         update_cp();
         $dialogs.Advantage_Options.dialog('close');      
       },
-      'Cancel': function() {
+      Cancel: function() {
         $dialogs.Advantage_Options.dialog('close');
       }
     }
@@ -116,13 +131,13 @@ create_dialogs = function() {
     modal: true,
     title: 'Select class for level <span id="class_dialog_level"></span>',
     buttons: {
-      'OK': function() {
-        var level = parseInt($('#class_dialog_level').text());
+      OK: function() {
+        var level = parseInt($('#class_dialog_level').text(), 10);
         $char.change_class(level, $('#Class').val());
         $dialogs.Class.dialog('close');
         update_level();
       },
-      'Cancel': function() {
+      Cancel: function() {
         $dialogs.Class.dialog('close');
       }
     }
@@ -133,14 +148,34 @@ create_dialogs = function() {
     title: 'Select the characteristic to increase',
     width: '350px',
     buttons: {
-      'OK': function() {
-        var level = parseInt($('#dialog_level').val());
+      OK: function() {
+        var level = parseInt($('#dialog_level').val(), 10);
         $char.levels[level - 1].Characteristic = $('#Characteristic').val();
         $dialogs.Characteristic_Bonus.dialog('close');
         update_level();
       },
-      'Cancel': function() {
+      Cancel: function() {
         $dialogs.Characteristic_Bonus.dialog('close');
+      }
+    }
+  });
+  $dialogs.Cultural_Roots = $('#cultural_roots_dialog').dialog({
+    autoOpen: false,
+    modal: true,
+    width: '450px',
+    buttons: {
+      OK: function() {
+        var background = $('#cultural_roots_background').val();
+        var params = {Background: background, Choices: []};
+        $('#cultural_roots select').each(function(i, select) {
+          params.Choices.push($(select).val());
+        });
+        $char.add_advantage('Cultural Roots', 1, params);
+        update_cp();
+        $dialogs.Cultural_Roots.dialog('close');
+      },
+      Cancel: function() {
+        $dialogs.Cultural_Roots.dialog('close');
       }
     }
   });
@@ -148,13 +183,13 @@ create_dialogs = function() {
     autoOpen: false,
     modal: true,
     buttons: {
-      'Yes': function() {
+      Yes: function() {
         var name = $('#delete_advantage_name').val();
         delete $char.Advantages[name];
         update_cp();
         $dialogs.Delete_Advantage.dialog('close');
       },
-      'No': function() {
+      No: function() {
         $dialogs.Delete_Advantage.dialog('close');
       }
     }
@@ -163,13 +198,13 @@ create_dialogs = function() {
     autoOpen: false,
     modal: true,
     buttons: {
-      'Yes': function() {
+      Yes: function() {
         var name = $('#delete_disadvantage_name').val();
         delete $char.Disadvantages[name];
         update_cp();
         $dialogs.Delete_Disadvantage.dialog('close');
       },
-      'No': function() {
+      No: function() {
         $dialogs.Delete_Disadvantage.dialog('close');
       }
     }
@@ -191,7 +226,7 @@ create_dialogs = function() {
     modal: true,
     width: '400px',
     buttons: {
-      'OK': function() {
+      OK: function() {
         var name = $('#disadvantage_benefit_name').val();
         var disadvantage = $disadvantages[name];
         var benefit = $('input:radio[name=disadvantage_benefit]:checked').val();
@@ -205,7 +240,7 @@ create_dialogs = function() {
           $dialogs.Disadvantage_Benefit.dialog('close');
         }
       },
-      'Cancel': function() {
+      Cancel: function() {
         $dialogs.Disadvantage_Benefit.dialog('close');
       }
     }
@@ -215,10 +250,10 @@ create_dialogs = function() {
     modal: true,
     width: '400px',
     buttons: {
-      'OK': function() {
+      OK: function() {
         var name = $('#disadvantage_option_name').val();
         var benefit = $('#disadvantage_option_benefit').val();
-        benefit = benefit ? parseInt(benefit) : null;
+        benefit = benefit ? parseInt(benefit, 10) : null;
         var param;
         var select = $('#disadvantage_option select');
         if (select.length > 0) {
@@ -231,7 +266,7 @@ create_dialogs = function() {
         update_cp();
         $dialogs.Disadvantage_Option.dialog('close');      
       },
-      'Cancel': function() {
+      Cancel: function() {
         $dialogs.Disadvantage_Option.dialog('close');
       }
     }
@@ -239,7 +274,7 @@ create_dialogs = function() {
 };
 
 add_advantage = function() {
-  for (name in $advantages) {
+  for (var name in $advantages) {
     var link = $('#advantages_tabs a:contains("' + name + '")');
     if ($char.advantage_allowed(name, null)) {
       link.removeClass('disabled');
@@ -253,7 +288,7 @@ add_advantage = function() {
 };
 
 add_disadvantage = function() {
-  for (name in $disadvantages) {
+  for (var name in $disadvantages) {
     var link = $('#disadvantages_tabs a:contains("' + name + '")');
     if ($char.disadvantage_allowed(name, null)) {
       link.removeClass('disabled');
@@ -272,6 +307,10 @@ configure_advantage = function(name) {
   }
   $dialogs.Advantages.dialog('close');
   var advantage = $advantages[name];
+  if (name == 'Cultural Roots') {
+    $dialogs.Cultural_Roots.dialog('open');
+    return false;
+  }
   if ($.isArray(advantage.Cost)) {
     return edit_advantage_cost(name);
   }
@@ -317,6 +356,9 @@ edit_advantage_cost = function(name) {
   var advantage = $advantages[name];
   var category = ('Category' in advantage) ? advantage.Category : 'Common';
   var remaining = $char.cp_remaining(category);
+  if (category != 'Common') {
+    remaining += $char.cp_remaining('Common');
+  }
   var options = $advantages[name].Cost;
   $.each([1, 2, 3], function(i, cost) {
     if (cost > remaining || options.indexOf(cost) == -1) {
@@ -337,7 +379,7 @@ edit_advantage_options = function(name, cost) {
   var panel = $('#advantage_options');
   panel.html('');
   options = advantage.Options;
-  if (options.length == 0) {
+  if (options.length === 0) {
     var input = $('<input>', {type: 'text', value: ''}).addClass('required');
     panel.append(input);
   }
@@ -349,7 +391,7 @@ edit_advantage_options = function(name, cost) {
     panel.append(select);
     if (name == 'Repeat a Characteristics Roll') {
       panel.append($('<br />'));
-      panel.append($('<label>', {for: 'repeat_roll'}).text('New Roll '));
+      panel.append($('<label>', {'for': 'repeat_roll'}).text('New Roll '));
       panel.append($('<input>', {id: 'repeat_roll', type: 'text', value: ''}).addClass('required digits two-digit'));
     }
   }
@@ -359,7 +401,7 @@ edit_advantage_options = function(name, cost) {
 };
 
 edit_class = function(index) {
-  var level = ($char.level() == 0) ? 0 : index + 1;
+  var level = ($char.level() === 0) ? 0 : index + 1;
   $('#class_dialog_level').text(level);
   $('#Class').val($char.levels[index].Class);
   $dialogs.Class.dialog('open');
@@ -391,7 +433,7 @@ edit_disadvantage_option = function(name, benefit) {
   var panel = $('#disadvantage_option');
   panel.html('');
   options = disadvantage.Options;
-  if (options.length == 0) {
+  if (options.length === 0) {
     var input = $('<input>', {type: 'text', value: ''}).addClass('required');
     panel.append(input);
   }

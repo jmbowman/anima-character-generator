@@ -1,3 +1,5 @@
+$ability_fields = ['Athletics', 'Creative', 'Intelluctual', 'Perceptive', 'Social', 'Subterfuge', 'Vigor' ];
+
 $abilities = {
   Attack: {Characteristic: 'DEX'},
   Block: {Characteristic: 'DEX'},
@@ -46,5 +48,10 @@ $abilities = {
   Science: {Field: 'Intellectual', Characteristic: 'INT', knowledge: true},
   Composure: {Field: 'Vigor', Characteristic: 'WP', passive: true},
   'Feats of Strength': {Field: 'Vigor', Characteristic: 'STR'},
-  'Withstand Pain': {Field: 'Vigor', Characteristic: 'WP'},
+  'Withstand Pain': {Field: 'Vigor', Characteristic: 'WP'}
+};
+
+$specializations = {
+  History: ['Christian', 'local'],
+  Occult: ['local myths', 'religion']
 };

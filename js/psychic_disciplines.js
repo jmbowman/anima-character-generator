@@ -9,4 +9,4 @@ $psychic_disciplines = {
   Telepathy: {}
 };
 
-$matrix_powers = {}
+$matrix_powers = {};
