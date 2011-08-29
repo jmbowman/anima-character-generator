@@ -154,6 +154,9 @@ var char_funcs = {
     else if (['Artifact', 'Contacts', 'Elan', 'Powerful Ally'].indexOf(name) != -1) {
       this.Advantages[name] = {Points: cost, Name: params};
     }
+    else if (name == 'Uncommon Size') {
+      this.Advantages[name] = parseInt(params, 10);
+    }
     else {
       var advantage = $advantages[name];
       if ($.isArray(advantage.Cost)) {
@@ -218,13 +221,31 @@ var char_funcs = {
     else if (advantage.Cost > cp_remaining) {
       return false;
     }
-    if (name == 'Psychic Immunity') {
+    if (name == 'Access to One Psychic Discipline' && parameter) {
+      if (this.Race == "Duk'zarist Nephilim" && parameter != 'Pyrokinesis') {
+        return false;
+      }
+    }
+    else if (name == 'Elemental Compatibility' && parameter) {
+      if (this.Race == "Duk'zarist Nephilim" && parameter == 'Light') {
+        return false;
+      }
+      else if (this.Race == 'Sylvain Nephilim' && parameter == 'Darkness') {
+        return false;
+      }
+    }
+    else if (name == 'Psychic Immunity') {
       if ('Addiction' in this.Disadvantages || 'Serious Vice' in this.Disadvantages ||
           'Cowardice' in this.Disadvantages || 'Severe Phobia' in this.Disadvantages) {
         return false;
       }
     }
-    if (name == 'Supernatural Immunity') {
+    else if (name == 'Psychic Inclination' && parameter) {
+      if (this.discipline_access().indexOf(parameter) == -1) {
+        return false;
+      }
+    }
+    else if (name == 'Supernatural Immunity') {
       if ('The Gift' in this.Advantages || 'See Supernatural' in this.Advantages) {
         return false;
       }
@@ -240,8 +261,13 @@ var char_funcs = {
         return false;
       }
     }
-    if (['The Gift', 'See Supernatural'].indexOf(name) != -1 && 'Supernatural Immunity' in this.Advantages) {
+    else if (['The Gift', 'See Supernatural'].indexOf(name) != -1 && 'Supernatural Immunity' in this.Advantages) {
       return false;
+    }
+    else if (name == 'Uncommon Size' && this.Race == 'Jayan Nephilim') {
+      if (parameter && parameter < 1) {
+        return false;
+      }
     }
     if ('Category' in advantage) {
       if (advantage.Category == 'Magic' && !('The Gift' in this.Advantages)) {
@@ -576,6 +602,9 @@ var char_funcs = {
       else if (this.characteristic(parameter) < 5) {
         return false;
       }
+      else if (this.Race == 'Jayan Nephilim' && parameter == 'STR') {
+        return false;
+      }
     }
     else if (name == 'Exclusive Weapon') {
       var types = ['Domine', 'Fighter', 'Novel', 'Prowler'];
@@ -754,7 +783,11 @@ var char_funcs = {
   },
   
   movement_value: function() {
-    return this.characteristic('AGI');
+    var result = this.characteristic('AGI');
+    if (result > 10) {
+      result = 10;
+    }
+    return result;
   },
   
   next_step: function() {
@@ -1057,10 +1090,6 @@ character = function() {
 };
 
 // Level object: Class, DP, Natural Bonus, MK, Characteristic
-// Sylvain cannot take Dark variant of Elemental Compatibility
-// Duk'zarist cannot take Light variant of Elemental Compatibility
-// Jayan can increase, but not decrease, size via Uncommon Size advantage
-// Jayan may not use Deduct Two Points from a Characteristic on Strength
 // Duk'zarist first psychic discipline must be Pyrokinesis
 
 // Ki points, accumulations

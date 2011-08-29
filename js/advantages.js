@@ -22,7 +22,7 @@ $advantages = {
   Disquieting: {Cost: 1},
   'Dual Limit': {Cost: 1}, // choose up to 2 limits 
   Elan: {Cost: [1,2,3], Options: [], Option_Title: 'Enter the name of the Beryl or Shajad'},
-  'Elemental Compatibility': {Category: 'Magic', Cost: 1}, //+ 20 MA and +20 MR in one element -20 in opposing. if necro then all.
+  'Elemental Compatibility': {Category: 'Magic', Cost: 1, Options: Object.keys($magic_paths), Option_Title: 'Select a path'}, //+ 20 MA and +20 MR in one element -20 in opposing. if necro then all.
   'Exceptional Magic Resistance': {Cost: [1,2]},  // +25 to MR , +50 to MR
   'Exceptional Physical Resistance': {Cost: [1,2]},  // +25 to PhR/VR/DR , +50 to Phr/VR/DR
   'Exceptional Psychic Resistance': {Cost: [1,2]},  // +25 to PsR , +50 to PsR
@@ -54,7 +54,7 @@ $advantages = {
   'Masterful Seals': {Cost: 1}, // +2 levels for difficulty of setting a seal
   'Mystical Armor': {Cost: 1},
   'Natural Armor': {Cost: 1},
-  'Natural Knowledge of a Path': {Category: 'Magic', Cost: 1,  Options: Object.keys($magic_paths), Option_Title: 'Select a Path'},
+  'Natural Knowledge of a Path': {Category: 'Magic', Cost: 1,  Options: Object.keys($magic_paths), Option_Title: 'Select a path'},
   'Natural Learner': {Cost: [1,2,3], Options: $.map(Object.keys($abilities), function(val, i) {
     return ('Field' in $abilities[val]) ? val : null;
   }), Option_Title: 'Select an ability'},   //+10, +20, +30 per level additional to specific secondary

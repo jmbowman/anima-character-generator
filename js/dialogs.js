@@ -342,7 +342,7 @@ configure_disadvantage = function(name) {
     return edit_disadvantage_benefit(name);
   }
   if ('Options' in disadvantage) {
-    return edit_disadvantage_options(name, null);
+    return edit_disadvantage_option(name, null);
   }
   $char.Disadvantages[name] = disadvantage.Benefit;
   update_cp();
@@ -396,7 +396,9 @@ edit_advantage_options = function(name, cost) {
   else {
     var select = $('<select>');
     $.each(options, function(i, option) {
-      select.append($('<option>', {value: option}).text(option));
+      if ($char.advantage_allowed(name, option)) {
+        select.append($('<option>', {value: option}).text(option));
+      }
     });
     panel.append(select);
     if (name == 'Repeat a Characteristics Roll') {
@@ -450,7 +452,9 @@ edit_disadvantage_option = function(name, benefit) {
   else {
     var select = $('<select>');
     $.each(options, function(i, option) {
-      select.append($('<option>', {value: option}).text(option));
+      if ($char.disadvantage_allowed(name, option)) {
+        select.append($('<option>', {value: option}).text(option));
+      }
     });
     panel.append(select);
   }
