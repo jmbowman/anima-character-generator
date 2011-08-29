@@ -21,3 +21,8 @@ a.disabled {
   cursor: text;
   text-decoration: none;
 }
+
+.field {
+  font-weight: bold;
+  border-bottom: 1px solid white;
+}

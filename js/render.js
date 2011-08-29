@@ -201,11 +201,15 @@ update_level = function() {
       content += level.Class + '):';
     }
     if ((i + 1) % 2 === 0) {
-      content += ' <a href="#" onclick="return edit_characteristic_bonus(' + i + ');">' + (('Characteristic' in level) ? '+1 ' + level.Characteristic : 'Select characteristic bonus') + '</a>';
+      content += ' <a href="#" onclick="return edit_characteristic_bonus(' + i + ');">' + (('Characteristic' in level) ? level.Characteristic + ' +1' : 'Select characteristic bonus') + '</a>';
     }
     else if ('Characteristic' in level) {
       // manual JSON editing error?
       delete level.Characteristic;
+    }
+    if (level_number > 0) {
+      var nb = ('Natural Bonus' in level) ? level['Natural Bonus'] : null;
+      content += ' <a href="#" onclick="return edit_natural_bonus(' + (i + 1) + ');">' + (nb ? nb + ' +' + $char.modifier($abilities[nb].Characteristic, level_number) : 'Select natural bonus') + '</a>';
     }
     var line = $('<div>').addClass('span-13 last level').html(content);
     $('.levels').append(line);

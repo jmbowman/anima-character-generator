@@ -1,4 +1,4 @@
-$ability_fields = ['Athletics', 'Creative', 'Intelluctual', 'Perceptive', 'Social', 'Subterfuge', 'Vigor' ];
+$ability_fields = ['Athletics', 'Creative', 'Intellectual', 'Perceptive', 'Social', 'Subterfuge', 'Vigor' ];
 
 $abilities = {
   Attack: {Characteristic: 'DEX'},
@@ -25,10 +25,13 @@ $abilities = {
   Notice: {Field: 'Perceptive', Characteristic: 'PER', passive: true},
   Search: {Field: 'Perceptive', Characteristic: 'PER'},
   Track: {Field: 'Perceptive', Characteristic: 'PER'},
+  Etiquette: {Field: 'Social', Characteristic: 'INT'},
   Intimidate: {Field: 'Social', Characteristic: 'WP'},
   Leadership: {Field: 'Social', Characteristic: 'POW', passive: true},
   Persuasion: {Field: 'Social', Characteristic: 'INT'},
+  Streetwise: {Field: 'Social', Characteristic: 'INT'},
   Style: {Field: 'Social', Characteristic: 'POW', passive: true},
+  Trading: {Field: 'Social', Characteristic: 'INT'},
   Disguise: {Field: 'Subterfuge', Characteristic: 'DEX'},
   Hide: {Field: 'Subterfuge', Characteristic: 'PER'},
   'Lock Picking': {Field: 'Subterfuge', Characteristic: 'DEX'},
@@ -40,12 +43,14 @@ $abilities = {
   Appraisal: {Field: 'Intellectual', Characteristic: 'INT', knowledge: true},
   'Herbal Lore': {Field: 'Intellectual', Characteristic: 'INT', knowledge: true},
   History: {Field: 'Intellectual', Characteristic: 'INT', knowledge: true},
+  Law: {Field: 'Intellectual', Characteristic: 'INT'},
   Memorize: {Field: 'Intellectual', Characteristic: 'INT'},
   'Magic Appraisal': {Field: 'Intellectual', Characteristic: 'POW', knowledge: true, passive: true},
   Medicine: {Field: 'Intellectual', Characteristic: 'INT', knowledge: true},
   Navigation: {Field: 'Intellectual', Characteristic: 'INT', knowledge: true},
   Occult: {Field: 'Intellectual', Characteristic: 'INT', knowledge: true},
   Science: {Field: 'Intellectual', Characteristic: 'INT', knowledge: true},
+  Tactics: {Field: 'Intellectual', Characteristic: 'INT'},
   Composure: {Field: 'Vigor', Characteristic: 'WP', passive: true},
   'Feats of Strength': {Field: 'Vigor', Characteristic: 'STR'},
   'Withstand Pain': {Field: 'Vigor', Characteristic: 'WP'}

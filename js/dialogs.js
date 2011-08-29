@@ -271,6 +271,16 @@ create_dialogs = function() {
       }
     }
   });
+  $dialogs.Natural_Bonus = $('#natural_bonus_dialog').dialog({
+    autoOpen: false,
+    modal: true,
+    width: '1000px',
+    buttons: {
+      Cancel: function() {
+        $dialogs.Natural_Bonus.dialog('close');
+      }
+    }
+  });
 };
 
 add_advantage = function() {
@@ -448,3 +458,39 @@ edit_disadvantage_option = function(name, benefit) {
   $dialogs.Disadvantage_Option.dialog('open');
   return false;
 };
+
+edit_natural_bonus = function(level) {
+  $('#natural_bonus_level').val(level);
+  $.each($ability_fields, function(i, field) {
+    $('#NB_' + field).html('');
+  });
+  var modifier;
+  var name;
+  var ability;
+  var parts;
+  for (name in $abilities) {
+    ability = $abilities[name];
+    if (!('Field' in ability)) {
+      continue;
+    }
+    modifier = $char.modifier(ability.Characteristic, level);
+    if (modifier <= 0) {
+      $('#NB_' + ability.Field).append(name + '<br />');
+    }
+    else {
+      parts = ['<a href="#" onclick="return set_natural_bonus(\'', name, '\');">', name, ' +', modifier, '</a><br />'];
+      $('#NB_' + ability.Field).append(parts.join(''));
+    }
+    
+  }
+  $dialogs.Natural_Bonus.dialog('open');
+};
+
+set_natural_bonus = function(name) {
+  var level = parseInt($('#natural_bonus_level').val(), 10);
+  $char.set_natural_bonus(level, name);
+  $dialogs.Natural_Bonus.dialog('close');
+  update_level();
+  return false;
+};
+

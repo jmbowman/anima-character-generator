@@ -411,7 +411,7 @@ var char_funcs = {
     if (this.Race == 'Jayan Nephilim' && name =='STR') {
       total += 1;
     }
-    for (i = 0; i < at_level; i++) {
+    for (i = 0; i < at_level && this.levels.length > i; i++) {
       var level = this.levels[i];
       if ('Characteristic' in level && level.Characteristic == name) {
         total += 1;
@@ -925,6 +925,13 @@ var char_funcs = {
     else {
       return 40;
     }
+  },
+  
+  set_natural_bonus: function(level, name) {
+    if (level < 1 || level > this.levels.length) {
+      return;
+    }
+    this.levels[level - 1]['Natural Bonus'] = name;
   },
   
   size: function() {
