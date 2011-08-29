@@ -51,6 +51,7 @@ $classes = {
   Thief: new character_class(),
   Warlock: new character_class(),
   Warrior: new character_class(),
+  'Warrior Mentalist': new character_class(),
   'Warrior Summoner': new character_class(),
   Weaponsmaster: new character_class(),
   Wizard: new character_class(),
@@ -300,6 +301,18 @@ $classes = {
   this.reduced['Feats of Strength'] = 1;
   this.bonuses = {Attack: 5, Block: 5, 'Wear Armor': 5, 'Feats of Strength': 5};
 }).call($classes.Warrior);
+
+// Warrior Mentalist
+(function() {
+  this.Archetypes = ['Fighter', 'Psychic'];
+  this.LP = 10;
+  this['Innate Psychic Points'] = 1;
+  this['Accumulation Multiple'] = 25;
+  this['Psychic Point'] = 15;
+  this['Psychic Projection'] = 2;
+  this.Intellectual = 3;
+  this.bonuses = {Attack: 5, Block: 5, Dodge: 5};
+}).call($classes['Warrior Mentalist']);
 
 // Warrior Summoner
 (function() {

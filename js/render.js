@@ -47,15 +47,17 @@ update_text = function(name) {
 update_cp = function() {
   var total = $char.cp_total();
   var remaining = '';
+  var categories_added = 0;
   $.each(['Common', 'Background', 'Magic', 'Psychic'], function(i, category) {
     var subtotal = $char.cp_remaining(category);
     if (subtotal === 0) {
       return true;
     }
-    if (i > 0) {
+    if (categories_added > 0) {
       remaining += ', ';
     }
     remaining += subtotal + ' ' + category;
+    categories_added++;
   });
   if (!remaining) {
     remaining = '0';
