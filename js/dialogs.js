@@ -45,7 +45,7 @@ create_dialogs = function() {
     if (!('Category' in disadvantage)) {
       $('#Common_Disadvantages_' + column).append(link);
       count++;
-      if (count > 17) {
+      if (count > 12) {
         column += 1;
         count = 1;
       }

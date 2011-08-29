@@ -789,9 +789,14 @@ var char_funcs = {
         (level > 0 && level != this.levels.length)) {
       return 'Update levels list';
     }
-    $.each(this.levels, function(i, level) {
-      if ((i + 1) % 2 === 0 && !('Characteristic' in level)) {
-        result = 'Select characteristic for level ' + (i + 1) + ' bonus';
+    $.each(this.levels, function(i, level_data) {
+      if ((i + 1) % 2 === 0 && !('Characteristic' in level_data)) {
+        result = 'Select characteristic bonus for level ' + (i + 1);
+        return false;
+      }
+      if (level > 0 && !('Natural Bonus' in level_data)) {
+        result = 'Select natural bonus for level ' + (i + 1);
+        return false;
       }
     });
     if (result) {
