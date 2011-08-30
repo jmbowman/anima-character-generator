@@ -1,7 +1,7 @@
 // Note: archetypes must be listed in alphabetical order for intersection() to work
 
 character_class = function() {
-  this.lp_multiple = 20;
+  this['Life Point Multiple'] = 20;
   this.LP = 5;
   this.Initiative = 5;
   this.MK = 20;
@@ -22,7 +22,7 @@ character_class = function() {
   this.Bind = 3;
   this.Banish = 3;
   this.Psychic = 50;
-  this['Psychic Point'] = 20;
+  this['Psychic Points'] = 20;
   this['Psychic Projection'] = 3;
   this.Athletics = 2;
   this.Social = 2;
@@ -73,7 +73,7 @@ $classes = {
 (function() {
   this.Archetypes = ['Fighter'];
   this.LP = 15;
-  this.lp_multiple = 15;
+  this['Life Point Multiple'] = 15;
   this.Combat = 60;
   this.Zeon = 2;
   this['MA Multiple'] = 60;
@@ -141,7 +141,7 @@ $classes = {
   this.Ki = 3;
   this['Accumulation Multiple'] = 30;
   this.Psychic = 60;
-  this['Psychic Point'] = 10;
+  this['Psychic Points'] = 10;
   this['Psychic Projection'] = 2;
   this.Vigor = 3;
 }).call($classes.Mentalist);
@@ -150,7 +150,7 @@ $classes = {
 (function() {
   this.Archetypes = ['Fighter'];
   this.LP = 15;
-  this.lp_multiple = 15;
+  this['Life Point Multiple'] = 15;
   this.Combat = 60;
   this.Zeon = 2;
   this['MA Multiple'] = 60;
@@ -235,7 +235,7 @@ $classes = {
 // TODO: need to capture martial art cost of only 20dp, 10dp for first one learned but not here.
 (function() {
   this.Archetypes = ['Domine', 'Fighter'];
-  this.lp_multiple = 20;
+  this['Life Point Multiple'] = 20;
   this.LP = 10;
   this.MK = 30;
   this.Combat = 60;
@@ -293,7 +293,7 @@ $classes = {
 // Warrior
 (function() {
   this.Archetypes = ['Fighter'];
-  this.lp_multiple = 15;
+  this['Life Point Multiple'] = 15;
   this.LP = 15;
   this.MK = 25;
   this.Combat = 60;
@@ -308,7 +308,7 @@ $classes = {
   this.LP = 10;
   this['Innate Psychic Points'] = 1;
   this['Accumulation Multiple'] = 25;
-  this['Psychic Point'] = 15;
+  this['Psychic Points'] = 15;
   this['Psychic Projection'] = 2;
   this.Intellectual = 3;
   this.bonuses = {Attack: 5, Block: 5, Dodge: 5};
@@ -368,7 +368,7 @@ $classes = {
   this.Control = 2;
   this.Bind = 2;
   this.Banish = 2;
-  this['Psychic Point'] = 10;
+  this['Psychic Points'] = 10;
   this['Psychic Projection'] = 2;
   this.Vigor = 3;
   this.reduced['Magic Appraisal'] = 1;

@@ -67,7 +67,7 @@ var char_funcs = {
       var info = this.levels[i];
       var cls = $classes[info.Class];
       if (name in info.DP) {
-        total += info.DP[name] / this.cost(name, cls);
+        total += info.DP[name];
       }
       if (name in cls.bonuses) {
         if (level === 0) {
@@ -192,7 +192,7 @@ var char_funcs = {
     else if ($.isArray(disadvantage.Benefit)) {
       this.Disadvantages[name] = benefit;
     }
-    else if ('Options' in advantage) {
+    else if ('Options' in disadvantage) {
       this.Disadvantages[name] = param;
     }
     else {
@@ -488,7 +488,8 @@ var char_funcs = {
     return previous == before_that;
   },
   
-  cost: function(name, character_class) {
+  cost: function(name, class_name) {
+    var character_class = $classes[class_name];
     var result;
     if (name in character_class.reduced) {
       result = character_class.reduced[name];
@@ -635,12 +636,12 @@ var char_funcs = {
       }
     }
     if (this.Race == "Duk'zarist Nephilim") {
-      if (name in ['Atrophied Limb', 'Blind', 'Deafness', 'Mute', 'Nearsighted', 'Physical Weakness', 'Serious Illness', 'Sickly', 'Susceptible to Poisons']) {
+      if (['Atrophied Limb', 'Blind', 'Deafness', 'Mute', 'Nearsighted', 'Physical Weakness', 'Serious Illness', 'Sickly', 'Susceptible to Poisons'].indexOf(name) != -1) {
         return false;
       }
     }
-    else if (this.Race == 'Sylvan Nephilim') {
-      if (name in ['Sickly', 'Serious Illness', 'Susceptible to Magic']) {
+    else if (this.Race == 'Sylvain Nephilim') {
+      if (['Sickly', 'Serious Illness', 'Susceptible to Magic'].indexOf(name) != -1) {
         return false;
       }
     }
@@ -690,6 +691,108 @@ var char_funcs = {
       return Object.keys($psychic_disciplines);
     }
     return [];
+  },
+  
+  dp_remaining: function() {
+    var level = this.level();
+    var results = [];
+    var result;
+    var level_info;
+    var new_dp = 600;
+    var class_info;
+    var item;
+    var cost;
+    var j;
+    var surplus_used;
+    var withdrawn;
+    var primary;
+    var index;
+    var remaining;
+    for (var i = 0; i < this.levels.length; i++) {
+      result = {};
+      results.push(result);
+      level_info = this.levels[i];
+      class_info = $classes[level_info.Class];
+      if (i === 0 && this.level() === 0) {
+        new_dp = 400;
+      }
+      else if (i > 0) {
+        new_dp = 100;
+      }
+      result.Total = new_dp;
+      result.Combat = class_info.Combat * new_dp / 100;
+      result.Psychic = class_info.Psychic * new_dp / 100;
+      result.Supernatural = class_info.Supernatural * new_dp / 100;
+      for (item in level_info.DP) {
+        cost = this.cost(item, level_info.Class);
+        result.Total -= cost;
+        if (item in $primaries.Combat) {
+          result.Combat -= level_info.DP[item] * cost;
+        }
+        else if (item in $primaries.Psychic) {
+          result.Psychic -= level_info.DP[item] * cost;
+        }
+        else if (item in $primaries.Supernatural) {
+          result.Supernatural -= level_info.DP[item] * cost;
+        }
+      }
+      cost = this.class_change_dp((level === 0) ? 0 : (i + 1));
+      if (cost > 0) {
+        result.Total -= cost;
+        result.Class_Change = cost;
+      }
+      var primaries = Object.keys($primaries);
+      primaries.push('Total');
+      for (index in primaries) {
+        primary = primaries[index];
+        remaining = result[primary];
+        if (remaining > result.Total) {
+          remaining = result.Total;
+          result[primary] = remaining;
+        }
+        else if (remaining < 0) {
+          withdrawn = 0;
+          for (j = 0; j < i; j++) {
+            surplus_used = results[j][primary];
+            if (surplus_used > -remaining) {
+              surplus_used = -remaining;
+            }
+            if (surplus_used > withdrawn) {
+              if (primary == 'Total') {
+                if ('Saved' in results[j]) {
+                  results[j].Saved += surplus_used - withdrawn;
+                }
+                else {
+                  results[j].Saved = surplus_used - withdrawn;
+                }
+              }
+              withdrawn = surplus_used;
+            }
+            results[j][primary] -= surplus_used;
+          }
+          if (withdrawn > 0) {
+            result[primary] += withdrawn;
+            if (primary == 'Total') {
+              result.Withdrawn = withdrawn;
+            }
+          }
+        }
+      }
+      if (i > 0) {
+        result.Total += results[i - 1].Total;
+        result.Combat += results[i - 1].Combat;
+        result.Psychic += results[i - 1].Psychic;
+        result.Supernatural += results[i - 1].Supernatural;
+      }
+    }
+    return results;
+  },
+
+  dp_total: function(level) {
+    if (level === 0) {
+      return 400;
+    }
+    return 500 + (level * 100);
   },
   
   fatigue: function() {
@@ -767,8 +870,8 @@ var char_funcs = {
         if (level > 0) {
           result += cls.LP;
         }
-        if ('LP Multiples' in info.DP) {
-          result += info.DP['LP Multiples'] * con_mod / cls.lp_multiple;
+        if ('Life Point Multiple' in info.DP) {
+          result += info.DP['Life Point Multiple'] * con_mod;
         }
         if ('Hard to Kill' in character.Advantages) {
           result += character.Advantages['Hard to Kill'] * 10;
@@ -811,9 +914,6 @@ var char_funcs = {
     if (!('Race' in this)) {
       return 'Select a race';
     }
-    if (!('Name' in this)) {
-      return 'Choose a name';
-    }
     if (this.cp_remaining() > 0) {
       return 'Select advantages and disadvantages';
     }
@@ -834,6 +934,9 @@ var char_funcs = {
     });
     if (result) {
       return result;
+    }
+    if (!('Name' in this)) {
+      return 'Choose a name';
     }
     return 'Done!';
   },
@@ -1015,14 +1118,6 @@ var char_funcs = {
     }
     return result;
   },
-
-  total_dp: function() {
-    var level = this.level();
-    if (level === 0) {
-      return 400;
-    }
-    return 500 + (level * 100);
-  },
   
   total_mk: function() {
     var total = 0;
@@ -1033,17 +1128,6 @@ var char_funcs = {
       total += this.Advantages['Martial Mastery'] * 40;
     }
     return total;
-  },
-  
-  used_dp: function(level, primary) {
-    var used = 0;
-    var dp = this.levels[level - 1].DP;
-    for (var item in dp) {
-      if (item in $primaries[primary]) {
-        used += dp[item];
-      }
-    }
-    return used;
   },
   
   used_mk: function() {
@@ -1064,7 +1148,7 @@ var char_funcs = {
     $.each(this.levels, function(i, level) {
       var cls = $classes[level.Class];
       if ('Zeon' in level.DP) {
-        total += level.DP.Zeon * 5 / data.cost('Zeon', cls);
+        total += level.DP.Zeon * 5;
       }
       if ('Zeon' in cls.bonuses) {
         total += cls.bonuses.Zeon;

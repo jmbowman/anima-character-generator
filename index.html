@@ -9,6 +9,7 @@
   <link href="images/favicon.ico" rel="icon" type="image/x-icon" />
   <link href="images/favicon.ico" rel="shortcut icon" type="image/x-icon" />-->
   <link type="text/css" href="css/dark-hive/jquery-ui-1.8.15.custom.css" rel="stylesheet" />
+  <link type="text/css" href="css/ui.spinner.css" rel="stylesheet" />
   <link rel="stylesheet" href="css/blueprint/screen.css" type="text/css" media="screen, projection" />
   <link rel="stylesheet" href="css/blueprint/print.css" type="text/css" media="print" />
   <!--[if lt IE 8]><link rel="stylesheet" href="css/blueprint/ie.css" type="text/css" media="screen, projection" /><![endif]-->
@@ -16,8 +17,10 @@
   <script type="text/javascript" src="js/libs/jquery-1.6.2.min.js"></script>
   <script type="text/javascript" src="js/libs/jquery-ui-1.8.15.custom.min.js"></script>
   <script type="text/javascript" src="js/libs/jquery.validate.min.js"></script>
+  <script type="text/javascript" src="js/libs/ui.spinner.min.js"></script>
   <script type="text/javascript" src="js/libs/json2.js"></script>
   <script type="text/javascript" src="js/libs/utils.js"></script>
+  <script type="text/javascript" src="js/primaries.js"></script>
   <script type="text/javascript" src="js/abilities.js"></script>
   <script type="text/javascript" src="js/classes.js"></script>
   <script type="text/javascript" src="js/magic_paths.js"></script>
@@ -30,12 +33,14 @@
   <script type="text/javascript">
     $(document).ready(function(){
       $('label').parent().addClass('label-parent');
+      $('.characteristic').spinner({min: 4, max: 10});
+      $('#Appearance').spinner({min: 1, max: 10});
+      $('#XP').spinner({min: -1, max: 9999});
       $('form').validate();
       $('#advantages_tabs').tabs();
       $('#disadvantages_tabs').tabs();
       create_dialogs();
       $char = new character();
-      update_cp();
       render($char, $('.container'));
       $('#update_display').click(update_display);
       $('#update_level').click(update_level);
@@ -45,7 +50,7 @@
 <body>
 <form action="#">
 <div class="container">
-  <div class="span-24 last"><strong>Next step: <span class="next_step"></span></strong></div>
+  <div class="span-24 last"><br /><strong>Next step: <span class="next_step"></span></strong></div>
   <div class="span-24 last summary"></div>
   
   <div class="span-2">LP <span class="lp"></span></div>
@@ -79,25 +84,24 @@
   <hr />
   
   <div class="span-11">
-    <div class="span-11 last"><button id="update_display" type="button">Update Display</button></div>
     <div class="span-2"><label for="STR">STR</label></div>
-    <div class="span-9 last"><input type="text" id="STR" name="STR" class="required digits two-digit" min="4" max="10" /></div>
+    <div class="span-9 last"><input type="text" id="STR" name="STR" class="characteristic" value="5" /></div>
     <div class="span-2"><label for="DEX">DEX</label></div>
-    <div class="span-9 last"><input type="text" id="DEX" name="DEX" class="required digits two-digit" min="4" max="10" /></div>
+    <div class="span-9 last"><input type="text" id="DEX" name="DEX" class="characteristic" value="5" /></div>
     <div class="span-2"><label for="AGI">AGI</label></div>
-    <div class="span-9 last"><input type="text" id="AGI" name="AGI" class="required digits two-digit" min="4" max="10" /></div>
+    <div class="span-9 last"><input type="text" id="AGI" name="AGI" class="characteristic" value="5" /></div>
     <div class="span-2"><label for="CON">CON</label></div>
-    <div class="span-9 last"><input type="text" id="CON" name="CON" class="required digits two-digit" min="4" max="10" /></div>
+    <div class="span-9 last"><input type="text" id="CON" name="CON" class="characteristic" value="5" /></div>
     <div class="span-2"><label for="INT">INT</label></div>
-    <div class="span-9 last"><input type="text" id="INT" name="INT" class="required digits two-digit" min="4" max="10" /></div>
+    <div class="span-9 last"><input type="text" id="INT" name="INT" class="characteristic" value="5" /></div>
     <div class="span-2"><label for="POW">POW</label></div>
-    <div class="span-9 last"><input type="text" id="POW" name="POW" class="required digits two-digit" min="4" max="10" /></div>
+    <div class="span-9 last"><input type="text" id="POW" name="POW" class="characteristic" value="5" /></div>
     <div class="span-2"><label for="WP">WP</label></div>
-    <div class="span-9 last"><input type="text" id="WP" name="WP" class="required digits two-digit" min="4" max="10" /></div>
+    <div class="span-9 last"><input type="text" id="WP" name="WP" class="characteristic" value="5" /></div>
     <div class="span-2"><label for="PER">PER</label></div>
-    <div class="span-9 last"><input type="text" id="PER" name="PER" class="required digits two-digit" min="4" max="10" /></div>
+    <div class="span-9 last"><input type="text" id="PER" name="PER" class="characteristic" value="5" /></div>
     <div class="span-2"><label for="Appearance">Appearance</label></div>
-    <div class="span-9 last"><input type="text" id="Appearance" name="Appearance" class="required digits two-digit" min="1" max="10" /></div>
+    <div class="span-9 last"><input type="text" id="Appearance" name="Appearance" value="5" /></div>
 
     <div class="span-2"><label for="Gender">Gender</label></div>
     <div class="span-9 last"><select id="Gender" name="Gender" class="required">
@@ -108,6 +112,7 @@
 
     <div class="span-2"><label for="Race">Race</label></div>
     <div class="span-9 last"><select id="Race" name="Race" class="required">
+      <option value="">----</option>
       <option value="Human">Human</option>
       <option value="D'Anjayni Nephilim">D'Anjayni Nephilim</option>
       <option value="Daimah Nephilim">Daimah Nephilim</option>
@@ -116,18 +121,42 @@
       <option value="Jayan Nephilim">Jayan Nephilim</option>
       <option value="Sylvain Nephilim">Sylvain Nephilim</option>
       <option value="Being Between Worlds">Being Between Worlds</option>
+      <option value="Natural">Natural</option>
       <option value="Spirit">Spirit</option>
+    </select></div>
+    
+    <div class="span-2"><label for="first_class">Class</label></div>
+    <div class="span-9 last"><select id="first_class" name="first_class" class="required">
+      <option value="Acrobatic Warrior">Acrobatic Warrior</option>
+      <option value="Assassin">Assassin</option>
+      <option value="Dark Paladin">Dark Paladin</option>
+      <option value="Freelancer" selected="selected">Freelancer</option>
+      <option value="Illusionist">Illusionist</option>
+      <option value="Mentalist">Mentalist</option>
+      <option value="Paladin">Paladin</option>
+      <option value="Ranger">Ranger</option>
+      <option value="Shadow">Shadow</option>
+      <option value="Summoner">Summoner</option>
+      <option value="Tao">Tao</option>
+      <option value="Technician">Technician</option>
+      <option value="Thief">Thief</option>
+      <option value="Warlock">Warlock</option>
+      <option value="Warrior">Warrior</option>
+      <option value="Warrior Mentalist">Warrior Mentalist</option>
+      <option value="Wizard Mentalist">Wizard Mentalist</option>
+      <option value="Warrior Summoner">Warrior Summoner</option>
+      <option value="Weaponsmaster">Weaponsmaster</option>
+      <option value="Wizard">Wizard</option>
     </select></div>
 
     <div class="span-2"><label for="level">XP</label></div>
     <div class="span-9 last"><input type="text" id="XP" name="XP" class="required number" value="0" /></div>
-
-    <div class="span-2"><label for="name">Name</label></div>
-    <div class="span-9 last"><input type="text" id="Name" name="Name" class="required" /></div>
+    <div class="span-11 last"><button id="update_display" type="button">Update Display</button></div>
   </div>
   
-  <div class="span-13 last levels">
-    <div class="span-13 last"><strong>Creation Points:</strong> <span id="cp_remaining"></span> remaining out of <span id="cp_total"></span></div>
+  <div id="after_class" class="span-13 last levels" style="display: none;">
+    <div class="span-3"><strong>Creation Points</strong></div>
+    <div class="span-10 last"><span id="cp_remaining"></span> remaining out of <span id="cp_total"></span></div>
     <div class="span-3"><strong>Advantages</strong></div>
     <div class="span-10 last"><span id="Advantages"></span> <a id="add_advantage" href="#" onclick="return add_advantage();">+</a></div>
     <div class="span-3"><strong>Disadvantages</strong></div>
@@ -137,6 +166,9 @@
       <input type="hidden" id="dialog_level" name="dialog_level" value="" />
     </div>
   </div>
+
+  <div class="span-3"><label for="name">Name</label></div>
+  <div class="span-10 last"><input type="text" id="Name" name="Name" class="required" /></div>
 </div>
 </form>
 
@@ -176,26 +208,26 @@
 
 <div id="class_dialog" style="display: none;">
   <select id="Class" name="Class">
-	<option value="Acrobatic Warrior">Acrobatic Warrior</option>
-	<option value="Assassin">Assassin</option>
-	<option value="Dark Paladin">Dark Paladin</option>
-	<option value="Freelancer">Freelancer</option>
-	<option value="Illusionist">Illusionist</option>
-	<option value="Mentalist">Mentalist</option>
-	<option value="Paladin">Paladin</option>
-	<option value="Ranger">Ranger</option>
-	<option value="Shadow">Shadow</option>
-	<option value="Summoner">Summoner</option>
-	<option value="Tao">Tao</option>
-	<option value="Technician">Technician</option>
-	<option value="Thief">Thief</option>
-	<option value="Warlock">Warlock</option>
-	<option value="Warrior">Warrior</option>
-	<option value="Warrior Mentalist">Warrior Mentalist</option>
-	<option value="Wizard Mentalist">Wizard Mentalist</option>
-	<option value="Warrior Summoner">Warrior Summoner</option>
-	<option value="Weaponsmaster">Weaponsmaster</option>
-	<option value="Wizard">Wizard</option>
+    <option value="Acrobatic Warrior">Acrobatic Warrior</option>
+    <option value="Assassin">Assassin</option>
+    <option value="Dark Paladin">Dark Paladin</option>
+    <option value="Freelancer">Freelancer</option>
+    <option value="Illusionist">Illusionist</option>
+    <option value="Mentalist">Mentalist</option>
+    <option value="Paladin">Paladin</option>
+    <option value="Ranger">Ranger</option>
+    <option value="Shadow">Shadow</option>
+    <option value="Summoner">Summoner</option>
+    <option value="Tao">Tao</option>
+    <option value="Technician">Technician</option>
+    <option value="Thief">Thief</option>
+    <option value="Warlock">Warlock</option>
+    <option value="Warrior">Warrior</option>
+    <option value="Warrior Mentalist">Warrior Mentalist</option>
+    <option value="Wizard Mentalist">Wizard Mentalist</option>
+    <option value="Warrior Summoner">Warrior Summoner</option>
+    <option value="Weaponsmaster">Weaponsmaster</option>
+    <option value="Wizard">Wizard</option>
   </select>
 </div>
 
@@ -256,6 +288,9 @@
   <input type="hidden" id="disadvantage_option_name" name="disadvantage_option_name" value="" />
   <input type="hidden" id="disadvantage_option_benefit" name="disadvantage_option_benefit" value="" />
   <div id="disadvantage_option"></div>
+</div>
+
+<div id="dp_dialog" style="display: none;" title="Spend DP on...">
 </div>
 
 <div id="natural_bonus_dialog" style="display: none;" title="Select an ability to improve">

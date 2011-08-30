@@ -3,8 +3,12 @@ body {
   color: white;*/
 }
 
-input.two-digit {
-  width: 25px;
+input.characteristic, #Appearance {
+  width: 40px;
+}
+
+#XP {
+  width: 50px;
 }
 
 div.label-parent

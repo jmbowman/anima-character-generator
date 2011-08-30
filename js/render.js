@@ -168,8 +168,19 @@ update_display = function() {
   update_text('Gender');
   update_text('Race');
   update_int('XP');
+  var first_class = $('#first_class').val();
+  if (first_class) {
+    $char.change_class($char.XP < 0 ? 0 : 1, first_class);
+  }
   update_text('Name');
   render($char, $('.container'));
+  var after_class = $('#after_class');
+  if (after_class.filter(':visible').length === 0) {
+    if ($('#Race').val() && $('#first_class').val()) {
+      update_cp();
+      $('#after_class').show();
+    }
+  }
 };
 
 update_level = function() {
@@ -186,15 +197,21 @@ update_level = function() {
     $char.levels.push({Class: $char.levels[level_count - 1].Class, DP: {}});
     level_count++;
   }
+  update_display();
   $('.level').remove();
+  var level_number;
+  var content;
+  var nb;
+  var line;
+  var dp = $char.dp_remaining(level_number);
   $.each($char.levels, function(i, level) {
     if (i > 0) {
       var hr = $('<hr />').addClass('span-13 last level');
       $('.levels').append(hr);
     }
-    var level_number = current_level === 0 ? 0 : i + 1;
-    var content = 'Level ' + level_number + ' (';
-    if ($char.class_change_possible(level_number)) {
+    level_number = current_level === 0 ? 0 : i + 1;
+    content = 'Level ' + level_number + ' (';
+    if ($char.class_change_possible(level_number) && i > 0) {
       content += '<a href="#" onclick="return edit_class(' + i + ');">' + level.Class + '</a>):';
     }
     else {
@@ -208,11 +225,15 @@ update_level = function() {
       delete level.Characteristic;
     }
     if (level_number > 0) {
-      var nb = ('Natural Bonus' in level) ? level['Natural Bonus'] : null;
+      nb = ('Natural Bonus' in level) ? level['Natural Bonus'] : null;
       content += ' <a href="#" onclick="return edit_natural_bonus(' + (i + 1) + ');">' + (nb ? nb + ' +' + $char.modifier($abilities[nb].Characteristic, level_number) : 'Select natural bonus') + '</a>';
     }
-    var line = $('<div>').addClass('span-13 last level').html(content);
+    line = $('<div>').addClass('span-13 last level').html(content);
     $('.levels').append(line);
+    if (dp[i].Total > 0) {
+      content = dp[i].Total + ' DP remaining (Limits: ' + dp[i].Combat + ' Combat, ' + dp[i].Psychic + ' Psychic, ' + dp[i].Supernatural + ' Supernatural)';
+      line = $('<div>').addClass('span-13 last level').html(content);
+      $('.levels').append(line);
+    }
   });
-  update_display();
 };

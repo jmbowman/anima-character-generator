@@ -26,7 +26,7 @@ $advantages = {
   'Exceptional Magic Resistance': {Cost: [1,2]},  // +25 to MR , +50 to MR
   'Exceptional Physical Resistance': {Cost: [1,2]},  // +25 to PhR/VR/DR , +50 to Phr/VR/DR
   'Exceptional Psychic Resistance': {Cost: [1,2]},  // +25 to PsR , +50 to PsR
-  'Extreme Concentration': {Cost: 2},  // doubles the bonus for concentrating
+  'Extreme Concentration': {Category: 'Psychic', Cost: 2},  // doubles the bonus for concentrating
   Fame: {Category: 'Background', Cost: [1,2]}, 
   Focus: {Category: 'Psychic', Cost: 1}, // psychic points spent to boost projection are +20 instead of +10
   Fortunate: {Cost: 1},
@@ -62,7 +62,7 @@ $advantages = {
   'Natural Power': {Category: 'Magic', Cost: 1}, // maximum spell potential uses POW 
   'Night Vision': {Cost: 1},
   'No Gestures': {Cost: 1},  // no reduction to ki accumulation
-  'Opposite Magic': {Category: 'Magic', Cost: 1, Options: ['Light/Darkness', 'Creation/Destruction', 'Fire/Water', 'Earth/Air', 'Illusion/Essence'], Option_Title: 'Select Opposing Magic'},
+  'Opposite Magic': {Category: 'Magic', Cost: 1},
   'Passive Concentration': {Category: 'Psychic', Cost: 2},
   'Powerful Ally': {Category: 'Background', Cost: [1,2,3], Options: [], Option_Title: 'Enter powerful ally'},
   'Psychic Ambivalence': {Category: 'Psychic', Cost: 1},
