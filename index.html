@@ -14,38 +14,7 @@
   <link rel="stylesheet" href="css/blueprint/print.css" type="text/css" media="print" />
   <!--[if lt IE 8]><link rel="stylesheet" href="css/blueprint/ie.css" type="text/css" media="screen, projection" /><![endif]-->
   <link rel="stylesheet" type="text/css" href="css/styles.css" />
-  <script type="text/javascript" src="js/libs/jquery-1.6.2.min.js"></script>
-  <script type="text/javascript" src="js/libs/jquery-ui-1.8.15.custom.min.js"></script>
-  <script type="text/javascript" src="js/libs/jquery.validate.min.js"></script>
-  <script type="text/javascript" src="js/libs/ui.spinner.min.js"></script>
-  <script type="text/javascript" src="js/libs/json2.js"></script>
-  <script type="text/javascript" src="js/libs/utils.js"></script>
-  <script type="text/javascript" src="js/primaries.js"></script>
-  <script type="text/javascript" src="js/abilities.js"></script>
-  <script type="text/javascript" src="js/classes.js"></script>
-  <script type="text/javascript" src="js/magic_paths.js"></script>
-  <script type="text/javascript" src="js/psychic_disciplines.js"></script>
-  <script type="text/javascript" src="js/advantages.js"></script>
-  <script type="text/javascript" src="js/cultural_roots.js" charset="utf-8"></script>
-  <script type="text/javascript" src="js/character.js"></script>
-  <script type="text/javascript" src="js/render.js"></script>
-  <script type="text/javascript" src="js/dialogs.js"></script>
-  <script type="text/javascript">
-    $(document).ready(function(){
-      $('label').parent().addClass('label-parent');
-      $('.characteristic').spinner({min: 4, max: 10});
-      $('#Appearance').spinner({min: 1, max: 10});
-      $('#XP').spinner({min: -1, max: 9999});
-      $('form').validate();
-      $('#advantages_tabs').tabs();
-      $('#disadvantages_tabs').tabs();
-      create_dialogs();
-      $char = new character();
-      render($char, $('.container'));
-      $('#update_display').click(update_display);
-      $('#update_level').click(update_level);
-    });
-</script>
+  <script data-main="js/main" src="js/require-jquery.js"></script>
 </head>
 <body>
 <form action="#">
@@ -158,9 +127,9 @@
     <div class="span-3"><strong>Creation Points</strong></div>
     <div class="span-10 last"><span id="cp_remaining"></span> remaining out of <span id="cp_total"></span></div>
     <div class="span-3"><strong>Advantages</strong></div>
-    <div class="span-10 last"><span id="Advantages"></span> <a id="add_advantage" href="#" onclick="return add_advantage();">+</a></div>
+    <div class="span-10 last"><span id="Advantages"></span> <a id="add_advantage" href="#"">+</a></div>
     <div class="span-3"><strong>Disadvantages</strong></div>
-    <div class="span-10 last"><span id="Disadvantages"></span> <a id="add_disadvantage" href="#" onclick="return add_disadvantage();">+</a></div>
+    <div class="span-10 last"><span id="Disadvantages"></span> <a id="add_disadvantage" href="#"">+</a></div>
 
     <div class="span-13 last"><button id="update_level" type="button">Update Level</button>
       <input type="hidden" id="dialog_level" name="dialog_level" value="" />
@@ -291,6 +260,23 @@
 </div>
 
 <div id="dp_dialog" style="display: none;" title="Spend DP on...">
+  <div id="dp_tabs">
+    <ul>
+      <li><a href="#Combat">Combat</a></li>
+      <li><a href="#Psychic">Psychic</a></li>
+      <li><a href="#Supernatural">Supernatural</a></li>
+      <li><a href="#Other">Other</a></li>
+    </ul>
+    <div id="Combat">
+      <div class="container">
+        <div id="Combat_1" class="span-8"></div>
+        <div id="Combat_2" class="span-8"></div>
+        <div id="Combat_3" class="span-8 last"></div>
+      </div>
+    </div>
+    <div id="Psychic"></div>
+    <div id="Supernatural"></div>
+    <div id="Other"></div>
 </div>
 
 <div id="natural_bonus_dialog" style="display: none;" title="Select an ability to improve">

@@ -1,4 +1,4 @@
-$cultural_roots = {
+define({
   'Abel (Middle Class / Lower Class)': {Athleticism: 15, Ride: 10, Swim: 10, Notice: 15, 'Slight of Hand': 10, Persuasion: 10, History: {local: 10}},
   'Abel (Bourgeois)': {Ride: 10, Swim: 10, Persuasion: 15, Style: 10, History: {local: 10}, Appraisal: 15, Dance: 10},
   'Abel (Nobility / High Nobility)': {Ride: 10, Style: 10, Leadership: 20, Persuasion: 10, History: {local: 10}, Dance: 10, choices: [{Art: 10, Music: 10}]},
@@ -64,4 +64,4 @@ $cultural_roots = {
   'Togarini (Middle Class / Lower Class)': {Athleticism: 10, Ride: 10, Climb: 10, Notice: 10, 'Sleight of Hand': 10, Composure: 10, Persuasion: 10, History: {local: 10}},
   'Togarini (Bourgeois)': {Ride: 10, Persuasion: 10, Style: 10, Composure: 10, History: {local: 10}, Appraisal: 20, Dance: 10},
   'Togarini (Nobility / High Nobility)': {Ride: 10, Style: 10, Composure: 10, Leadership: 10, Intimidate: 10, Persuasion: 10, History: {local: 10}, Dance: 10}
-};
+});

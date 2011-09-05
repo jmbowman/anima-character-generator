@@ -1,4 +1,4 @@
-$primaries = {
+define({
   Combat: {
     Attack: 0,
     Block: 0,
@@ -20,4 +20,4 @@ $primaries = {
     'Psychic Points': 0,
     'Psychic Projection': 0
   }
-};
+});

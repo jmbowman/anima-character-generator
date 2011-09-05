@@ -1,4 +1,4 @@
-$magic_paths = {
+define({
   Air: {},
   Creation: {},
   Darkness: {},
@@ -10,4 +10,4 @@ $magic_paths = {
   Light: {},
   Necromany: {},
   Water: {}
-};
+});
