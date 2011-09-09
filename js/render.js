@@ -256,6 +256,9 @@ function($, abilities, characters, dialogs, tables) {
       if ('Withdrawn' in remaining[i]) {
         content += ' (used ' + remaining[i].Withdrawn + ' DP saved earlier)';
       }
+      if (remaining[i].Total > 0) {
+        content += ' <a href="#" class="spend_dp" data-level="' + level_number + '">+</a>';
+      }
       line = '<div class="span-12 last level">' + content + '</div>';
       $('.levels').append(line);
     });
@@ -264,6 +267,7 @@ function($, abilities, characters, dialogs, tables) {
   $('a.edit_class').live('click', dialogs.edit_class);
   $('a.characteristic_bonus').live('click', dialogs.edit_characteristic_bonus);
   $('a.natural_bonus').live('click', dialogs.edit_natural_bonus);
+  $('a.spend_dp').live('click', dialogs.spend_dp);
   
   return render;
 });

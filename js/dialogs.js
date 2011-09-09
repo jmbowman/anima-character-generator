@@ -1,7 +1,7 @@
 define(['jquery', 'abilities', 'advantages', 'characters', 'cultural_roots',
-'disadvantages', 'primaries', 'tables', 'creation_points', 'jqueryui/dialog',
-'jqueryui/tabs', 'pubsub'], function($, abilities, advantages, characters,
-cultural_roots, disadvantages, primaries, tables) {
+'disadvantages', 'primaries', 'tables', 'creation_points', 'development_points',
+'jqueryui/dialog', 'jqueryui/tabs', 'pubsub'], function($, abilities,
+advantages, characters, cultural_roots, disadvantages, primaries, tables) {
 
   var dialogs = {};
 
@@ -383,32 +383,28 @@ cultural_roots, disadvantages, primaries, tables) {
     $('#dp_tabs').tabs();
     var name, primary, i, parts, ability;
     for (name in primaries) {
-      if (primaries.hasOwnObject(name)) {
+      if (primaries.hasOwnProperty(name)) {
         primary = primaries[name];
         for (i = 0; i < primary.length; i++) {
-          parts = ['<a href="#" class="ability">', primary[i], '</a><br />'];
-          $('#' + name).append(parts.join(''));
+          ability = primary[i];
+          parts = ['<a href="#" class="ability">', ability, '</a><br />'];
+          if (ability in abilities && 'Field' in abilities[ability]) {
+            $('#DP_' + abilities[ability].Field).append(parts.join(''));
+          }
+          else {
+            $('#' + name).append(parts.join(''));
+          }
         }
-      }
-    }
-    for (name in abilities) {
-      if (abilities.hasOwnObject(name)) {
-        ability = abilities[name];
-        if (!('Field' in ability)) {
-          continue;
-        }
-        parts = ['<a href="#" class="ability">', name, '</a><br />'];
-        $('#DP_' + ability.Field).append(parts.join(''));
       }
     }
     dialogs.DP = $('#dp_dialog').dialog({
       autoOpen: false,
       modal: true,
-      width: '1000px',
+      width: '1010px',
       position: 'top',
       buttons: {
         'Cancel': function() {
-          dialogs.Advantages.dialog('close');
+          dialogs.DP.dialog('close');
         }
       }
     });
@@ -695,17 +691,28 @@ cultural_roots, disadvantages, primaries, tables) {
   };
 
   dialogs.spend_dp = function() {
+    var level = $(this).data('level');
     var data = characters.current();
-    for (var name in advantages) {
-      var link = $('#advantages_tabs a:contains("' + name + '")');
-      if (data.advantage_allowed(name, null)) {
-        link.removeClass('disabled');
-      }
-      else {
-        link.addClass('disabled');
-      }
+    var remaining = data.dp_remaining();
+    var index = level === 0 ? 0 : level - 1;
+    var limits = remaining[index];
+    var cls = data.levels[index].Class;
+    var primary, ability, available;
+    for (primary in primaries) {
+      if (primaries.hasOwnProperty(primary)) {
+        available = limits[primary === 'Other' ? 'Total' : primary];
+        for (ability in primaries[primary]) {
+		  var link = $('#dp_tabs a:contains("' + ability + '")');
+		  if (data.cost(ability, cls) > available) {
+			link.addClass('disabled');
+		  }
+		  else {
+			link.removeClass('disabled');
+		  }
+		}
+	  }
     }
-    dialogs.Advantages.dialog('open');
+    dialogs.DP.dialog('open');
     return false;
   };
 
@@ -723,6 +730,7 @@ cultural_roots, disadvantages, primaries, tables) {
     disadvantages_init();
     disadvantage_benefit_init();
     disadvantage_option_init();
+    dp_init();
     natural_bonus_init();
     $('#add_advantage').click(dialogs.add_advantage);
     $('#add_disadvantage').click(dialogs.add_disadvantage);
