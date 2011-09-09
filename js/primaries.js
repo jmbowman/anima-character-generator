@@ -31,6 +31,8 @@ define(['jquery', 'abilities', 'libs/utils'], function($, abilities) {
 	  }
 	})
   };
+  
+  primaries.Other.push('Life Point Multiple');
 
   return primaries;
 });

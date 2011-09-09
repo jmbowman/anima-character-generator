@@ -387,7 +387,8 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
         primary = primaries[name];
         for (i = 0; i < primary.length; i++) {
           ability = primary[i];
-          parts = ['<a href="#" class="ability">', ability, '</a><br />'];
+          parts = ['<a href="#" class="ability">', ability,
+                   '</a> (<span class="cost"></span>)<br />'];
           if (ability in abilities && 'Field' in abilities[ability]) {
             $('#DP_' + abilities[ability].Field).append(parts.join(''));
           }
@@ -697,12 +698,14 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
     var index = level === 0 ? 0 : level - 1;
     var limits = remaining[index];
     var cls = data.levels[index].Class;
-    var primary, ability, available;
+    var primary, i, ability, available;
     for (primary in primaries) {
       if (primaries.hasOwnProperty(primary)) {
         available = limits[primary === 'Other' ? 'Total' : primary];
-        for (ability in primaries[primary]) {
+        for (i in primaries[primary]) {
+          ability = primaries[primary][i];
 		  var link = $('#dp_tabs a:contains("' + ability + '")');
+		  link.next('.cost').text(data.cost(ability, cls));
 		  if (data.cost(ability, cls) > available) {
 			link.addClass('disabled');
 		  }
