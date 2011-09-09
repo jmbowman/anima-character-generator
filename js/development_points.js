@@ -1,4 +1,5 @@
-define(['character', 'classes', 'primaries'], function(character, classes, primaries) {
+define(['character', 'classes', 'primaries'],
+function(character, classes, primaries) {
   
   character.prototype.dp_remaining = function() {
     var level = this.level();
@@ -33,13 +34,13 @@ define(['character', 'classes', 'primaries'], function(character, classes, prima
       for (item in level_info.DP) {
         cost = this.cost(item, level_info.Class);
         result.Total -= cost;
-        if (item in primaries.Combat) {
+        if (primaries.Combat.indexOf(item) != -1) {
           result.Combat -= level_info.DP[item] * cost;
         }
-        else if (item in primaries.Psychic) {
+        else if (primaries.Psychic.indexOf(item) != -1) {
           result.Psychic -= level_info.DP[item] * cost;
         }
-        else if (item in primaries.Supernatural) {
+        else if (primaries.Supernatural.indexOf(item) != -1) {
           result.Supernatural -= level_info.DP[item] * cost;
         }
       }

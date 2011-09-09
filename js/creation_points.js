@@ -1,4 +1,6 @@
-define(['jquery', 'advantages', 'character', 'classes', 'disadvantages', 'tables', 'libs/utils'], function($, advantages, character, classes, disadvantages, tables, utils) {
+define(['jquery', 'advantages', 'character', 'classes', 'disadvantages',
+'tables', 'libs/utils'], function($, advantages, character, classes,
+disadvantages, tables, utils) {
   
   character.prototype.add_advantage = function(name, cost, params) {
     if (name == 'Access to Natural Psychic Powers') {

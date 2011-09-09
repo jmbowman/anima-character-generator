@@ -1,4 +1,5 @@
-define(['jquery', 'abilities', 'classes', 'psychic_disciplines', 'tables', 'libs/utils'], function($, abilities, classes, disciplines, tables, utils) {
+define(['jquery', 'abilities', 'classes', 'psychic_disciplines', 'tables',
+'libs/utils'], function($, abilities, classes, disciplines, tables, utils) {
 
   var character = function() {
     this.Advantages = {};
@@ -15,7 +16,7 @@ define(['jquery', 'abilities', 'classes', 'psychic_disciplines', 'tables', 'libs
     var level = this.level();
     var nl = 0;
     var nlf = 0;
-    var params;
+    var params, info, cls;
     if ('Natural Learner' in this.Advantages) {
       params = this.Advantages['Natural Learner'];
       if (params.Ability == name) {
@@ -61,8 +62,8 @@ define(['jquery', 'abilities', 'classes', 'psychic_disciplines', 'tables', 'libs
       }
     }
     for (i = 0; i < level; i++) {
-      var info = this.levels[i];
-      var cls = $classes[info.Class];
+      info = this.levels[i];
+      cls = $classes[info.Class];
       if (name in info.DP) {
         total += info.DP[name];
       }

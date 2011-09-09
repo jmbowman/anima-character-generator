@@ -40,7 +40,7 @@ define(function() {
     intersection: function(a, b)
     {
       var ai=0, bi=0;
-      var result = {};
+      var result = [];
     
       while( ai < a.length && bi < b.length )
       {
