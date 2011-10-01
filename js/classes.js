@@ -1,6 +1,9 @@
 define(function() {
 
-  var character_class = function() {
+  var Class = function() {
+    if (!(this instanceof Class) {
+      return new Class();
+    }
     this['Life Point Multiple'] = 20;
     this.LP = 5;
     this.Initiative = 5;
@@ -36,26 +39,26 @@ define(function() {
   };
 
   var classes = {
-    'Acrobatic Warrior': new character_class(),
-    Assassin: new character_class(),
-    'Dark Paladin': new character_class(),
-    Freelancer: new character_class(),
-    Illusionist: new character_class(),
-    Mentalist: new character_class(),
-    Paladin: new character_class(),
-    Ranger: new character_class(),
-    Shadow: new character_class(),
-    Summoner: new character_class(),
-    Tao: new character_class(),
-    Technician: new character_class(),
-    Thief: new character_class(),
-    Warlock: new character_class(),
-    Warrior: new character_class(),
-    'Warrior Mentalist': new character_class(),
-    'Warrior Summoner': new character_class(),
-    Weaponsmaster: new character_class(),
-    Wizard: new character_class(),
-    'Wizard Mentalist': new character_class()
+    'Acrobatic Warrior': new Class(),
+    Assassin: new Class(),
+    'Dark Paladin': new Class(),
+    Freelancer: new Class(),
+    Illusionist: new Class(),
+    Mentalist: new Class(),
+    Paladin: new Class(),
+    Ranger: new Class(),
+    Shadow: new Class(),
+    Summoner: new Class(),
+    Tao: new Class(),
+    Technician: new Class(),
+    Thief: new Class(),
+    Warlock: new Class(),
+    Warrior: new Class(),
+    'Warrior Mentalist': new Class(),
+    'Warrior Summoner': new Class(),
+    Weaponsmaster: new Class(),
+    Wizard: new Class(),
+    'Wizard Mentalist': new Class()
   };
 
   // Acrobatic Warrior
