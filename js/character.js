@@ -1,9 +1,12 @@
 /*global define: false */
-define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines',
-'tables', 'libs/utils'], function ($, abilities, classes, cultural_roots,
+define(['abilities', 'classes', 'cultural_roots', 'psychic_disciplines',
+'tables', 'libs/utils'], function (abilities, classes, cultural_roots,
     disciplines, tables, utils) {
 
-    var character = function () {
+    var Character = function () {
+        if (!(this instanceof Character)) {
+            return new Character();
+        }
         this.Advantages = {};
         this.Disadvantages = {};
         this.Race = 'Human';
@@ -11,40 +14,44 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
         this.levels = [{Class: 'Freelancer', DP: {}}];
     };
   
-    character.prototype.ability = function (name, specialty) {
-        var ability = abilities[name],
+    Character.prototype.ability = function (name, specialty) {
+        var myAdvantages = this.Advantages,
+            ability = abilities[name],
             amount,
             background,
             bonuses = 0,
+            characteristic = ability.Characteristic,
+            choice,
             choices,
             cls,
+            combat_senses = myAdvantages['Combat Senses'],
             cr,
             each_level = 0,
             i,
+            imperceptible_ki = 'Imperceptible Ki' in myAdvantages && name === 'Ki Concealment',
             info,
+            ki_perception = 'Ki Perception' in myAdvantages && name === 'Ki Detection',
+            length,
             level = this.level(),
-            myAdvantages = this.Advantages,
-            nb,
+            nb_multiplier = 1,
+            option,
             params,
             spec,
-            total = 0;
-        if ('Natural Learner' in myAdvantages) {
-            params = myAdvantages['Natural Learner'];
-            if (params.Ability === name) {
-                each_level += params.Points * 10;
-            }
+            total = 0,
+            use_of_armor = name === 'Wear Armor' && myAdvantages['Use of Armor'];
+        params = myAdvantages['Natural Learner'];
+        if (params && params.Ability === name) {
+            each_level += params.Points * 10;
         }
-        if ('Field' in ability && 'Natural Learner, Field' in myAdvantages) {
-            params = myAdvantages['Natural Learner, Field'];
-            if (params.Field === ability.Field) {
-                each_level += (params.Points - 1) * 5;
-            }
+        params = myAdvantages['Natural Learner, Field'];
+        if (params && params.Field === ability.Field) {
+            each_level += (params.Points - 1) * 5;
         }
-        if ('Cultural Roots' in myAdvantages) {
-            params = myAdvantages['Cultural Roots'];
+        params = myAdvantages['Cultural Roots'];
+        if (params) {
             background = params;
             choices = [];
-            if ($.isPlainObject(params)) {
+            if (typeof params !== 'string') {
                 background = params.Background;
                 choices = params.Choices;
             }
@@ -53,15 +60,18 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
                 amount = cr[name];
             }
             else if (choices.indexOf(name) !== -1) {
-                $.each(cr.choices, function (i, choice) {
-                    for (var option in choice) {
-                        if (option === name) {
+                choices = cr.choices;
+                length = choices.length;
+                for (i = 0; i < length; i++) {
+                    choice = choices[i];
+                    for (option in choice) {
+                        if (choice.hasOwnProperty(option) && option === name) {
                             amount = choice[option];
                         }
                     }
-                });
+                }
             }
-            if ($.isPlainObject(amount)) {
+            if (typeof amount !== 'number') {
                 spec = Object.keys(amount)[0];
                 if (spec === specialty) {
                     bonuses += amount[spec];
@@ -71,43 +81,39 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
                 bonuses += amount;
             }
         }
+        if ('Increased Natural Bonus' in myAdvantages) {
+            nb_multiplier = 2;
+        }
         for (i = 0; i < level; i++) {
             info = this.levels[i];
             cls = classes[info.Class];
-            if (name in info.DP) {
-                total += info.DP[name];
+            amount = info.DP[name];
+            if (amount) {
+                total += amount;
             }
-            if (name in cls.bonuses) {
-                if (level === 0) {
-                    bonuses += Math.floor(cls.bonuses[name] / 2);
-                }
-                else {
-                    bonuses += cls.bonuses[name];
-                }
+            amount = cls.bonuses[name];
+            if (amount) {
+                bonuses += (level === 0) ? Math.floor(amount / 2) : amount;
             }
-            if ('Combat Senses' in this.Advantages && this.Advantages['Combat Senses'] === name) {
+            if (combat_senses === name) {
                 bonuses += 5;
             }
-            else if ('Imperceptible Ki' in this.Advantages && name === 'Ki Concealment') {
+            else if (imperceptible_ki) {
                 bonuses += 10;
             }
-            else if ('Ki Perception' in this.Advantages && name === 'Ki Detection') {
+            else if (ki_perception) {
                 bonuses += 10;
             }
-            else if (name === 'Wear Armor' && 'Use of Armor' in this.Advantages) {
-                bonuses += this.Advantages['Use of Armor'] * 5;
+            else if (use_of_armor) {
+                bonuses += use_of_armor * 5;
             }
-            if ('Natural Bonus' in info && info['Natural Bonus'] === name) {
-                nb = this.modifier(ability.Characteristic, i + 1);
-                if ('Increased Natural Bonus' in this.Advantages) {
-                    nb *= 2;
-                }
-                bonuses += nb;
+            if (info['Natural Bonus'] === name) {
+                bonuses += this.modifier(characteristic, i + 1) * nb_multiplier;
             }
             bonuses += each_level;
         }
         if ('Field' in ability) {
-            if ('Jack of All Trades' in this.Advantages) {
+            if ('Jack of All Trades' in myAdvantages) {
                 total += 10;
             }
             else if (total < 5) {
@@ -117,25 +123,25 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
         if (bonuses > 50 && tables.primary_combat_abilities.indexOf(name) !== -1) {
             bonuses = 50;
         }
-        if ('Acute Senses' in this.Advantages && name in ['Notice', 'Search']) {
+        if ('Acute Senses' in myAdvantages && ['Notice', 'Search'].indexOf(name) !== -1) {
             bonuses += 30;
         }
-        if ('Klutzy' in this.Disadvantages && ['Attack', 'Block', 'Disguise', 'Forging', 'Lock Picking', 'Sleight of Hand', 'Theft', 'Trap Lore'].indexOf(name) !== -1) {
+        if ('Klutzy' in this.Disadvantages && tables.klutzy.indexOf(name) !== -1) {
             total -= 30;
         }
-        if ('Psychic Immunity' in this.Advantages && name === 'Composure') {
+        if ('Psychic Immunity' in myAdvantages && name === 'Composure') {
             bonuses += 60;
         }
-        if ('Seducer' in this.Advantages && name === 'Persuasion' && specialty === 'seduction') {
+        if ('Seducer' in myAdvantages && name === 'Persuasion' && specialty === 'seduction') {
             bonuses += 60;
         }
-        if ('Talented' in this.Advantages && name === 'Sleight of Hand') {
+        if ('Talented' in myAdvantages && name === 'Sleight of Hand') {
             bonuses += 30;
         }
-        total += bonuses + this.modifier(ability.Characteristic);
+        total += bonuses + this.modifier(characteristic);
     };
   
-    character.prototype.appearance = function () {
+    Character.prototype.appearance = function () {
         var total = ('Appearance' in this) ? this.Appearance : 5;
         if (this.Race === "D'Anjayni Nephilim") {
             if (total < 3) {
@@ -151,64 +157,76 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
         return total;
     };
   
-    character.prototype.armor_type = function (type) {
-        var total = 0;
-        if ('Natural Armor' in this.Advantages && type !== 'Energy') {
+    Character.prototype.armor_type = function (type) {
+        var myAdvantages = this.Advantages,
+            total = 0;
+        if ('Natural Armor' in myAdvantages && type !== 'Energy') {
             total += 2;
         }
-        if ('Mystical Armor' in this.Advantages && type === 'Energy') {
+        if ('Mystical Armor' in myAdvantages && type === 'Energy') {
             total += 2;
         }
         return total;
     };
   
-    character.prototype.change_class = function (level, class_name) {
-        var i = (level > 0) ? level - 1 : 0;
-        this.levels[i].Class = class_name;
-        if (this.levels.length > i + 1 && !('Versatile' in this.Advantages)) {
-            this.levels[i + 1].Class = class_name;
+    Character.prototype.change_class = function (level, class_name) {
+        var i = (level > 0) ? level - 1 : 0,
+            levels = this.levels;
+        levels[i].Class = class_name;
+        if (levels.length > i + 1 && !('Versatile' in this.Advantages)) {
+            levels[i + 1].Class = class_name;
         }
     };
 
-    character.prototype.characteristic = function (name, at_level) {
+    Character.prototype.characteristic = function (name, at_level) {
         var i,
+            reroll,
+            length,
             level,
+            myAdvantages = this.Advantages,
+            myDisadvantages = this.Disadvantages,
+            params,
             total = name in this ? this[name] : 5;
         if (!at_level) {
             at_level = this.level();
         }
-        if ('Increase One Characteristic to Nine' in this.Advantages) {
-            $.each(this.Advantages['Increase One Characteristic to Nine'], function (i, item) {
-                if (item === name) {
+        params = myAdvantages['Increase One Characteristic to Nine'];
+        if (params) {
+            length = params.length;
+            for (i = 0; i < length; i++) {
+                if (params[i] === name) {
                     total = 9;
                 }
-            });
+            }
         }
-        if ('Repeat a Characteristics Roll' in this.Advantages) {
-            $.each(this.Advantages['Repeat a Characteristics Roll'], function (i, item) {
-                if (item.Characteristic === name) {
-                    total = item.Roll;
+        params = myAdvantages['Repeat a Characteristics Roll'];
+        if (params) {
+            length = params.length;
+            for (i = 0; i < length; i++) {
+                reroll = params[i];
+                if (reroll.Characteristic === name) {
+                    total = reroll.Roll;
                 }
-            });
+            }
         }
-        if ('Add One Point to a Characteristic' in this.Advantages) {
-            $.each(this.Advantages['Add One Point to a Characteristic'], function (i, item) {
-                if (item === name) {
+        params = myAdvantages['Add One Point to a Characteristic'];
+        if (params) {
+            length = params.length;
+            for (i = 0; i < length; i++) {
+                if (params[i] === name) {
                     total += 1;
                 }
-            });
-        }
-        if ('Deduct Two Points from a Characteristic' in this.Disadvantages) {
-            if (this.Disadvantages['Deduct Two Points from a Characteristic'] === name) {
-                total -= 2;
             }
+        }
+        if (myDisadvantages['Deduct Two Points from a Characteristic'] === name) {
+            total -= 2;
         }
         if (this.Race === 'Jayan Nephilim' && name === 'STR') {
             total += 1;
         }
         for (i = 0; i < at_level && this.levels.length > i; i++) {
             level = this.levels[i];
-            if ('Characteristic' in level && level.Characteristic === name) {
+            if (level.Characteristic === name) {
                 total += 1;
             }
         }
@@ -218,17 +236,18 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
         return total;
     };
   
-    character.prototype.class_change_dp = function (level) {
+    Character.prototype.class_change_dp = function (level) {
         var cost = 60,
             last_class,
             last_types,
+            levels = this.levels,
             this_class,
             this_types;
         if (level < 2) {
             return 0;
         }
-        this_class = this.levels[level - 1].Class;
-        last_class = this.levels[level - 2].Class;
+        this_class = levels[level - 1].Class;
+        last_class = levels[level - 2].Class;
         if (this_class === last_class) {
             return 0;
         }
@@ -250,42 +269,44 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
         return cost;
     };
   
-    character.prototype.class_change_possible = function (level) {
-        var two_back,
-            previous;
+    Character.prototype.class_change_possible = function (level) {
+        var levels = this.levels;
         if (level < 2 || 'Versatile' in this.Advantages) {
             return true;
         }
         if (level === 2) {
             return false;
         }
-        previous = this.levels[level - 2].Class;
-        two_back = this.levels[level - 3].Class;
-        return previous === two_back;
+        return levels[level - 2].Class === levels[level - 3].Class;
     };
   
-    character.prototype.cost = function (name, class_name) {
-        var character_class = classes[class_name],
+    Character.prototype.cost = function (name, class_name) {
+        var ability = abilities[name],
+            character_class = classes[class_name],
+            field,
             info,
+            myAdvantages = this.Advantages,
+            reduced,
             result;
-        if (name in character_class.reduced) {
-            result = character_class.reduced[name];
+        if (ability) {
+            field = ability.Field;
         }
-        else if (name in abilities && 'Field' in abilities[name]) {
-            result = character_class[abilities[name].Field];
+        reduced = character_class.reduced[name];
+        if (reduced) {
+            result = reduced;
+        }
+        else if (field) {
+            result = character_class[field];
         }
         else {
             result = character_class[name];
         }
-        if ('Aptitude in a Field' in this.Advantages && name in abilities) {
-            info = this.Advantages['Aptitude in a Field'];
-            if ('Field' in abilities[name] && abilities[name].Field === info) {
+        if (field) {
+            if (myAdvantages['Aptitude in a Field'] === field) {
                 result--;
             }
-        }
-        if ('Aptitude in a Subject' in this.Advantages) {
-            info = this.Advantages['Aptitude in a Subject'];
-            if (info.Ability === name) {
+            info = myAdvantages['Aptitude in a Subject'];
+            if (info && info.Ability === name) {
                 result -= info.Points;
             }
         }
@@ -295,23 +316,26 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
         return result;
     };
   
-    character.prototype.discipline_access = function () {
-        if ('Access to One Psychic Discipline' in this.Advantages) {
-            return [this.Advantages['Access to One Psychic Discipline']];
+    Character.prototype.discipline_access = function () {
+        var myAdvantages = this.Advantages,
+            one = myAdvantages['Access to One Psychic Discipline'];
+        if (one) {
+            return [one];
         }
-        else if ('Free Access to Any Psychic Discipline' in this.Advantages) {
+        if ('Free Access to Any Psychic Discipline' in myAdvantages) {
             return Object.keys(disciplines.disciplines);
         }
         return [];
     };
   
-    character.prototype.fatigue = function () {
-        var total = this.characteristic('CON');
+    Character.prototype.fatigue = function () {
+        var total = this.characteristic('CON'),
+            untiring = this.Advantages.Untiring;
         if (this.Race === 'Jayan Nephilim') {
             total += 1;
         }
-        if ('Untiring' in this.Advantages) {
-            total += this.Advantages.Untiring * 3;
+        if (untiring) {
+            total += untiring * 3;
         }
         if ('Exhausted' in this.Disadvantages) {
             total--;
@@ -319,39 +343,44 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
         return total;
     };
   
-    character.prototype.gender = function () {
-        return ('Gender' in this) ? this.Gender : 'Male';
+    Character.prototype.gender = function () {
+        var gender = this.Gender;
+        return gender ? gender : 'Male';
     };
   
-    character.prototype.gnosis = function () {
-        return ('Gnosis' in this) ? this.Gnosis : 0;
+    Character.prototype.gnosis = function () {
+        var gnosis = this.Gnosis;
+        return gnosis ? gnosis : 0;
     };
   
-    character.prototype.initiative = function () {
-        var points,
+    Character.prototype.initiative = function () {
+        var i,
+            levels = this.levels,
+            length = levels.length,
+            qr = this.Advantages['Quick Reflexes'],
+            sr = this.Disadvantages['Slow Reactions'],
             total = 20 + this.modifier('AGI') + this.modifier('DEX');
-        if ('Quick Reflexes' in this.Advantages) {
-            points = this.Advantages['Quick Reflexes'];
-            if (points === 1) {
+        if (qr) {
+            if (qr === 1) {
                 total += 25;
             }
-            else if (points === 2) {
+            else if (qr === 2) {
                 total += 45;
             }
             else {
                 total += 60;
             }
         }
-        if ('Slow Reactions' in this.Disadvantages) {
-            total -= this.Disadvantages['Slow Reactions'] * 30;
+        if (sr) {
+            total -= sr * 30;
         }
-        $.each(this.levels, function (i, level) {
-            total += classes[level.Class].Initiative;
-        });
+        for (i = 0; i < length; i++) {
+            total += classes[levels[i].Class].Initiative;
+        }
         return total;
     };
   
-    character.prototype.ki_concealment = function () {
+    Character.prototype.ki_concealment = function () {
         var total = 0;
         if (this.Race === "D'Anjayni Nephilim") {
             total += 30;
@@ -359,45 +388,53 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
         return total;
     };
   
-    character.prototype.level = function () {
-        var i;
-        if (this.XP >= 4125) {
+    Character.prototype.level = function () {
+        var chart = tables.xp_chart,
+            i,
+            xp = this.XP;
+        if (xp >= 4125) {
             return 16;
         }
         for (i = 0; i < 16; i++) {
-            if (this.XP < tables.xp_chart[i]) {
+            if (xp < chart[i]) {
                 return i;
             }
         }
     };
 
-    character.prototype.life_points = function () {
-        var character = this,
+    Character.prototype.life_points = function () {
+        var cls,
             con_mod = this.modifier('CON'),
+            hard_to_kill = this.Advantages['Hard to Kill'],
+            i,
+            info,
             level = this.level(),
+            levels = this.levels,
+            length = levels.length,
+            multiple,
             result = tables.base_lp[this.characteristic('CON')];
-        if ('levels' in this) {
-            $.each(this.levels, function (i, info) {
-                var cls = classes[info.Class];
-                if (level > 0) {
-                    result += cls.LP;
-                }
-                if ('Life Point Multiple' in info.DP) {
-                    result += info.DP['Life Point Multiple'] * con_mod;
-                }
-                if ('Hard to Kill' in character.Advantages) {
-                    result += character.Advantages['Hard to Kill'] * 10;
-                }
-            });
+        for (i = 0; i < length; i++) {
+            info = levels[i];
+            cls = classes[info.Class];
+            if (level > 0) {
+                result += cls.LP;
+            }
+            multiple = info.DP['Life Point Multiple'];
+            if (multiple) {
+                result += multiple * con_mod;
+            }
+            if (hard_to_kill) {
+                result += hard_to_kill * 10;
+            }
         }
         return result;
     };
 
-    character.prototype.modifier = function (characteristic, at_level) {
+    Character.prototype.modifier = function (characteristic, at_level) {
         return tables.modifiers[this.characteristic(characteristic, at_level)];
     };
   
-    character.prototype.movement_value = function () {
+    Character.prototype.movement_value = function () {
         var result = this.characteristic('AGI');
         if (result > 10) {
             result = 10;
@@ -405,21 +442,22 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
         return result;
     };
   
-    character.prototype.presence = function () {
+    Character.prototype.presence = function () {
         return this.level() * 5 + 25;
     };
   
-    character.prototype.psychic_powers = function () {
-        var info,
+    Character.prototype.psychic_powers = function () {
+        var info = this.Advantages['Access to Natural Psychic Powers'],
+            points,
             potential,
             powers = {};
-        if ('Access to Natural Psychic Powers' in this.Advantages) {
-            info = this.Advantages['Access to Natural Psychic Powers'];
+        if (info) {
             potential = 120;
-            if (info.Points === 2) {
+            points = info.Points;
+            if (points === 2) {
                 potential = 140;
             }
-            else if (info.Points === 3) {
+            else if (points === 3) {
                 potential = 180;
             }
             powers[info.Power] = potential;
@@ -427,40 +465,39 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
         return powers;
     };
   
-    character.prototype.racial_abilities = function () {
-        if (this.Race === "D'Anjayni Nephilim") {
+    Character.prototype.racial_abilities = function () {
+        switch (this.Race) {
+        case "D'Anjayni Nephilim":
             return 'Pass Without Trace, Forgetfulness, +30 to Resistance vs. detection, Silent Whisper, -3 XP';
-        }
-        else if (this.Race === 'Daimah Nephilim') {
+        case 'Daimah Nephilim':
             return 'See the Essence, Sense the Forest, +3 Regeneration in thick forest or jungle, Movement in the Forest, -2 XP';
-        }
-        else if (this.Race === "Duk'zarist Nephilim") {
+        case "Duk'zarist Nephilim":
             return '+10 to Resistances vs. Dark, Automatically pass between life and death PhR checks, Limited Needs, Sense Light and Dark, Night Vision, Allergic to Metal, -5 XP';
-        }
-        else if (this.Race === 'Ebudan Nephilim') {
+        case 'Ebudan Nephilim':
             return '+30 to Resistance vs. Forgetfulness and Emotional Control OR (Immune to attacks that cannot damage Energy, Flight Value 12), -3 XP';
-        }
-        else if (this.Race === 'Jayan Nephilim') {
+        case 'Jayan Nephilim':
             return 'Spiritual Vision, -3 XP';
-        }
-        else if (this.Race === 'Sylvain Nephilim') {
+        case 'Sylvain Nephilim':
             return '+10 to Resistances vs. Light, Sense Light and Dark, Limited Needs, -4 XP';
+        default:
+            return '';
         }
-        return '';
     };
   
-    character.prototype.regeneration = function () {
-        var total = tables.regeneration[this.characteristic('CON')];
-        if (this.Race in ["Duk'zarist Nephilim", 'Sylvain Nephilim']) {
+    Character.prototype.regeneration = function () {
+        var gnosis = this.gnosis(),
+            advantage = this.Advantages.Regeneration,
+            total = tables.regeneration[this.characteristic('CON')];
+        if (["Duk'zarist Nephilim", 'Sylvain Nephilim'].indexOf(this.Race) !== -1) {
             total += 1;
         }
-        if ('Regeneration' in this.Advantages) {
-            total += this.Advantages.Regeneration * 2;
+        if (advantage) {
+            total += advantage * 2;
         }
-        if (total > 18 && this.gnosis() < 40) {
+        if (total > 18 && gnosis < 40) {
             total = 18;
         }
-        else if (total > 19 && this.gnosis() < 45) {
+        else if (total > 19 && gnosis < 45) {
             total = 19;
         }
         else if (total > 20) {
@@ -469,28 +506,34 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
         return total;
     };
   
-    character.prototype.resistance = function (name) {
-        var total = this.presence() + this.modifier(tables.resistances[name]);
-        if (this.Race === "Duk'zarist Nephilim") {
-            if (name === 'PhR' && this.gender() === 'Male') {
+    Character.prototype.resistance = function (name) {
+        var gender,
+            myAdvantages = this.Advantages,
+            myDisadvantages = this.Disadvantages,
+            points,
+            total = this.presence() + this.modifier(tables.resistances[name]);
+        switch (this.Race) {
+        case "Duk'zarist Nephilim":
+            gender = this.gender();
+            if (name === 'PhR' && gender === 'Male') {
                 total += 20;
             }
-            else if (name === 'MR' && this.gender() === 'Female') {
+            else if (name === 'MR' && gender === 'Female') {
                 total += 20;
             }
             else {
                 total += 15;
             }
-        }
-        else if (this.Race === 'Jayan Nephilim') {
+            break;
+        case 'Jayan Nephilim':
             if (name === 'PhR') {
                 total += 15;
             }
             else if (name === 'MR') {
                 total -= 10;
             }
-        }
-        else if (this.Race === 'Sylvain Nephilim') {
+            break;
+        case 'Sylvain Nephilim':
             if (name === 'MR' || name === 'PsR') {
                 total += 10;
             }
@@ -502,30 +545,31 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
             }
         }
         if (name === 'MR') {
-            if ('Exceptional Magic Resistance' in this.Advantages) {
-                total += this.Advantages['Exceptional Magic Resistance'] * 25;
+            points = myAdvantages['Exceptional Magic Resistance'];
+            if (points) {
+                total += points * 25;
             }
             if ('The Gift' in this.Advantages) {
                 total += 10;
             }
         }
-        else if (name === 'PsR' && 'Exceptional Psychic Resistance' in this.Advantages) {
-            total += this.Advantages['Exceptional Psychic Resistance'] * 25;
+        else if (name === 'PsR' && (points = myAdvantages['Exceptional Psychic Resistance'])) {
+            total += points * 25;
         }
         else if (['DR', 'PhR', 'VR'].indexOf(name) !== -1 &&
-                'Exceptional Physical Resistance' in this.Advantages) {
-            total += this.Advantages['Exceptional Physical Resistance'] * 25;
+                 (points = myAdvantages['Exceptional Physical Resistance'])) {
+            total += points * 25;
         }
-        if ((name === 'DR' && 'Sickly' in this.Disadvantages) ||
-            (name === 'MR' && 'Susceptible to Magic' in this.Disadvantages) ||
-            (name === 'PhR' && 'Physical Weakness' in this.Disadvantages) ||
-            (name === 'VR' && 'Susceptible to Poisons' in this.Disadvantages)) {
+        if ((name === 'DR' && 'Sickly' in myDisadvantages) ||
+            (name === 'MR' && 'Susceptible to Magic' in myDisadvantages) ||
+            (name === 'PhR' && 'Physical Weakness' in myDisadvantages) ||
+            (name === 'VR' && 'Susceptible to Poisons' in myDisadvantages)) {
             total = Math.floor(total / 2);
         }
         return total;
     };
   
-    character.prototype.second_hand_penalty = function () {
+    Character.prototype.second_hand_penalty = function () {
         if ('Ambidextrous' in this.Advantages) {
             return 10;
         }
@@ -534,102 +578,129 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
         }
     };
   
-    character.prototype.set_natural_bonus = function (level, name) {
-        if (level < 1 || level > this.levels.length) {
+    Character.prototype.set_natural_bonus = function (level, name) {
+        var levels = this.levels;
+        if (level < 1 || level > levels.length) {
             return;
         }
-        this.levels[level - 1]['Natural Bonus'] = name;
+        levels[level - 1]['Natural Bonus'] = name;
     };
   
-    character.prototype.size = function () {
-        var total = this.modifier('STR') + this.modifier('CON');
-        if (this.Race === 'Daimah Nephilim') {
+    Character.prototype.size = function () {
+        var total = this.modifier('STR') + this.modifier('CON'),
+            uncommon_size = this.Advantages['Uncommon Size'];
+        switch (this.Race) {
+        case 'Daimah Nephilim':
             total -= 1;
-        }
-        else if (this.Race === 'Jayan Nephilim') {
+            break;
+        case 'Jayan Nephilim':
             total += 2;
         }
-        if ('Uncommon Size' in this.Advantages) {
-            total += this.Advantages['Uncommon Size'];
+        if (uncommon_size) {
+            total += uncommon_size;
         }
         return total;
     };
   
-    character.prototype.summary = function () {
+    Character.prototype.summary = function () {
         var my_classes = [],
-            levels = {},
-            parts = [];
-        if ('Name' in this) {
-            parts.push(this.Name, ' ');
+            class_levels = {},
+            cls,
+            i,
+            levels = this.levels,
+            length = levels.length,
+            name = this.Name,
+            result = '';
+        if (name) {
+            result = name + ' ';
         }
-        if ('levels' in this) {
-            $.each(this.levels, function (i, level) {
-                var cls = level.Class;
-                if (my_classes.indexOf(cls) === -1) {
-                    my_classes.push(cls);
-                    levels[cls] = 1;
-                }
-                else {
-                    levels[cls]++;
-                }
-            });
-            parts.push('(');
-            $.each(my_classes, function (i, cls) {
-                if (i > 0) {
-                    parts.push(', ');
-                }
-                parts.push(cls, ' ', levels[cls]);
-            });
-            parts.push(')');
+        for (i = 0; i < length; i++) {
+            cls = levels[i].Class;
+            if (my_classes.indexOf(cls) === -1) {
+                my_classes.push(cls);
+                class_levels[cls] = 1;
+            }
+            else {
+                class_levels[cls]++;
+            }
         }
-        return parts.join('');
+        result += '(';
+        length = my_classes.length;
+        for (i = 0; i < length; i++) {
+            cls = my_classes[i];
+            if (i > 0) {
+                result += ', ';
+            }
+            result += cls;
+            result += ' ';
+            result += class_levels[cls];
+        }
+        result += ')';
+        return result;
     };
   
-    character.prototype.mk_total = function () {
-        var total = 0;
-        $.each(this.levels, function (i, level) {
-            total += classes[level.Class].MK;
-        });
-        if ('Martial Mastery' in this.Advantages) {
-            total += this.Advantages['Martial Mastery'] * 40;
+    Character.prototype.mk_total = function () {
+        var i,
+            levels = this.levels,
+            length = levels.length,
+            martial_mastery = this.Advantages['Martial Mastery'],
+            total = 0;
+        for (i = 0; i < length; i++) {
+            total += classes[levels[i].Class].MK;
+        }
+        if (martial_mastery) {
+            total += martial_mastery * 40;
         }
         return total;
     };
-  
-    character.prototype.mk_used = function () {
-        var used = 0;
-        $.each(this.levels, function (i, level) {
-            var item;
-            if ('MK' in level) {
-                for (item in level.MK) {
-                    if (level.MK.hasOwnProperty(item)) {
-                        used += level.MK[item];
+
+    Character.prototype.mk_used = function () {
+        var i,
+            item,
+            levels = this.levels,
+            length = levels.length,
+            mk,
+            used = 0;
+        for (i = 0; i < length; i++) {
+            mk = levels[i].MK;
+            if (mk) {
+                for (item in mk) {
+                    if (mk.hasOwnProperty(item)) {
+                        used += mk[item];
                     }
                 }
             }
-        });
+        }
         return used;
     };
   
-    character.prototype.zeon = function () {
+    Character.prototype.zeon = function () {
         var data = this,
-            total = tables.base_zeon[this.characteristic('POW')];
-        $.each(this.levels, function (i, level) {
-            var cls = classes[level.Class];
-            if ('Zeon' in level.DP) {
-                total += level.DP.Zeon * 5;
+            i,
+            level,
+            levels = this.levels,
+            length = levels.length,
+            magic_nature = this.Advantages['Magic Nature'],
+            total = tables.base_zeon[this.characteristic('POW')],
+            zeon;
+        for (i = 0; i < length; i++) {
+            level = levels[i];
+            zeon = level.DP.Zeon;
+            if (zeon) {
+                total += zeon * 5;
             }
-            if ('Zeon' in cls.bonuses) {
-                total += cls.bonuses.Zeon;
+            zeon = classes[level.Class].bonuses.Zeon;
+            if (zeon) {
+                total += zeon;
             }
-            if ('Magic Nature' in this.Advantages) {
-                total += this.Advantages['Magic Nature'] * 50;
+            if (magic_nature) {
+                total += magic_nature * 50;
             }
-        });
+        }
         return total;
     };
   
-    return character;
+    return Character;
 });
 
 // Level object: Class, DP, Natural Bonus, MK, Characteristic

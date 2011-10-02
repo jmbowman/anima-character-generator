@@ -1,8 +1,9 @@
+/*global define: false */
 define(['jquery', 'advantages', 'character', 'classes', 'disadvantages',
-'tables', 'libs/utils'], function($, advantages, character, classes,
+'tables', 'libs/utils'], function($, advantages, Character, classes,
 disadvantages, tables, utils) {
   
-  character.prototype.add_advantage = function(name, cost, params) {
+  Character.prototype.add_advantage = function(name, cost, params) {
     if (name == 'Access to Natural Psychic Powers') {
       this.Advantages[name] = {Points: cost, Power: params};
     }
@@ -56,7 +57,7 @@ disadvantages, tables, utils) {
     }
   };
   
-  character.prototype.add_disadvantage = function(name, benefit, param) {
+  Character.prototype.add_disadvantage = function(name, benefit, param) {
     var disadvantage = disadvantages[name];
     if (name == 'Damned') {
       this.Disadvantages[name] = {Points: benefit, Effect: param};
@@ -82,7 +83,7 @@ disadvantages, tables, utils) {
     }
   };
   
-  character.prototype.advantage_allowed = function(name, parameter) {
+  Character.prototype.advantage_allowed = function(name, parameter) {
     var advantage = advantages[name];
     var cp_remaining = this.cp_remaining('Common');
     if ('Category' in advantage) {
@@ -176,7 +177,7 @@ disadvantages, tables, utils) {
     return true;
   };
   
-  character.prototype.advantage_cost = function(name) {
+  Character.prototype.advantage_cost = function(name) {
     var params = this.Advantages[name];
     if ($.isPlainObject(params) && 'Points' in params) {
       return params.Points;
@@ -192,7 +193,7 @@ disadvantages, tables, utils) {
     }
   };
   
-  character.prototype.advantage_summary = function(name) {
+  Character.prototype.advantage_summary = function(name) {
     var result = name;
     var advantage = advantages[name];
     var params = this.Advantages[name];
@@ -243,7 +244,7 @@ disadvantages, tables, utils) {
     return result;
   };
   
-  character.prototype.cp_remaining = function(category) {
+  Character.prototype.cp_remaining = function(category) {
     var total = (!category || category == 'Common') ? 3 : 0;
     var other_categories = {Background: 0, Magic: 0, Psychic: 0};
     var name;
@@ -298,7 +299,7 @@ disadvantages, tables, utils) {
     return total;
   };
   
-  character.prototype.cp_total = function() {
+  Character.prototype.cp_total = function() {
     var total = 3;
     for (var name in this.Disadvantages) {
       total += this.disadvantage_benefit(name);
@@ -306,7 +307,7 @@ disadvantages, tables, utils) {
     return total;
   };
   
-  character.prototype.disadvantage_allowed = function(name, parameter) {
+  Character.prototype.disadvantage_allowed = function(name, parameter) {
     if (name in this.Disadvantages) {
       return false;
     }
@@ -373,7 +374,7 @@ disadvantages, tables, utils) {
     return true;
   };
   
-  character.prototype.disadvantage_benefit = function(name) {
+  Character.prototype.disadvantage_benefit = function(name) {
     var params = this.Disadvantages[name];
     if ($.isPlainObject(params) && 'Points' in params) {
       return params.Points;
@@ -386,7 +387,7 @@ disadvantages, tables, utils) {
     }
   };
   
-  character.prototype.disadvantage_summary = function(name) {
+  Character.prototype.disadvantage_summary = function(name) {
     var result = name;
     var disadvantage = disadvantages[name];
     var params = this.Disadvantages[name];

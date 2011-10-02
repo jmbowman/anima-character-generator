@@ -1,8 +1,9 @@
-define(['character'], function(character) {
-  return {
-    all: [new character()],
-    current: function() {
-      return this.all[0];
-    }
-  };
+/*global define: false */
+define(['character'], function (Character) {
+    return {
+        all: [new Character()],
+        current: function () {
+            return this.all[0];
+        }
+    };
 });

@@ -1,7 +1,7 @@
 define(['character', 'classes', 'primaries'],
-function(character, classes, primaries) {
+function(Character, classes, primaries) {
   
-  character.prototype.dp_remaining = function() {
+  Character.prototype.dp_remaining = function() {
     var level = this.level();
     var results = [];
     var result;
@@ -96,7 +96,7 @@ function(character, classes, primaries) {
     return results;
   };
 
-  character.prototype.dp_total = function(level) {
+  Character.prototype.dp_total = function(level) {
     if (level === 0) {
       return 400;
     }
