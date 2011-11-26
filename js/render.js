@@ -1,6 +1,7 @@
+/*global define: false */
 define(['jquery', 'abilities', 'characters', 'dialogs', 'tables',
 'creation_points', 'development_points'],
-function($, abilities, characters, dialogs, tables) {
+function ($, abilities, characters, dialogs, tables) {
   
   var next_step = function() {
     var data = characters.current();
