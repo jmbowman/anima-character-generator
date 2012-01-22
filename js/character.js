@@ -1,6 +1,6 @@
 /*global define: false */
-define(['abilities', 'classes', 'cultural_roots', 'psychic_disciplines',
-'tables', 'libs/utils'], function (abilities, classes, cultural_roots,
+define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines',
+'tables', 'libs/utils'], function ($, abilities, classes, cultural_roots,
     disciplines, tables, utils) {
 
     var Character = function () {
@@ -59,7 +59,7 @@ define(['abilities', 'classes', 'cultural_roots', 'psychic_disciplines',
             if (name in cr) {
                 amount = cr[name];
             }
-            else if (choices.indexOf(name) !== -1) {
+            else if ($.inArray(name, choices) !== -1) {
                 choices = cr.choices;
                 length = choices.length;
                 for (i = 0; i < length; i++) {
@@ -120,13 +120,13 @@ define(['abilities', 'classes', 'cultural_roots', 'psychic_disciplines',
                 total -= 30;
             }
         }
-        if (bonuses > 50 && tables.primary_combat_abilities.indexOf(name) !== -1) {
+        if (bonuses > 50 && $.inArray(name, tables.primary_combat_abilities) !== -1) {
             bonuses = 50;
         }
-        if ('Acute Senses' in myAdvantages && ['Notice', 'Search'].indexOf(name) !== -1) {
+        if ('Acute Senses' in myAdvantages && $.inArray(name, ['Notice', 'Search']) !== -1) {
             bonuses += 30;
         }
-        if ('Klutzy' in this.Disadvantages && tables.klutzy.indexOf(name) !== -1) {
+        if ('Klutzy' in this.Disadvantages && $.inArray(name, tables.klutzy) !== -1) {
             total -= 30;
         }
         if ('Psychic Immunity' in myAdvantages && name === 'Composure') {
@@ -253,7 +253,7 @@ define(['abilities', 'classes', 'cultural_roots', 'psychic_disciplines',
         }
         this_types = classes[this_class].Archetypes;
         last_types = classes[last_class].Archetypes;
-        if ([this_class, last_class].indexOf('Freelancer') !== -1) {
+        if (this_class === 'Freelancer' || last_class === 'Freelancer') {
             cost = 20;
         }
         else if (this_types.length === 1 && last_types.length === 1 &&
@@ -488,7 +488,7 @@ define(['abilities', 'classes', 'cultural_roots', 'psychic_disciplines',
         var gnosis = this.gnosis(),
             advantage = this.Advantages.Regeneration,
             total = tables.regeneration[this.characteristic('CON')];
-        if (["Duk'zarist Nephilim", 'Sylvain Nephilim'].indexOf(this.Race) !== -1) {
+        if ($.inArray(this.Race, ["Duk'zarist Nephilim", 'Sylvain Nephilim']) !== -1) {
             total += 1;
         }
         if (advantage) {
@@ -556,7 +556,7 @@ define(['abilities', 'classes', 'cultural_roots', 'psychic_disciplines',
         else if (name === 'PsR' && (points = myAdvantages['Exceptional Psychic Resistance'])) {
             total += points * 25;
         }
-        else if (['DR', 'PhR', 'VR'].indexOf(name) !== -1 &&
+        else if ($.inArray(name, ['DR', 'PhR', 'VR']) !== -1 &&
                  (points = myAdvantages['Exceptional Physical Resistance'])) {
             total += points * 25;
         }
@@ -616,7 +616,7 @@ define(['abilities', 'classes', 'cultural_roots', 'psychic_disciplines',
         }
         for (i = 0; i < length; i++) {
             cls = levels[i].Class;
-            if (my_classes.indexOf(cls) === -1) {
+            if ($.inArray(cls, my_classes) === -1) {
                 my_classes.push(cls);
                 class_levels[cls] = 1;
             }

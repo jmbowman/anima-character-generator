@@ -4,19 +4,19 @@ define(['jquery', 'abilities', 'advantages', 'characters', 'cultural_roots',
 'jqueryui/dialog', 'jqueryui/tabs', 'pubsub'], function ($, abilities,
 advantages, characters, cultural_roots, disadvantages, primaries, tables) {
 
-    var dialogs = {},
-        add_cultural_roots_choice,
-        advantages_init,
+    var add_cultural_roots_choice,
         advantage_cost_init,
         advantage_options_init,
+        advantages_init,
         characteristic_bonus_init,
         class_init,
         cultural_roots_init,
         delete_advantage_init,
         delete_disadvantage_init,
-        disadvantages_init,
+        dialogs = {},
         disadvantage_benefit_init,
         disadvantage_option_init,
+        disadvantages_init,
         dp_init,
         natural_bonus_init,
         set_natural_bonus;
@@ -31,13 +31,13 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
             width: '400px',
             buttons: {
                 OK: function () {
-                    var name = $('#advantage_options_name').val(),
+                    var characteristic,
                         cost = $('#advantage_options_cost').val(),
+                        data,
+                        name = $('#advantage_options_name').val(),
                         params,
-                        characteristic,
                         roll,
-                        select,
-                        data;
+                        select;
                     cost = cost ? parseInt(cost, 10) : null;
                     if (name === 'Repeat a Characteristics Roll') {
                         characteristic = $('#advantage_options select').val();
@@ -79,8 +79,8 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
             width: '350px',
             buttons: {
                 OK: function () {
-                    var level = parseInt($('#dialog_level').val(), 10),
-                        data = characters.current();
+                    var data = characters.current(),
+                        level = parseInt($('#dialog_level').val(), 10);
                     data.levels[level - 1].Characteristic = $('#Characteristic').val();
                     dialogs.Characteristic_Bonus.dialog('close');
                     $.publish('level_data_changed');
@@ -102,8 +102,8 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
             title: 'Select class for level <span id="class_dialog_level"></span>',
             buttons: {
                 OK: function () {
-                    var level = parseInt($('#class_dialog_level').text(), 10),
-                        data = characters.current();
+                    var data = characters.current(),
+                        level = parseInt($('#class_dialog_level').text(), 10);
                     data.change_class(level, $('#Class').val());
                     dialogs.Class.dialog('close');
                     $.publish('level_data_changed');
@@ -116,8 +116,8 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
     };
   
     cultural_roots_init = function () {
-        var parts = [],
-            name;
+        var name,
+            parts = [];
         if ('Cultural_Roots' in dialogs) {
             return;
         }
@@ -310,7 +310,12 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
     };
   
     dp_init = function () {
-        var name, primary, i, parts, ability;
+        var ability,
+            count,
+            i,
+            name,
+            parts,
+            primary;
         if ('DP' in dialogs) {
             return;
         }
@@ -318,7 +323,8 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
         for (name in primaries) {
             if (primaries.hasOwnProperty(name)) {
                 primary = primaries[name];
-                for (i = 0; i < primary.length; i++) {
+                count = primary.length;
+                for (i = 0; i < count; i++) {
                     ability = primary[i];
                     parts = ['<a href="#" class="ability">', ability,
                         '</a> (<span class="cost"></span>)<br />'];
@@ -605,13 +611,12 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
             category = ('Category' in advantage) ? advantage.Category : 'Common',
             remaining = data.cp_remaining(category),
             options = advantages[name].Cost;
-
         $('#advantage_cost_name').val(name);
         if (category !== 'Common') {
             remaining += data.cp_remaining('Common');
         }
         $.each([1, 2, 3], function (i, cost) {
-            if (cost > remaining || options.indexOf(cost) === -1) {
+            if (cost > remaining || $.inArray(cost, options) === -1) {
                 $('.advantage_cost_' + cost).hide();
             }
             else {
@@ -752,19 +757,26 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
     };
 
     dialogs.spend_dp = function () {
-        var level = $(this).data('level'),
+        var ability,
+            available,
+            count,
             data = characters.current(),
-            remaining = data.dp_remaining(),
+            i,
+            level = $(this).data('level'),
             index = level === 0 ? 0 : level - 1,
-            limits = remaining[index],
             cls = data.levels[index].Class,
+            remaining = data.dp_remaining(),
+            limits = remaining[index],
             link,
-            primary, i, ability, available;
-        for (primary in primaries) {
-            if (primaries.hasOwnProperty(primary)) {
-                available = limits[primary === 'Other' ? 'Total' : primary];
-                for (i in primaries[primary]) {
-                    ability = primaries[primary][i];
+            primary,
+            primary_name;
+        for (primary_name in primaries) {
+            if (primaries.hasOwnProperty(primary_name)) {
+                available = limits[primary_name === 'Other' ? 'Total' : primary_name];
+                primary = primaries[primary_name];
+                count = primary.length;
+                for (i = 0; i < count; i++) {
+                    ability = primary[i];
                     link = $('#dp_tabs a:contains("' + ability + '")');
                     link.next('.cost').text(data.cost(ability, cls));
                     if (data.cost(ability, cls) > available) {
