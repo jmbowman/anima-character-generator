@@ -15,8 +15,11 @@ require({
         $('form').validate();
         render.render($('.container'));
         $('#update_display').click(render.update_display);
+        $('#save_button').click(dialogs.save);
+        $('#load_button').click(dialogs.load);
         $('#update_level').click(render.update_level);
         $.subscribe('cp_changed', render.update_cp);
         $.subscribe('level_data_changed', render.update_level);
+        $.subscribe('data_loaded', render.load_data);
     });
 });

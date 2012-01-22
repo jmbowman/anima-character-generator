@@ -3,10 +3,15 @@ define(['jquery', 'abilities', 'characters', 'dialogs', 'tables',
 'creation_points', 'development_points'],
 function ($, abilities, characters, dialogs, tables) {
     
-    var next_step,
+    var load_value,
+        next_step,
         render = {},
         update_int,
         update_text;
+    
+    load_value = function (name) {
+        $('#' + name).val('' + characters.current()[name]);
+    };
   
     next_step = function () {
         var characteristic,
@@ -109,7 +114,7 @@ function ($, abilities, characters, dialogs, tables) {
             categories_added = 0,
             category,
             content = '',
-            count = categories.count,
+            count = categories.length,
             data = characters.current(),
             i,
             myAdvantages = data.Advantages,
@@ -175,6 +180,24 @@ function ($, abilities, characters, dialogs, tables) {
   
     $('#Advantages a').live('click', dialogs.delete_advantage);
     $('#Disadvantages a').live('click', dialogs.delete_disadvantage);
+    
+    render.load_data = function () {
+        load_value('STR');
+        load_value('DEX');
+        load_value('AGI');
+        load_value('CON');
+        load_value('INT');
+        load_value('POW');
+        load_value('WP');
+        load_value('PER');
+        load_value('Appearance');
+        load_value('Gender');
+        load_value('Race');
+        load_value('XP');
+        load_value('Name');
+        $('#first_class').val(characters.current().levels[0].Class);
+        render.update_level();
+    };
 
     render.update_display = function () {
         var after_class,

@@ -1,7 +1,7 @@
 /*global define: false */
 define(['tables'], function (tables) {
     return {
-        'Action Requirement':  {Category: 'Magic', Benefit: 1}, 
+        'Action Requirement':  {Category: 'Magic', Benefit: 1, Options: [], Option_Title: 'Enter the type of action required'}, 
         'Addiction or Serious Vice': {Benefit: 1, Options: [], Option_Title: 'Enter an addiction or serious vice'},
         'Atrophied Limb': {Benefit: 1, Options: ['Left leg', 'Right leg', 'Left arm', 'Right arm'], Option_Title: 'Select a limb'},  // -80 to anything using that limb
         'Bad Luck': {Benefit: 1}, // fumble range increases by +2

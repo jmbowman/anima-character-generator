@@ -18,7 +18,9 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
         disadvantage_option_init,
         disadvantages_init,
         dp_init,
+        load_character_init,
         natural_bonus_init,
+        save_character_init,
         set_natural_bonus;
         
     advantage_options_init = function () {
@@ -343,8 +345,38 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
             width: '1010px',
             position: 'top',
             buttons: {
-                'Cancel': function () {
+                Cancel: function () {
                     dialogs.DP.dialog('close');
+                }
+            }
+        });
+    };
+
+    load_character_init = function () {
+        if ('Load_Character' in dialogs) {
+            return;
+        }
+        dialogs.Load_Character = $('#load_dialog').dialog({
+            autoOpen: false,
+            modal: true,
+            width: '450px',
+            buttons: {
+                OK: function () {
+                    var attr,
+                        character = characters.current(),
+                        data = JSON.parse($('#load_text').val());
+                    if (data) {
+                        for (attr in data) {
+                            if (data.hasOwnProperty(attr)) {
+                                character[attr] = data[attr];
+                            }
+                        }
+                        $.publish('data_loaded');
+                    }
+                    dialogs.Load_Character.dialog('close');
+                },
+                Cancel: function () {
+                    dialogs.Load_Character.dialog('close');
                 }
             }
         });
@@ -366,6 +398,22 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
         });
     };
 
+    save_character_init = function () {
+        if ('Save_Character' in dialogs) {
+            return;
+        }
+        dialogs.Save_Character = $('#save_dialog').dialog({
+            autoOpen: false,
+            modal: true,
+            width: '450px',
+            buttons: {
+                OK: function () {
+                    dialogs.Save_Character.dialog('close');
+                }
+            }
+        });
+    };
+
     set_natural_bonus = function () {
         var name = $(this).data('name'),
             level = parseInt($('#natural_bonus_level').val(), 10),
@@ -375,7 +423,6 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
         $.publish('level_data_changed');
         return false;
     };
-
 
     add_cultural_roots_choice = function (i, choice) {
         var ability,
@@ -755,6 +802,18 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
         }
         dialogs.Natural_Bonus.dialog('open');
     };
+    
+    dialogs.load = function () {
+        $('#load_text').val('');
+        dialogs.Load_Character.dialog('open');
+    };
+    
+    dialogs.save = function () {
+        var data = characters.current();
+        $('#save_text').val(JSON.stringify(data, null, 2));
+        dialogs.Save_Character.dialog('open');
+        $('#save_text').select();
+    };
 
     dialogs.spend_dp = function () {
         var ability,
@@ -807,7 +866,9 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
         disadvantage_benefit_init();
         disadvantage_option_init();
         dp_init();
+        load_character_init();
         natural_bonus_init();
+        save_character_init();
         $('#add_advantage').click(dialogs.add_advantage);
         $('#add_disadvantage').click(dialogs.add_disadvantage);
         $('#advantages_tabs a.advantage').live('click', dialogs.configure_advantage);

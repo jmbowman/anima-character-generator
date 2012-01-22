@@ -1,19 +1,19 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
+  <meta charset="utf-8" />
   <title>Anima: Beyond Fantasy Character Generator</title>
   <meta name="keywords" content="anima, character generator" />
   <meta name="description" content="Generate or update a character for the Anima: Beyond Fantasy role-playing game" />
   <!--<link href="images/favicon.png" rel="icon" type="image/png" />
   <link href="images/favicon.ico" rel="icon" type="image/x-icon" />
   <link href="images/favicon.ico" rel="shortcut icon" type="image/x-icon" />-->
-  <link type="text/css" href="css/dark-hive/jquery-ui-1.8.15.custom.css" rel="stylesheet" />
-  <link type="text/css" href="css/ui.spinner.css" rel="stylesheet" />
-  <link rel="stylesheet" href="css/blueprint/screen.css" type="text/css" media="screen, projection" />
-  <link rel="stylesheet" href="css/blueprint/print.css" type="text/css" media="print" />
+  <link rel="stylesheet" href="css/dark-hive/jquery-ui-1.8.15.custom.css" />
+  <link rel="stylesheet" href="css/ui.spinner.css" />
+  <link rel="stylesheet" href="css/blueprint/screen.css" media="screen, projection" />
+  <link rel="stylesheet" href="css/blueprint/print.css" media="print" />
   <!--[if lt IE 8]><link rel="stylesheet" href="css/blueprint/ie.css" type="text/css" media="screen, projection" /><![endif]-->
-  <link rel="stylesheet" type="text/css" href="css/styles.css" />
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
 <form action="#">
@@ -119,16 +119,20 @@
 
     <div class="span-2"><label for="level">XP</label></div>
     <div class="span-9 last"><input type="text" id="XP" name="XP" class="required number" value="0" /></div>
-    <div class="span-11 last"><button id="update_display" type="button">Update Display</button></div>
+    <div class="span-11 last">
+      <button id="update_display" type="button">Update Display</button>
+      <button id="save_button" type="button">Save</button>
+      <button id="load_button" type="button">Load</button>
+    </div>
   </div>
-  
+
   <div id="after_class" class="span-13 last levels" style="display: none;">
     <div class="span-3"><strong>Creation Points</strong></div>
     <div class="span-10 last"><span id="cp_remaining"></span> remaining out of <span id="cp_total"></span></div>
     <div class="span-3"><strong>Advantages</strong></div>
-    <div class="span-10 last"><span id="Advantages"></span> <a id="add_advantage" href="#"">+</a></div>
+    <div class="span-10 last"><span id="Advantages">huh?</span> <a id="add_advantage" href="#">+</a></div>
     <div class="span-3"><strong>Disadvantages</strong></div>
-    <div class="span-10 last"><span id="Disadvantages"></span> <a id="add_disadvantage" href="#"">+</a></div>
+    <div class="span-10 last"><span id="Disadvantages">huh?</span> <a id="add_disadvantage" href="#">+</a></div>
 
     <div class="span-13 last"><button id="update_level" type="button">Update Level</button>
       <input type="hidden" id="dialog_level" name="dialog_level" value="" />
@@ -300,6 +304,11 @@
     <div id="Other"></div>
 </div>
 
+<div id="load_dialog" style="display:none;" title="Load Character">
+  <p>Enter the character data to be loaded:</p>
+  <div><textarea id="load_text"></textarea></div>
+</div>
+
 <div id="natural_bonus_dialog" style="display: none;" title="Select an ability to improve">
   <input type="hidden" id="natural_bonus_level" value="" />
   <div class="span-6">
@@ -329,6 +338,12 @@
   </div>
 </div>
 
+<div id="save_dialog" style="display:none;" title="Save Character">
+  <p>Copy the following into a text file and save it for future use:</p>
+  <div><textarea id="save_text"></textarea></div>
+</div>
+
+<script src="js/libs/json2.js"></script>
 <script data-main="js/main" src="js/require-jquery.js"></script>
 
 </body>
