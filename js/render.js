@@ -32,10 +32,10 @@ function ($, abilities, characters, dialogs, tables) {
         if (!('Appearance' in data)) {
             return 'Roll or select Appearance';
         }
-        if (!('Gender' in data)) {
+        if (!data.Gender) {
             return 'Select a gender';
         }
-        if (!('Race' in data)) {
+        if (!data.Race) {
             return 'Select a race';
         }
         if (data.cp_remaining() > 0) {
@@ -196,6 +196,7 @@ function ($, abilities, characters, dialogs, tables) {
         load_value('XP');
         load_value('Name');
         $('#first_class').val(characters.current().levels[0].Class);
+        render.update_cp();
         render.update_level();
     };
 
@@ -280,7 +281,7 @@ function ($, abilities, characters, dialogs, tables) {
                 // manual JSON editing error?
                 delete level.Characteristic;
             }
-            if (level_number > 0) {
+            if (level_number > 0 && !('Without any Natural Bonus' in data.Disadvantages)) {
                 nb = ('Natural Bonus' in level) ? level['Natural Bonus'] : null;
                 content += ' <a href="#" class="natural_bonus" data-level="' + level_number + '">' + (nb ? nb + ' +' + data.modifier(abilities[nb].Characteristic, level_number) : 'Select natural bonus') + '</a>';
             }

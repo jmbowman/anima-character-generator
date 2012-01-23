@@ -257,7 +257,7 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
                 OK: function () {
                     var name = $('#disadvantage_benefit_name').val(),
                         disadvantage = disadvantages[name],
-                        benefit = $('input:radio[name=disadvantage_benefit]:checked').val(),
+                        benefit = parseInt($('input:radio[name=disadvantage_benefit]:checked').val(), 10),
                         data = characters.current();
                     if ('Options' in disadvantage) {
                         dialogs.Disadvantage_Benefit.dialog('close');
@@ -501,7 +501,7 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
             buttons: {
                 'OK': function () {
                     var advantage,
-                        cost = $('input:radio[name=advantage_cost]:checked').val(),
+                        cost = parseInt($('input:radio[name=advantage_cost]:checked').val(), 10),
                         data,
                         name = $('#advantage_cost_name').val();
                     advantage = advantages[name];
@@ -676,11 +676,11 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
 
     dialogs.edit_advantage_options = function (name, cost) {
         var advantage = advantages[name],
-            panel = $('#advantage_options'),
-            options,
+            data,
             input,
-            select,
-            data;
+            options,
+            panel = $('#advantage_options'),
+            select;
         $('#advantage_options_name').val(name);
         $('#advantage_options_cost').val(cost ? cost : '');
 
@@ -707,6 +707,7 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
         }
         this.Advantage_Options.dialog('option', 'title', advantage.Option_Title);
         this.Advantage_Options.dialog('open');
+        $('#repeat_roll').spinner({min: 4, max: 10});
         return false;
     };
 

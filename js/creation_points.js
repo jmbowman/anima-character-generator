@@ -9,7 +9,7 @@ disadvantages, tables, utils) {
         if (name === 'Access to Natural Psychic Powers') {
             myAdvantages[name] = {Points: cost, Power: params};
         }
-        else if ($.inArray(name, ['Aptitude in a Subject', 'Natural Learner']) !== -1) {
+        else if ($.inArray(name, ['Aptitude in a Subject', 'Natural Learner']) >= 0) {
             myAdvantages[name] = {Points: cost, Ability: params};
         }
         else if (name === 'Cultural Roots') {
@@ -23,13 +23,13 @@ disadvantages, tables, utils) {
         else if (name === 'Natural Learner, Field') {
             myAdvantages[name] = {Points: cost, Field: params};
         }
-        else if (name === 'Repeat a Characteristics Roll') {
+        else if ($.inArray(name, ['Add One Point to a Characteristic', 'Increase One Characteristic to Nine', 'Repeat a Characteristics Roll']) >= 0) {
             if (!(name in myAdvantages)) {
                 myAdvantages[name] = [];
             }
             myAdvantages[name].push(params);
         }
-        else if ($.inArray(name, ['Artifact', 'Contacts', 'Elan', 'Powerful Ally']) !== -1) {
+        else if ($.inArray(name, ['Artifact', 'Contacts', 'Elan', 'Powerful Ally']) >= 0) {
             myAdvantages[name] = {Points: cost, Name: params};
         }
         else if (name === 'Uncommon Size') {
@@ -57,6 +57,9 @@ disadvantages, tables, utils) {
                 myAdvantages[name] = advantage.Cost;
             }
         }
+        if (name === 'Been Around') {
+            this.XP = cost * 50;
+        }
     };
   
     Character.prototype.add_disadvantage = function (name, benefit, param) {
@@ -83,6 +86,9 @@ disadvantages, tables, utils) {
                     delete level['Natural Bonus'];
                 }
             });
+        }
+        else if (name === 'Rookie') {
+            this.XP -= 100;
         }
     };
   
@@ -368,6 +374,9 @@ disadvantages, tables, utils) {
             return false;
         }
         else if (name === 'Magic Blockage' && 'Slow Recovery of Magic' in myDisadvantages) {
+            return false;
+        }
+        else if (name === 'Unattractive' && this.characteristic('Appearance') < 7) {
             return false;
         }
         else if ($.inArray(name, ['Addiction', 'Serious Vice', 'Cowardice', 'Severe Phobia']) !== -1) {

@@ -11,8 +11,9 @@ require({
         $('label').parent().addClass('label-parent');
         $('.characteristic').spinner({min: 4, max: 10});
         $('#Appearance').spinner({min: 1, max: 10});
-        $('#XP').spinner({min: -1, max: 9999});
-        $('form').validate();
+        $('#XP').spinner({min: -100, max: 9999});
+        $('#main_form').validate();
+        $('#Gender, #Race, #first_class').change(function () { $(this).blur(); });
         render.render($('.container'));
         $('#update_display').click(render.update_display);
         $('#save_button').click(dialogs.save);

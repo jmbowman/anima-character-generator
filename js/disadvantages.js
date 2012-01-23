@@ -45,7 +45,7 @@ define(['tables'], function (tables) {
         'Slow Reaction': {Benefit: [1, 2]},  // -30/-60 to initiative
         'Slow Recovery of Magic':  {Category: 'Magic', Benefit: 1},   // zeon regen cut by 1/2
         'Susceptible to Magic': {Benefit: 1},  // MR reduced by 1/2
-        'Susceptible to Poison': {Benefit: 1},  //VR reduced by 1/2
+        'Susceptible to Poisons': {Benefit: 1},  //VR reduced by 1/2
         Unattractive: {Benefit: 1}, // reduce appearance by 2. Minimum 7
         Unfortunate: {Benefit: 1},  // why does it all have to be me?
         'Unlucky Destiny': {Benefit: 2}, // no open rolls

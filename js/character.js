@@ -9,13 +9,14 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
         }
         this.Advantages = {};
         this.Disadvantages = {};
-        this.Race = 'Human';
+        this.Race = '';
         this.XP = 0;
         this.levels = [{Class: 'Freelancer', DP: {}}];
     };
   
     Character.prototype.ability = function (name, specialty) {
         var myAdvantages = this.Advantages,
+            myDisadvantages = this.Disadvantages,
             ability = abilities[name],
             amount,
             background,
@@ -83,6 +84,9 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
         }
         if ('Increased Natural Bonus' in myAdvantages) {
             nb_multiplier = 2;
+        }
+        if ('Without any Natural Bonus' in myDisadvantages) {
+            nb_multiplier = 0;
         }
         for (i = 0; i < level; i++) {
             info = this.levels[i];
@@ -152,7 +156,7 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
             }
         }
         if ('Unattractive' in this.Disadvantages) {
-            total--;
+            total = 2;
         }
         return total;
     };
