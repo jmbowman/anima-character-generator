@@ -3,12 +3,14 @@ define(['jquery', 'character', 'classes', 'primaries'],
        function ($, Character, classes, primaries) {
   
     Character.prototype.dp_remaining = function () {
-        var categories = Object.keys(primaries),
+        var attack,
+            categories = Object.keys(primaries),
             class_info,
             class_name,
             cost,
+            count,
+            defense,
             i,
-            index,
             item,
             j,
             level = this.level(),
@@ -17,92 +19,106 @@ define(['jquery', 'character', 'classes', 'primaries'],
             level_dp,
             level_info,
             new_dp = 600,
+            pinch_points,
             primary,
+            quarter,
             remaining,
             result,
             results = [],
-            surplus_used,
-            withdrawn;
-        categories.push('Total');
+            saved = {Combat: 0, Psychic: 0, Supernatural: 0, Other: 0},
+            spent,
+            totals = {Attack: 0, Block: 0, Dodge: 0, DP: 0,
+                      'Magic Projection': 0, Psychic: 0,
+                      'Psychic Projection': 0, Supernatural: 0};
         for (i = 0; i < level_count; i++) {
-            result = {};
-            results.push(result);
+            results.push({});
+            result = results[i];
             level_info = levels[i];
             class_name = level_info.Class;
             class_info = classes[class_name];
-            if (i === 0 && this.level() === 0) {
+            if (i === 0 && level === 0) {
                 new_dp = 400;
             }
             else if (i > 0) {
                 new_dp = 100;
             }
-            result.Total = new_dp;
-            result.Combat = class_info.Combat * new_dp / 100;
-            result.Psychic = class_info.Psychic * new_dp / 100;
-            result.Supernatural = class_info.Supernatural * new_dp / 100;
+            totals.DP += new_dp;
+            totals.Psychic += class_info.Psychic * new_dp / 100;
+            totals.Supernatural += class_info.Supernatural * new_dp / 100;
+            result.Total = new_dp + saved.Combat + saved.Psychic + saved.Supernatural + saved.Other;
+            result.Combat = class_info.Combat * new_dp / 100 + saved.Combat;
+            result.Psychic = class_info.Psychic * new_dp / 100 + saved.Psychic;
+            result.Supernatural = class_info.Supernatural * new_dp / 100 + saved.Supernatural;
+            result.Other = new_dp + saved.Other;
+            result['Magic Projection'] = (totals.Supernatural / 2) - totals['Magic Projection'];
+            result['Psychic Projection'] = (totals.Psychic / 2) - totals['Psychic Projection'];
             level_dp = level_info.DP;
             for (item in level_dp) {
                 if (level_dp.hasOwnProperty(item)) {
                     cost = this.cost(item, class_name);
-                    result.Total -= cost;
-                    if ($.inArray(item, primaries.Combat) !== -1) {
-                        result.Combat -= level_dp[item] * cost;
+                    spent = level_dp[item] * cost;
+                    result.Total -= spent;
+                    primary = primaries.for_ability(item);
+                    result[primary] -= spent;
+                    if (item.indexOf('Save ') === 0) {
+                        saved[primary] += spent;
                     }
-                    else if ($.inArray(item, primaries.Psychic) !== -1) {
-                        result.Psychic -= level_dp[item] * cost;
+                    if (item in result) {
+                        result[item] -= spent;
                     }
-                    else if ($.inArray(item, primaries.Supernatural) !== -1) {
-                        result.Supernatural -= level_dp[item] * cost;
+                    if (item in totals) {
+                        totals[item] += spent;
                     }
                 }
             }
+            // Figure out theoretical attack and defense caps, Combat cap imposed later
+            attack = totals.Attack;
+            j = attack + totals.Block + totals.Dodge;
+            defense = Math.max(totals.Block, totals.Dodge);
+            count = totals.DP / 2 - j;
+            quarter = totals.DP / 4;
+            result.Attack = Math.min(count, Math.max(defense + 50, quarter) - attack);
+            result.Block = Math.min(count, Math.max(attack + 50, quarter) - totals.Block);
+            result.Dodge = Math.min(count, Math.max(attack + 50, quarter) - totals.Dodge);
             cost = this.class_change_dp((level === 0) ? 0 : (i + 1));
             if (cost > 0) {
+                result.Other -= cost;
                 result.Total -= cost;
                 result.Class_Change = cost;
             }
-            for (index in categories) {
-                if (categories.hasOwnProperty(index)) {
-                    primary = categories[index];
-                    remaining = result[primary];
-                    if (remaining > result.Total) {
-                        remaining = result.Total;
-                        result[primary] = remaining;
+            count = categories.length;
+            for (j = 0; j < count; j++) {
+                primary = categories[j];
+                remaining = result[primary];
+                if (remaining < saved[primary]) {
+                    // used some of the saved DP
+                    if (!('Withdrawn' in result)) {
+                        result.Withdrawn = 0;
                     }
-                    else if (remaining < 0) {
-                        withdrawn = 0;
-                        for (j = 0; j < i; j++) {
-                            surplus_used = results[j][primary];
-                            if (surplus_used > -remaining) {
-                                surplus_used = -remaining;
-                            }
-                            if (surplus_used > withdrawn) {
-                                if (primary === 'Total') {
-                                    if ('Saved' in results[j]) {
-                                        results[j].Saved += surplus_used - withdrawn;
-                                    }
-                                    else {
-                                        results[j].Saved = surplus_used - withdrawn;
-                                    }
-                                }
-                                withdrawn = surplus_used;
-                            }
-                            results[j][primary] -= surplus_used;
-                        }
-                        if (withdrawn > 0) {
-                            result[primary] += withdrawn;
-                            if (primary === 'Total') {
-                                result.Withdrawn = withdrawn;
-                            }
-                        }
-                    }
+                    result.Withdrawn += saved[primary] - remaining;
+                    saved[primary] = remaining;
+                }
+                if (remaining > result.Total) {
+                    // Ran out of total DP before exhausting this primary
+                    result[primary] = result.Total;
                 }
             }
-            if (i > 0) {
-                result.Total += results[i - 1].Total;
-                result.Combat += results[i - 1].Combat;
-                result.Psychic += results[i - 1].Psychic;
-                result.Supernatural += results[i - 1].Supernatural;
+        }
+        pinch_points = {Attack: result.Attack, Block: result.Block,
+                        Dodge: result.Dodge,
+                        'Magic Projection': result['Magic Projection'],
+                        'Psychic Projection': result['Psychic Projection']};
+        for (i = level_count - 1; i >= 0; i--) {
+            result = results[i];
+            for (item in pinch_points) {
+                if (pinch_points.hasOwnProperty(item)) {
+                    // may be limited by amounts spent later
+                    j = Math.min(result[item], pinch_points[item]);
+                    pinch_points[item] = j;
+                    primary = primaries.for_ability(item);
+                    // after determining pinch amount, limit by current cap
+                    result[item] = Math.min(j, result[primary]);
+                }
             }
         }
         return results;

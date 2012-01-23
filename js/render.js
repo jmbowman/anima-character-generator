@@ -234,6 +234,7 @@ function ($, abilities, characters, dialogs, tables) {
         var content,
             data = characters.current(),
             current_level = data.level(),
+            dp,
             hr,
             i,
             level,
@@ -241,6 +242,7 @@ function ($, abilities, characters, dialogs, tables) {
             level_count = levels.length,
             level_number,
             line,
+            name,
             nb,
             parts,
             remaining,
@@ -258,7 +260,7 @@ function ($, abilities, characters, dialogs, tables) {
         }
         render.update_display();
         $('.level').remove();
-        remaining = data.dp_remaining(level_number);
+        remaining = data.dp_remaining();
         for (i = 0; i < level_count; i++) {
             level = levels[i];
             remaining_for_level = remaining[i];
@@ -294,11 +296,14 @@ function ($, abilities, characters, dialogs, tables) {
             }
             $('.levels').append('<div class="span-1 level"><strong>DP</strong></div>');
             parts = [];
+            dp = level.DP;
+            for (name in dp) {
+                if (dp.hasOwnProperty(name)) {
+                    parts.push(name + ' (' + dp[name] + ')');
+                }
+            }
             if ('Class_Change' in remaining_for_level) {
                 parts.push('Class change (' + remaining_for_level.Class_Change + ')');
-            }
-            if ('Saved' in remaining_for_level) {
-                parts.push('Used later: ' + remaining_for_level.Saved);
             }
             content = parts.join(', ');
             if ('Withdrawn' in remaining_for_level) {

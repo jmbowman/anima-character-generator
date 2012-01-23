@@ -4,7 +4,8 @@ define(['jquery', 'abilities', 'advantages', 'characters', 'cultural_roots',
 'jqueryui/dialog', 'jqueryui/tabs', 'pubsub'], function ($, abilities,
 advantages, characters, cultural_roots, disadvantages, primaries, tables) {
 
-    var add_cultural_roots_choice,
+    var ability_dp_init,
+        add_cultural_roots_choice,
         advantage_cost_init,
         advantage_options_init,
         advantages_init,
@@ -21,7 +22,37 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
         load_character_init,
         natural_bonus_init,
         save_character_init,
+        set_ability_dp,
         set_natural_bonus;
+    
+    ability_dp_init = function () {
+        if ('Ability_DP' in dialogs) {
+            return;
+        }
+        dialogs.Ability_DP = $('#ability_dp_dialog').dialog({
+            autoOpen: false,
+            modal: true,
+            width: '400px',
+            buttons: {
+                OK: function () {
+                    var data = characters.current(),
+                        cost = parseInt($('#ability_cost').val(), 10),
+                        dp = $('#ability_dp').spinner('value'),
+                        level = parseInt($('#ability_level').val(), 10),
+                        index = level === 0 ? 0 : level - 1,
+                        name = $('#ability_name').text();
+                    if (dp) {
+                        data.levels[index].DP[name] = dp / cost;
+                        $.publish('level_data_changed');
+                    }
+                    dialogs.Ability_DP.dialog('close');
+                },
+                Cancel: function () {
+                    dialogs.Ability_DP.dialog('close');
+                }
+            }
+        });
+    };
         
     advantage_options_init = function () {
         if ('Advantage_Options' in dialogs) {
@@ -328,8 +359,11 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
                 count = primary.length;
                 for (i = 0; i < count; i++) {
                     ability = primary[i];
-                    parts = ['<a href="#" class="ability">', ability,
-                        '</a> (<span class="cost"></span>)<br />'];
+                    parts = ['<a href="#" class="ability" data-primary="',
+                             name,
+                             '">',
+                             ability,
+                             '</a> (<span class="cost"></span>)<br />'];
                     if (ability in abilities && 'Field' in abilities[ability]) {
                         $('#DP_' + abilities[ability].Field).append(parts.join(''));
                     }
@@ -412,6 +446,25 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
                 }
             }
         });
+    };
+    
+    set_ability_dp = function () {
+        var link = $(this),
+            available = parseInt(link.data('available'), 10),
+            cost = parseInt(link.next('.cost').text(), 10),
+            level = parseInt(link.data('level'), 10),
+            max = Math.floor(available / cost) * cost,
+            name = link.text(),
+            parent = $('#ability_dp_parent');
+        $('#ability_name').text(name);
+        $('#ability_cost').val(cost);
+        $('#ability_level').val(level);
+        parent.html('');
+        parent.append($('<input>', {id: 'ability_dp', type: 'text', value: '' + max}));
+        dialogs.DP.dialog('close');
+        dialogs.Ability_DP.dialog('open');
+        parent.find('input').spinner({min: 0, max: max, step: cost});
+        return false;
     };
 
     set_natural_bonus = function () {
@@ -807,6 +860,7 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
     dialogs.load = function () {
         $('#load_text').val('');
         dialogs.Load_Character.dialog('open');
+        return false;
     };
     
     dialogs.save = function () {
@@ -814,11 +868,14 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
         $('#save_text').val(JSON.stringify(data, null, 2));
         dialogs.Save_Character.dialog('open');
         $('#save_text').select();
+        return false;
     };
 
     dialogs.spend_dp = function () {
         var ability,
             available,
+            cap,
+            cost,
             count,
             data = characters.current(),
             i,
@@ -830,6 +887,7 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
             link,
             primary,
             primary_name;
+        console.log(remaining);
         for (primary_name in primaries) {
             if (primaries.hasOwnProperty(primary_name)) {
                 available = limits[primary_name === 'Other' ? 'Total' : primary_name];
@@ -838,8 +896,15 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
                 for (i = 0; i < count; i++) {
                     ability = primary[i];
                     link = $('#dp_tabs a:contains("' + ability + '")');
-                    link.next('.cost').text(data.cost(ability, cls));
-                    if (data.cost(ability, cls) > available) {
+                    cost = data.cost(ability, cls);
+                    link.next('.cost').text(cost);
+                    cap = available;
+                    if (ability in limits) {
+                        cap = limits[ability];
+                    }
+                    link.data('available', cap);
+                    link.data('level', level);
+                    if (cost > cap) {
                         link.addClass('disabled');
                     }
                     else {
@@ -852,9 +917,11 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
         return false;
     };
 
+    $('a.ability').live('click', set_ability_dp);
     $('a.set_natural_bonus').live('click', set_natural_bonus);
   
     $(document).ready(function () {
+        ability_dp_init();
         advantages_init();
         advantage_cost_init();
         advantage_options_init();

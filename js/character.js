@@ -292,6 +292,10 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
             myAdvantages = this.Advantages,
             reduced,
             result;
+        if (name.indexOf('Save ') === 0) {
+            // Saving DP for later can be done in any quantity
+            return 1;
+        }
         if (ability) {
             field = ability.Field;
         }
