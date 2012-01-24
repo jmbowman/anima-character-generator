@@ -46,8 +46,11 @@
   <div class="span-14 last">&nbsp;</div>
   
   <div class="span-24 last">Initiative: <span class="Initiative"></span></div>
+  <div class="span-24 last">MA: <span class="MA"></span> Zeon: <span class="Zeon"></span></div>
   
   <div class="span-24 last racial-row" style="display: none;">Racial Abilities: <span class="Racial-Abilities"></span></div>
+  
+  <div class="span-24 last abilities-block"></div>
   
   <hr />
   
@@ -145,10 +148,12 @@
 </form>
 
 <div id="ability_dp_dialog" style="display: none;" title="Amount of DP to Spend">
-    <div>Spend how many DP on <span id="ability_name"></span>?</div>
+    <div id="ability_spend">Spend how many DP on <span id="ability_name"></span> this level?</div>
+    <div id="ability_save" style="display: none;">Save how many <span id="ability_primary"></span> DP this level?</div>
     <input type="hidden" id="ability_level" name="ability_level" value="" />
     <input type="hidden" id="ability_cost" name="ability_cost" value="" />
     <div id="ability_dp_parent"></div>
+    <div>Maximum currently allowed: <span id="ability_limit"></span></div>
 </div>
 
 <div id="advantages_dialog" style="display: none;">

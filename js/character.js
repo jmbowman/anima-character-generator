@@ -26,6 +26,7 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
             choices,
             cls,
             combat_senses = myAdvantages['Combat Senses'],
+            count = this.levels.length,
             cr,
             each_level = 0,
             i,
@@ -88,7 +89,7 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
         if ('Without any Natural Bonus' in myDisadvantages) {
             nb_multiplier = 0;
         }
-        for (i = 0; i < level; i++) {
+        for (i = 0; i < count; i++) {
             info = this.levels[i];
             cls = classes[info.Class];
             amount = info.DP[name];
@@ -143,6 +144,7 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
             bonuses += 30;
         }
         total += bonuses + this.modifier(characteristic);
+        return total;
     };
   
     Character.prototype.appearance = function () {
@@ -409,6 +411,10 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
             }
         }
     };
+    
+    Character.prototype.level_info = function (level) {
+        return this.levels[level === 0 ? 0 : level - 1];
+    };
 
     Character.prototype.life_points = function () {
         var cls,
@@ -436,6 +442,24 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
             }
         }
         return result;
+    };
+  
+    Character.prototype.ma = function () {
+        var base = tables.base_ma[this.characteristic('POW')],
+            i,
+            level,
+            levels = this.levels,
+            length = levels.length,
+            multiples,
+            total = base;
+        for (i = 0; i < length; i++) {
+            level = levels[i];
+            multiples = level.DP['MA Multiple'];
+            if (multiples) {
+                total += multiples * base;
+            }
+        }
+        return total;
     };
 
     Character.prototype.modifier = function (characteristic, at_level) {
@@ -683,8 +707,7 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
     };
   
     Character.prototype.zeon = function () {
-        var data = this,
-            i,
+        var i,
             level,
             levels = this.levels,
             length = levels.length,

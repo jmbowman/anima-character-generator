@@ -39,10 +39,14 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
                         cost = parseInt($('#ability_cost').val(), 10),
                         dp = $('#ability_dp').spinner('value'),
                         level = parseInt($('#ability_level').val(), 10),
-                        index = level === 0 ? 0 : level - 1,
+                        level_info = data.level_info(level),
                         name = $('#ability_name').text();
                     if (dp) {
-                        data.levels[index].DP[name] = dp / cost;
+                        level_info.DP[name] = dp / cost;
+                        $.publish('level_data_changed');
+                    }
+                    else if (name in level_info.DP) {
+                        delete level_info.DP[name];
                         $.publish('level_data_changed');
                     }
                     dialogs.Ability_DP.dialog('close');
@@ -359,11 +363,9 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
                 count = primary.length;
                 for (i = 0; i < count; i++) {
                     ability = primary[i];
-                    parts = ['<a href="#" class="ability" data-primary="',
-                             name,
-                             '">',
+                    parts = ['<a href="#" class="ability"><span class="name">',
                              ability,
-                             '</a> (<span class="cost"></span>)<br />'];
+                             '</span></a> (<span class="cost"></span>)<br />'];
                     if (ability in abilities && 'Field' in abilities[ability]) {
                         $('#DP_' + abilities[ability].Field).append(parts.join(''));
                     }
@@ -451,16 +453,36 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
     set_ability_dp = function () {
         var link = $(this),
             available = parseInt(link.data('available'), 10),
-            cost = parseInt(link.next('.cost').text(), 10),
+            data = characters.current(),
             level = parseInt(link.data('level'), 10),
+            level_info = data.level_info(level),
+            cls = level_info.Class,
+            name = link.find('.name').text(),
+            cost = data.cost(name, cls),
             max = Math.floor(available / cost) * cost,
-            name = link.text(),
-            parent = $('#ability_dp_parent');
+            parent = $('#ability_dp_parent'),
+            purchased = level_info.DP[name],
+            start = max;
+        if (purchased) {
+            // Add in any amount already spent this level; show the total
+            start = purchased * cost;
+            max += start;
+        }
         $('#ability_name').text(name);
         $('#ability_cost').val(cost);
         $('#ability_level').val(level);
+        $('#ability_limit').text('' + max);
+        if (name.indexOf('Save ') === 0) {
+            $('#ability_primary').text(primaries.for_ability(name));
+            $('#ability_spend').hide();
+            $('#ability_save').show();
+        }
+        else {
+            $('#ability_save').hide();
+            $('#ability_spend').show();
+        }
         parent.html('');
-        parent.append($('<input>', {id: 'ability_dp', type: 'text', value: '' + max}));
+        parent.append($('<input>', {id: 'ability_dp', type: 'text', value: '' + start}));
         dialogs.DP.dialog('close');
         dialogs.Ability_DP.dialog('open');
         parent.find('input').spinner({min: 0, max: max, step: cost});
@@ -887,7 +909,6 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
             link,
             primary,
             primary_name;
-        console.log(remaining);
         for (primary_name in primaries) {
             if (primaries.hasOwnProperty(primary_name)) {
                 available = limits[primary_name === 'Other' ? 'Total' : primary_name];

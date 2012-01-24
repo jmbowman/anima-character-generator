@@ -8,6 +8,7 @@ define(['jquery', 'character', 'classes', 'primaries'],
             class_info,
             class_name,
             cost,
+            costs = {Attack: 2, Block: 2, Dodge: 2},
             count,
             defense,
             i,
@@ -26,6 +27,7 @@ define(['jquery', 'character', 'classes', 'primaries'],
             result,
             results = [],
             saved = {Combat: 0, Psychic: 0, Supernatural: 0, Other: 0},
+            scores = {Attack: 0, Block: 0, Dodge: 0},
             spent,
             totals = {Attack: 0, Block: 0, Dodge: 0, DP: 0,
                       'Magic Projection': 0, Psychic: 0,
@@ -46,9 +48,9 @@ define(['jquery', 'character', 'classes', 'primaries'],
             totals.Psychic += class_info.Psychic * new_dp / 100;
             totals.Supernatural += class_info.Supernatural * new_dp / 100;
             result.Total = new_dp + saved.Combat + saved.Psychic + saved.Supernatural + saved.Other;
-            result.Combat = class_info.Combat * new_dp / 100 + saved.Combat;
-            result.Psychic = class_info.Psychic * new_dp / 100 + saved.Psychic;
-            result.Supernatural = class_info.Supernatural * new_dp / 100 + saved.Supernatural;
+            result.Combat = class_info.Combat * new_dp / 100;
+            result.Psychic = class_info.Psychic * new_dp / 100;
+            result.Supernatural = class_info.Supernatural * new_dp / 100;
             result.Other = new_dp + saved.Other;
             result['Magic Projection'] = (totals.Supernatural / 2) - totals['Magic Projection'];
             result['Psychic Projection'] = (totals.Psychic / 2) - totals['Psychic Projection'];
@@ -66,20 +68,24 @@ define(['jquery', 'character', 'classes', 'primaries'],
                     if (item in result) {
                         result[item] -= spent;
                     }
+                    if (item in scores) {
+                        costs[item] = cost;
+                        scores[item] += level_dp[item];
+                    }
                     if (item in totals) {
                         totals[item] += spent;
                     }
                 }
             }
             // Figure out theoretical attack and defense caps, Combat cap imposed later
-            attack = totals.Attack;
-            j = attack + totals.Block + totals.Dodge;
-            defense = Math.max(totals.Block, totals.Dodge);
+            attack = scores.Attack;
+            j = totals.Attack + totals.Block + totals.Dodge;
+            defense = Math.max(scores.Block, scores.Dodge);
             count = totals.DP / 2 - j;
             quarter = totals.DP / 4;
-            result.Attack = Math.min(count, Math.max(defense + 50, quarter) - attack);
-            result.Block = Math.min(count, Math.max(attack + 50, quarter) - totals.Block);
-            result.Dodge = Math.min(count, Math.max(attack + 50, quarter) - totals.Dodge);
+            result.Attack = Math.min(count, Math.max((defense + 50 - attack) * costs.Attack, quarter - totals.Attack));
+            result.Block = Math.min(count, Math.max((attack + 50 - scores.Block) * costs.Block, quarter - totals.Block));
+            result.Dodge = Math.min(count, Math.max((attack + 50 - scores.Dodge) * costs.Dodge, quarter - totals.Dodge));
             cost = this.class_change_dp((level === 0) ? 0 : (i + 1));
             if (cost > 0) {
                 result.Other -= cost;
@@ -90,15 +96,18 @@ define(['jquery', 'character', 'classes', 'primaries'],
             for (j = 0; j < count; j++) {
                 primary = categories[j];
                 remaining = result[primary];
-                if (remaining < saved[primary]) {
+                if (remaining < 0) {
                     // used some of the saved DP
                     if (!('Withdrawn' in result)) {
                         result.Withdrawn = 0;
                     }
-                    result.Withdrawn += saved[primary] - remaining;
-                    saved[primary] = remaining;
+                    result.Withdrawn -= remaining;
+                    saved[primary] += remaining;
+                    result[primary] = 0;
                 }
-                if (remaining > result.Total) {
+                // now add in the remaining saved amount
+                result[primary] += saved[primary];
+                if (result[primary] > result.Total) {
                     // Ran out of total DP before exhausting this primary
                     result[primary] = result.Total;
                 }

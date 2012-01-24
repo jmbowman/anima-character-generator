@@ -1,7 +1,7 @@
 /*global define: false */
-define(['jquery', 'abilities', 'characters', 'dialogs', 'tables',
+define(['jquery', 'abilities', 'characters', 'dialogs', 'tables', 'primaries',
 'creation_points', 'development_points'],
-function ($, abilities, characters, dialogs, tables) {
+function ($, abilities, characters, dialogs, tables, primaries) {
     
     var load_value,
         next_step,
@@ -77,8 +77,16 @@ function ($, abilities, characters, dialogs, tables) {
     };
 
     render.render = function (root) {
-        var data = characters.current(),
-            abilities = data.racial_abilities();
+        var abilities_block,
+            ability,
+            ability_list,
+            count,
+            data = characters.current(),
+            i,
+            name,
+            primary,
+            racial = data.racial_abilities(),
+            score;
         $('.next_step', root).text(next_step());
         $('.summary', root).text(data.summary());
         $('.lp', root).text(data.life_points());
@@ -100,12 +108,33 @@ function ($, abilities, characters, dialogs, tables) {
         $('.VR', root).text(data.resistance('VR'));
         $('.DR', root).text(data.resistance('DR'));
         $('.Initiative', root).text(data.initiative());
-        if (abilities) {
-            $('.Racial-Abilities').text(abilities);
+        $('.MA', root).text(data.ma());
+        $('.Zeon', root).text(data.zeon());
+        if (racial) {
+            $('.Racial-Abilities').text(racial);
             $('.racial-row').show();
         }
         else {
             $('.racial-row').hide();
+        }
+        abilities_block = $('.abilities-block', root);
+        abilities_block.html('');
+        for (primary in primaries) {
+            if (primaries.hasOwnProperty(primary)) {
+                ability_list = primaries[primary];
+                count = ability_list.length;
+                for (i = 0; i < count; i++) {
+                    name = ability_list[i];
+                    if (!(name in abilities)) {
+                        continue;
+                    }
+                    ability = abilities[name];
+                    score = data.ability(name);
+                    if (score > data.modifier(ability.Characteristic)) {
+                        abilities_block.append(name + ': ' + score + '<br />');
+                    }
+                }
+            }
         }
     };
 
@@ -231,7 +260,8 @@ function ($, abilities, characters, dialogs, tables) {
     };
 
     render.update_level = function () {
-        var content,
+        var available,
+            content,
             data = characters.current(),
             current_level = data.level(),
             dp,
@@ -245,6 +275,7 @@ function ($, abilities, characters, dialogs, tables) {
             name,
             nb,
             parts,
+            primary,
             remaining,
             remaining_for_level;
         update_int('XP');
@@ -299,7 +330,20 @@ function ($, abilities, characters, dialogs, tables) {
             dp = level.DP;
             for (name in dp) {
                 if (dp.hasOwnProperty(name)) {
-                    parts.push(name + ' (' + dp[name] + ')');
+                    primary = primaries.for_ability(name);
+                    if (name.indexOf('Save ') === 0) {
+                        line = dp[name] + ' ' + primary + ' DP saved for later <span class="name" style="display: none;">' + name + '</span>';
+                    }
+                    else {
+                        line = '<span class="name">' + name + '</span> (+' + dp[name] + ')';
+                    }
+                    if (name in remaining_for_level) {
+                        available = remaining_for_level[name];
+                    }
+                    else {
+                        available = remaining_for_level[primary];
+                    }
+                    parts.push('<a href="#" class="ability" data-available="' + available + '" data-level="' + level_number + '">' + line + '</a>');
                 }
             }
             if ('Class_Change' in remaining_for_level) {
@@ -307,7 +351,7 @@ function ($, abilities, characters, dialogs, tables) {
             }
             content = parts.join(', ');
             if ('Withdrawn' in remaining_for_level) {
-                content += ' (used ' + remaining_for_level.Withdrawn + ' DP saved earlier)';
+                content += ' [used ' + remaining_for_level.Withdrawn + ' DP saved earlier]';
             }
             if (remaining_for_level.Total > 0) {
                 content += ' <a href="#" class="spend_dp" data-level="' + level_number + '">+</a>';
