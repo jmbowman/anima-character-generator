@@ -199,6 +199,10 @@ disadvantages, tables, utils) {
         else if ($.isArray(params)) {
             return advantages[name].Cost * params.length;
         }
+        else if (name === 'Uncommon Size') {
+            // value is a number, but not the cost
+            return 1;
+        }
         else if (!isNaN(parseInt(params, 10))) {
             return parseInt(params, 10);
         }

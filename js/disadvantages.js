@@ -15,7 +15,7 @@ define(['tables'], function (tables) {
         'Deep Sleeper': {Benefit: 1}, // -200 to perception checks, -40 all actions ten turns on waking
         'Dirty Little Secret': {Category: 'Background', Benefit: 1},
         'Easily Possessed': {Benefit: 1}, // -50 to PhR/MR against domination/possession attempts
-        'Exclusive Weapon': {Benefit: 1},
+        'Exclusive Weapon': {Benefit: 1, Options: [], Option_Title: 'Which weapon?'},
         Fatigue: {Benefit: 1},  // reduce base fatigue by 1
         Feeble: {Benefit: 1},  // -30 all action penalty when below 1/3 of total LP
         Insufferable: {Benefit: 1},

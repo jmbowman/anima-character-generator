@@ -332,6 +332,25 @@ define(function () {
         c.Vigor = 3;
         c.bonuses = {Zeon: 20,  Attack: 5, Block: 5, Dodge: 5, Summon: 5, Control: 5, Bind: 5, Banish: 5, Occult: 5};
     }(classes['Warrior Summoner']));
+    
+    // Weaponsmaster
+    // TODO: need to capture general, archetypal, and style modules half normal DP
+    (function (c) {
+        c.Archetypes = ['Fighter'];
+        c['Life Point Multiple'] = 10;
+        c.LP = 20;
+        c.Initiative = 5;
+        c.MK = 10;
+        c.Combat = 60;
+        c['Wear Armor'] = 1;
+        c.Ki = 3;
+        c['Accumulation Multiple'] = 30;
+        c.Intellectual = 3;
+        c.Vigor = 1;
+        c.Subterfuge = 3;
+        c.reduced['Feats of Strength'] = 1;
+        c.bonuses = {Attack: 5, Block: 5, 'Wear Armor': 10, 'Feats of Strength': 5};
+    }(classes['Weaponsmaster']));
 
     // Wizard
     (function (c) {
