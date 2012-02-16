@@ -670,17 +670,27 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
     };
 
     dialogs.add_advantage = function () {
-        var data = characters.current(),
+        var count,
+            data = characters.current(),
+            i,
             name,
-            link;
+            link,
+            links;
         for (name in advantages) {
             if (advantages.hasOwnProperty(name)) {
-                link = $('#advantages_tabs a:contains("' + name + '")');
-                if (data.advantage_allowed(name, null)) {
-                    link.removeClass('disabled');
-                }
-                else {
-                    link.addClass('disabled');
+                links = $('#advantages_tabs a:contains("' + name + '")');
+                count = links.size();
+                // Check for false matches like "Learning" & "Martial Learning"
+                for (i = 0; i < count; i++) {
+                    link = links.eq(i);
+                    if (link.text() === name) {
+                        if (data.advantage_allowed(name, null)) {
+                            link.removeClass('disabled');
+                        }
+                        else {
+                            link.addClass('disabled');
+                        }
+                    }
                 }
             }
         }    

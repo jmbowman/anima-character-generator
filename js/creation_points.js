@@ -137,7 +137,8 @@ disadvantages, tables, utils) {
             }
         }
         else if (name === 'Supernatural Immunity') {
-            if ('The Gift' in myAdvantages || 'See Supernatural' in myAdvantages) {
+            if ('The Gift' in myAdvantages || 'Incomplete Gift' in myAdvantages ||
+                'See Supernatural' in myAdvantages) {
                 return false;
             }
             $.each(['Sylvain', "Duk'zarist", 'Daimah'], function (i, race) {
@@ -150,7 +151,7 @@ disadvantages, tables, utils) {
                 return false;
             }
         }
-        else if ($.inArray(name, ['The Gift', 'See Supernatural']) !== -1 &&
+        else if ($.inArray(name, ['The Gift', 'Incomplete Gift', 'See Supernatural']) !== -1 &&
                  'Supernatural Immunity' in myAdvantages) {
             return false;
         }
@@ -160,7 +161,7 @@ disadvantages, tables, utils) {
             }
         }
         if ('Category' in advantage) {
-            if (advantage.Category === 'Magic' && !('The Gift' in myAdvantages)) {
+            if (advantage.Category === 'Magic' && !('The Gift' in myAdvantages || 'Incomplete Gift' in myAdvantages)) {
                 return false;
             }
             if (advantage.Category === 'Psychic' &&
@@ -390,7 +391,7 @@ disadvantages, tables, utils) {
         }
         disadvantage = disadvantages[name];
         if ('Category' in disadvantage) {
-            if (disadvantage.Category === 'Magic' && !('The Gift' in myAdvantages)) {
+            if (disadvantage.Category === 'Magic' && !('The Gift' in myAdvantages || 'Incomplete Gift' in myAdvantages)) {
                 return false;
             }
             if (disadvantage.Category === 'Psychic' &&

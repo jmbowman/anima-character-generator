@@ -30,17 +30,20 @@ define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines', 'tables',
         'Exceptional Physical Resistance': {Cost: [1, 2]},  // +25 to PhR/VR/DR , +50 to Phr/VR/DR
         'Exceptional Psychic Resistance': {Cost: [1, 2]},  // +25 to PsR , +50 to PsR
         'Extreme Concentration': {Category: 'Psychic', Cost: 2},  // doubles the bonus for concentrating
-        Fame: {Category: 'Background', Cost: [1, 2]}, 
+        Fame: {Category: 'Background', Cost: [1, 2]},
+        Familiar: {Cost: [2, 3]},
         Focus: {Category: 'Psychic', Cost: 1}, // psychic points spent to boost projection are +20 instead of +10
         Fortunate: {Cost: 1},
         'Free Access to Any Psychic Discipline': {Cost: 2},
         'Free Will': {Cost: 1},  // +60 to resist domination or possession
         'Good Luck': {Cost: 1},
+        'Gradual Magic Learning': {Category: 'Magic', Cost: 2},
         'Half-Attuned to the Tree': {Category: 'Magic', Cost: 2}, // necromany not allowed.  Like elemental compat, but allows you to choose 1/2 the tree. necro not allowed
         'Hard to Kill': {Cost: [1, 2, 3]}, // +10 per pt to LP per level
         'Immunity to Pain and Fatigue': {Cost: 1},
         'Imperceptible Ki': {Cost: 1}, // +10 to ki concealment per level.  does not grant any benefit without ability ki concealment
         'Improved Innate Spell': {Category: 'Magic', Cost: [1, 2, 3]},
+        'Incomplete Gift': {Cost: 1},
         'Increased Ki Accumulation': {Cost: [1, 2]},
         'Increased Natural Bonus': {Cost: 2},  // twice the  usual bonus to a secondary when levelling
         'Increased Psychic Modifiers': {Category: 'Psychic', Cost: 1},  
@@ -54,6 +57,7 @@ define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines', 'tables',
         'Magical Diction': {Category: 'Magic', Cost: 1},  // no zeon for casting from scroll or grimoire
         'Martial Learning': {Cost: 1},  // increases learning level by 2
         'Martial Mastery': {Cost: [1, 2, 3]},
+        'Mass Invocation': {Cost: [1, 2, 3]},
         'Masterful Seals': {Cost: 1}, // +2 levels for difficulty of setting a seal
         'Mystical Armor': {Cost: 1},
         'Natural Armor': {Cost: 1},
@@ -62,7 +66,8 @@ define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines', 'tables',
             return ('Field' in abilities[val]) ? val : null;
         }), Option_Title: 'Select an ability'},   //+10, +20, +30 per level additional to specific secondary
         'Natural Learner, Field': {Cost: [2, 3], Options: Object.keys(tables.fields), Option_Title: 'Select a field'},   //+5 +10, per level additional to specific field
-        'Natural Power': {Category: 'Magic', Cost: 1}, // maximum spell potential uses POW 
+        'Natural Power': {Category: 'Magic', Cost: 1}, // maximum spell potential uses POW
+        'Natural Sorcerer': {Category: 'Magic', Cost: 1},
         'Night Vision': {Cost: 1},
         'No Gestures': {Cost: 1},  // no reduction to ki accumulation
         'Opposite Magic': {Category: 'Magic', Cost: 1},
@@ -79,6 +84,7 @@ define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines', 'tables',
         Saint: {Category: 'Background', Cost: 2},
         Seducer: {Cost: 1},  // +60 to persuasion
         'See Supernatural': {Cost: 1},
+        'Sheela Essence': {Cost: 1},
         'Social Position': {Category: 'Background', Cost: [1, 2]},
         'Starting Wealth': {Category: 'Background', Cost: [1, 2, 3]},
         'Superior Magic Recovery': {Category: 'Magic', Cost: [1, 2, 3]},  //x2, x3, x4 magic recovery
@@ -95,6 +101,7 @@ define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines', 'tables',
         'Unspoken Casting': {Category: 'Magic', Cost: 1}, // no reduction to MA when casting unspoken
         Untiring: {Cost: [1, 2, 3]},
         'Use of Armor': {Cost: [1, 2, 3]},  // +5/+10/+15 per level to wear armor
-        Versatile: {Cost: 1}
+        Versatile: {Cost: 1},
+        'Versatile Metamagic': {Category: 'Magic', Cost: 1}
     };
 });
