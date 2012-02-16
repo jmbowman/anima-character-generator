@@ -133,8 +133,10 @@ function ($, abilities, characters, dialogs, tables, primaries) {
         $('.VR', root).text(data.resistance('VR'));
         $('.DR', root).text(data.resistance('DR'));
         $('.Initiative', root).text(data.initiative());
+        $('.MK', root).text(data.mk_total());
         $('.MA', root).text(data.ma());
         $('.Zeon', root).text(data.zeon());
+        $('.Magic_Level', root).text(data.magic_level());
         if (racial) {
             $('.Racial-Abilities').text(racial);
             $('.racial-row').show();
@@ -360,7 +362,8 @@ function ($, abilities, characters, dialogs, tables, primaries) {
         // summary:
         //         Update the per-level character data entry area based on the
         //         current character data.
-        var available,
+        var amount,
+            available,
             content,
             data = characters.current(),
             current_level = data.level(),
@@ -377,7 +380,8 @@ function ($, abilities, characters, dialogs, tables, primaries) {
             parts,
             primary,
             remaining,
-            remaining_for_level;
+            remaining_for_level,
+            times_five = ['Magic Level', 'Martial Knowledge', 'Zeon'];
         update_int('XP');
         // remove any extra levels if revising XP down
         while (level_count > current_level && level_count > 1) {
@@ -434,7 +438,11 @@ function ($, abilities, characters, dialogs, tables, primaries) {
                         line = dp[name] + ' ' + primary + ' DP saved for later <span class="name" style="display: none;">' + name + '</span>';
                     }
                     else {
-                        line = '<span class="name">' + name + '</span> (+' + dp[name] + ')';
+                        amount = dp[name];
+                        if ($.inArray(name, times_five) >= 0) {
+                            amount *= 5;
+                        }
+                        line = '<span class="name">' + name + '</span> (+' + amount + ')';
                     }
                     if (name in remaining_for_level) {
                         available = remaining_for_level[name];

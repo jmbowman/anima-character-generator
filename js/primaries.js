@@ -16,6 +16,7 @@ define(['jquery', 'abilities', 'libs/utils'], function ($, abilities) {
             'Wear Armor',
             'Ki',
             'Accumulation Multiple',
+            'Martial Knowledge',
             'Save Combat DP for later'
         ];
         this.Supernatural = [
@@ -26,6 +27,7 @@ define(['jquery', 'abilities', 'libs/utils'], function ($, abilities) {
             'Control',
             'Bind',
             'Banish',
+            'Magic Level',
             'Save Supernatural DP for later'
         ];
         this.Psychic = [

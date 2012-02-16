@@ -31,7 +31,8 @@ define(['jquery', 'character', 'classes', 'primaries'],
             spent,
             totals = {Attack: 0, Block: 0, Dodge: 0, DP: 0,
                       'Magic Projection': 0, Psychic: 0,
-                      'Psychic Projection': 0, Supernatural: 0};
+                      'Psychic Projection': 0, Supernatural: 0,
+                      'Martial Knowledge': 0, 'Magic Level': 0};
         for (i = 0; i < level_count; i++) {
             results.push({});
             result = results[i];
@@ -51,6 +52,8 @@ define(['jquery', 'character', 'classes', 'primaries'],
             result.Combat = class_info.Combat * new_dp / 100;
             result.Psychic = class_info.Psychic * new_dp / 100;
             result.Supernatural = class_info.Supernatural * new_dp / 100;
+            result['Martial Knowledge'] = new_dp / 10;
+            result['Magic Level'] = new_dp / 10;
             result.Other = new_dp + saved.Other;
             result['Magic Projection'] = (totals.Supernatural / 2) - totals['Magic Projection'];
             result['Psychic Projection'] = (totals.Psychic / 2) - totals['Psychic Projection'];
@@ -116,7 +119,9 @@ define(['jquery', 'character', 'classes', 'primaries'],
         pinch_points = {Attack: result.Attack, Block: result.Block,
                         Dodge: result.Dodge,
                         'Magic Projection': result['Magic Projection'],
-                        'Psychic Projection': result['Psychic Projection']};
+                        'Psychic Projection': result['Psychic Projection'],
+                        'Martial Knowledge': result['Martial Knowledge'],
+                        'Magic Level': result['Magic Level']};
         for (i = level_count - 1; i >= 0; i--) {
             result = results[i];
             for (item in pinch_points) {

@@ -18,6 +18,7 @@ define(function () {
         this['Wear Armor'] = 2;
         this.Ki = 2;
         this['Accumulation Multiple'] = 20;
+        this['Martial Knowledge'] = 5;
         this.Supernatural = 50;
         this.Zeon = 3;
         this['MA Multiple'] = 70;
@@ -26,6 +27,7 @@ define(function () {
         this.Control = 3;
         this.Bind = 3;
         this.Banish = 3;
+        this['Magic Level'] = 5;
         this.Psychic = 50;
         this['Psychic Points'] = 20;
         this['Psychic Projection'] = 3;
@@ -350,7 +352,7 @@ define(function () {
         c.Subterfuge = 3;
         c.reduced['Feats of Strength'] = 1;
         c.bonuses = {Attack: 5, Block: 5, 'Wear Armor': 10, 'Feats of Strength': 5};
-    }(classes['Weaponsmaster']));
+    }(classes.Weaponsmaster));
 
     // Wizard
     (function (c) {

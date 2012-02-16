@@ -704,12 +704,17 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
   
     Character.prototype.mk_total = function () {
         var i,
+            level_info,
             levels = this.levels,
             length = levels.length,
             martial_mastery = this.Advantages['Martial Mastery'],
             total = 0;
         for (i = 0; i < length; i++) {
-            total += classes[levels[i].Class].MK;
+            level_info = levels[i];
+            total += classes[level_info.Class].MK;
+            if ('Martial Knowledge' in level_info.DP) {
+                total += level_info.DP['Martial Knowledge'] * 5;
+            }
         }
         if (martial_mastery) {
             total += martial_mastery * 40;
@@ -760,6 +765,28 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
             }
         }
         return total;
+    };
+    
+    Character.prototype.magic_level = function () {
+        var i,
+            level,
+            levels = this.levels,
+            length = levels.length,
+            gradual_magic_learning = this.Advantages['Gradual Magic Learning'],
+            total = tables.magic_level[this.characteristic('INT')],
+            ml;
+        for (i = 0; i < length; i++) {
+            level = levels[i];
+            ml = level.DP['Magic Level'];
+            if (ml) {
+                total += ml * 5;
+            }
+            if (gradual_magic_learning) {
+                total += 5;
+            }
+        }
+        return total;
+        
     };
   
     return Character;
