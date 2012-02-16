@@ -73,6 +73,9 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
                     }
                 }
             }
+            else {
+                amount = 0;
+            }
             if (typeof amount !== 'number') {
                 spec = Object.keys(amount)[0];
                 if (spec === specialty) {
@@ -324,6 +327,34 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
             result = 1;
         }
         return result;
+    };
+    
+    Character.prototype.creation_stage = function () {
+        // summary:
+        //         Returns the current stage in creating the character.
+        // returns:
+        //         1 for basic stats, 2 for (dis)advantages, 3 if beyond that
+        var i,
+            level,
+            levels = this.levels,
+            count = levels.length,
+            first_class = levels[0].Class;
+        for (i = 0; i < count; i++) {
+            level = levels[i];
+            if (level.Characteristic || level['Natural Bonus']) {
+                return 3;
+            }
+            if (level.Class !== first_class) {
+                return 3;
+            }
+            if (Object.keys(level.DP).length > 0) {
+                return 3;
+            }
+        }
+        if (this.Advantages || this.Disadvantages) {
+            return 2;
+        }
+        return 1;
     };
   
     Character.prototype.discipline_access = function () {

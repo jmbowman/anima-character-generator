@@ -6,6 +6,7 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
 
     var ability_dp_init,
         add_cultural_roots_choice,
+        add_xp,
         advantage_cost_init,
         advantage_options_init,
         advantages_init,
@@ -23,7 +24,8 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
         natural_bonus_init,
         save_character_init,
         set_ability_dp,
-        set_natural_bonus;
+        set_natural_bonus,
+        xp_dialog_init;
     
     ability_dp_init = function () {
         if ('Ability_DP' in dialogs) {
@@ -56,6 +58,11 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
                 }
             }
         });
+    };
+
+    add_xp = function () {
+        dialogs.Add_XP.dialog('open');
+        return false;
     };
         
     advantage_options_init = function () {
@@ -498,6 +505,38 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
         $.publish('level_data_changed');
         return false;
     };
+    
+    xp_dialog_init = function () {
+        if ('Add_XP' in dialogs) {
+            return;
+        }
+        dialogs.Add_XP = $('#xp_dialog').dialog({
+            autoOpen: false,
+            modal: true,
+            width: '400px',
+            buttons: {
+                OK: function () {
+                    var data = characters.current(),
+                        added = $('#xp_added').spinner('value');
+                    data.XP += added;
+                    $('#XP').spinner('value', data.XP);
+                    $.publish('level_data_changed');
+                    dialogs.Add_XP.dialog('close');
+                },
+                Cancel: function () {
+                    dialogs.Add_XP.dialog('close');
+                }
+            },
+            open: function () {
+                if ($('#xp_dialog').find('.ui-spinner').length) {
+                    $('#xp_added').spinner('value', 0);
+                }
+                else {
+                    $('#xp_added').spinner({min: 0, max: 9999});
+                }
+            }
+        });
+    };
 
     add_cultural_roots_choice = function (i, choice) {
         var ability,
@@ -939,6 +978,7 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
     };
 
     $('a.ability').live('click', set_ability_dp);
+    $('#add_xp').click(add_xp);
     $('a.set_natural_bonus').live('click', set_natural_bonus);
   
     $(document).ready(function () {
@@ -958,6 +998,7 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
         load_character_init();
         natural_bonus_init();
         save_character_init();
+        xp_dialog_init();
         $('#add_advantage').click(dialogs.add_advantage);
         $('#add_disadvantage').click(dialogs.add_disadvantage);
         $('#advantages_tabs a.advantage').live('click', dialogs.configure_advantage);

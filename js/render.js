@@ -10,6 +10,13 @@ function ($, abilities, characters, dialogs, tables, primaries) {
         update_text;
     
     load_value = function (name) {
+        // summary:
+        //         Set the value of an input field to match the corresponding
+        //         property of the current Character object. Used when loading
+        //         or switching characters.
+        // name: String
+        //         The name of the property (which is also the ID of the
+        //         corresponding input field)
         $('#' + name).val('' + characters.current()[name]);
     };
   
@@ -63,13 +70,28 @@ function ($, abilities, characters, dialogs, tables, primaries) {
     };
 
     update_int = function (name) {
-        var input = $('#' + name);
+        // summary:
+        //         Update an integer property of the current Character object
+        //         using the current value of the corresponding input field.
+        // name: String
+        //         The name of the property (which is also the ID of the
+        //         corresponding input field)
+        var input = $('#' + name),
+            value;
         if (input.valid()) {
-            characters.current()[name] = parseInt(input.val(), 10);
+            value = parseInt(input.val(), 10);
+            characters.current()[name] = value;
+            input.nextAll('span.display').text(value);
         }
     };
 
     update_text = function (name) {
+        // summary:
+        //         Update a text property of the current Character object
+        //         using the current value of the corresponding input field.
+        // name: String
+        //         The name of the property (which is also the ID of the
+        //         corresponding input field)
         var field = $('#' + name);
         if (field.valid()) {
             characters.current()[name] = field.val();
@@ -77,6 +99,10 @@ function ($, abilities, characters, dialogs, tables, primaries) {
     };
 
     render.render = function (root) {
+        // summary:
+        //         Refresh the character's statistics display block.
+        // root: Node
+        //         The root DOM node for the stat block
         var abilities_block,
             ability,
             ability_list,
@@ -87,7 +113,6 @@ function ($, abilities, characters, dialogs, tables, primaries) {
             primary,
             racial = data.racial_abilities(),
             score;
-        $('.next_step', root).text(next_step());
         $('.summary', root).text(data.summary());
         $('.lp', root).text(data.life_points());
         $('.fatigue', root).text(data.fatigue());
@@ -138,7 +163,13 @@ function ($, abilities, characters, dialogs, tables, primaries) {
         }
     };
 
-    render.update_cp = function () {
+    render.update_cp = function (read_only) {
+        // summary:
+        //         Update the section of the page where the character's
+        //         advantages and disadvantages are chosen.
+        // read_only: Boolean
+        //         True if the display of advantages and disadvantages should
+        //         be read-only (because we've moved on to choosing abilities)
         var categories = ['Common', 'Background', 'Magic', 'Psychic'],
             categories_added = 0,
             category,
@@ -151,6 +182,7 @@ function ($, abilities, characters, dialogs, tables, primaries) {
             name,
             remaining = '',
             subtotal,
+            summary,
             total = data.cp_total();
         for (i = 0; i < count; i++) {
             category = categories[i];
@@ -166,10 +198,13 @@ function ($, abilities, characters, dialogs, tables, primaries) {
         }
         if (!remaining) {
             remaining = '0';
+            if (!read_only) {
+                $('#choose_abilities').removeAttr('disabled');
+            }
         }
         $('#cp_remaining').text(remaining);
         $('#cp_total').text(total);
-        if (remaining !== '0') {
+        if (remaining !== '0' && !read_only) {
             $('#add_advantage').show();
         }
         else {
@@ -181,12 +216,18 @@ function ($, abilities, characters, dialogs, tables, primaries) {
                 if (i > 0) {
                     content += ', ';
                 }
-                content += '<a href="#" data-name="' + name + '">' + data.advantage_summary(name) + '</a>';
+                summary = data.advantage_summary(name);
+                if (read_only) {
+                    content += summary;
+                }
+                else {
+                    content += '<a href="#" data-name="' + name + '">' + summary + '</a>';
+                }
                 i++;
             }
         }
         $('#Advantages').html(content);
-        if (Object.keys(myDisadvantages).length < 3) {
+        if (Object.keys(myDisadvantages).length < 3 && !read_only) {
             $('#add_disadvantage').show();
         }
         else {
@@ -199,7 +240,13 @@ function ($, abilities, characters, dialogs, tables, primaries) {
                 if (i > 0) {
                     content += ', ';
                 }
-                content += '<a href="#" data-name="' + name + '">' + data.disadvantage_summary(name) + '</a>';
+                summary = data.disadvantage_summary(name);
+                if (read_only) {
+                    content += summary;
+                }
+                else {
+                    content += '<a href="#" data-name="' + name + '">' + summary + '</a>';
+                }
                 i++;
             }
         }
@@ -211,6 +258,18 @@ function ($, abilities, characters, dialogs, tables, primaries) {
     $('#Disadvantages a').live('click', dialogs.delete_disadvantage);
     
     render.load_data = function () {
+        // summary:
+        //         Update the character data entry area based on the current
+        //         character data.  Used when loading or switching characters.
+        var data = characters.current(),
+            stage = data.creation_stage();
+        $('input.characteristic, #Appearance, #XP').show().next('span').show().nextAll('span.display').hide();
+        $('#Gender, #Race, #first_class').show().nextAll('span.display').hide();
+        $('#add_xp').hide();
+        $('#choose_abilities').show().attr('disabled', 'disabled');
+        $('#after_class').hide();
+        $('#choose_advantages').show().attr('disabled', 'disabled');
+        $('.level').remove();
         load_value('STR');
         load_value('DEX');
         load_value('AGI');
@@ -224,12 +283,21 @@ function ($, abilities, characters, dialogs, tables, primaries) {
         load_value('Race');
         load_value('XP');
         load_value('Name');
-        $('#first_class').val(characters.current().levels[0].Class);
-        render.update_cp();
-        render.update_level();
+        $('#first_class').val(data.levels[0].Class);
+        render.update_basics();
+        if (stage > 1) {
+            render.start_advantages();
+            if (stage > 2) {
+                render.start_abilities();
+            }
+        }
     };
 
-    render.update_display = function () {
+    render.update_basics = function () {
+        // summary:
+        //         Update the basic data for the current character using the
+        //         values currently in the appropriate input fields and refresh
+        //         the stat block.
         var after_class,
             data = characters.current(),
             first_class = $('#first_class').val();
@@ -250,16 +318,48 @@ function ($, abilities, characters, dialogs, tables, primaries) {
         }
         update_text('Name');
         render.render($('.container'));
-        after_class = $('#after_class');
-        if (after_class.filter(':visible').length === 0) {
-            if ($('#Race').val() && $('#first_class').val()) {
-                render.update_cp();
-                $('#after_class').show();
-            }
+        if ($('#main_form').valid()) {
+            $('#choose_advantages').removeAttr('disabled');
         }
+    };
+    
+    render.update_name = function () {
+        update_text('Name');
+        $('.container .summary').text(characters.current().summary());
+    };
+    
+    render.start_advantages = function () {
+        // summary:
+        //         Conclude entry of basic statistics and start choosing
+        //         advantages and disadvantages.
+        render.update_basics();
+        if ($('#main_form').valid()) {
+            $('#Gender, #Race, #first_class').each(function () {
+                var select = $(this),
+                    value = select.val();
+                select.hide().nextAll('span.display').text(value).show();
+            });
+            $('input.characteristic, #Appearance, #XP').hide().next('span').hide().nextAll('span.display').show();
+            render.update_cp();
+            $('#after_class').show();
+            $('#choose_advantages').hide();
+        }
+    };
+    
+    render.start_abilities = function () {
+        // summary:
+        //         Conclude selection of advantages and disadvantages, and start
+        //         choosing abilities acquired at each level.
+        render.update_cp(true);
+        $('#choose_abilities').hide();
+        render.update_level();
+        $('#add_xp').show();
     };
 
     render.update_level = function () {
+        // summary:
+        //         Update the per-level character data entry area based on the
+        //         current character data.
         var available,
             content,
             data = characters.current(),
@@ -289,7 +389,6 @@ function ($, abilities, characters, dialogs, tables, primaries) {
             levels.push({Class: levels[level_count - 1].Class, DP: {}});
             level_count++;
         }
-        render.update_display();
         $('.level').remove();
         remaining = data.dp_remaining();
         for (i = 0; i < level_count; i++) {
@@ -358,6 +457,7 @@ function ($, abilities, characters, dialogs, tables, primaries) {
             }
             line = '<div class="span-12 last level">' + content + '</div>';
             $('.levels').append(line);
+            render.render($('.container'));
         }
     };
   

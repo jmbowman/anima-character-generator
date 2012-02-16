@@ -18,7 +18,6 @@
 <body>
 <form id="main_form" action="#">
 <div class="container">
-  <div class="span-24 last"><br /><strong>Next step: <span class="next_step"></span></strong></div>
   <div class="span-24 last summary"></div>
   
   <div class="span-2">LP <span class="lp"></span></div>
@@ -56,30 +55,30 @@
   
   <div class="span-11">
     <div class="span-2"><label for="STR">STR</label></div>
-    <div class="span-9 last"><input type="text" id="STR" name="STR" class="characteristic" value="5" /></div>
+    <div class="span-9 last"><input type="text" id="STR" name="STR" class="characteristic" value="5" /><span class="display"></span></div>
     <div class="span-2"><label for="DEX">DEX</label></div>
-    <div class="span-9 last"><input type="text" id="DEX" name="DEX" class="characteristic" value="5" /></div>
+    <div class="span-9 last"><input type="text" id="DEX" name="DEX" class="characteristic" value="5" /><span class="display"></span></div>
     <div class="span-2"><label for="AGI">AGI</label></div>
-    <div class="span-9 last"><input type="text" id="AGI" name="AGI" class="characteristic" value="5" /></div>
+    <div class="span-9 last"><input type="text" id="AGI" name="AGI" class="characteristic" value="5" /><span class="display"></span></div>
     <div class="span-2"><label for="CON">CON</label></div>
-    <div class="span-9 last"><input type="text" id="CON" name="CON" class="characteristic" value="5" /></div>
+    <div class="span-9 last"><input type="text" id="CON" name="CON" class="characteristic" value="5" /><span class="display"></span></div>
     <div class="span-2"><label for="INT">INT</label></div>
-    <div class="span-9 last"><input type="text" id="INT" name="INT" class="characteristic" value="5" /></div>
+    <div class="span-9 last"><input type="text" id="INT" name="INT" class="characteristic" value="5" /><span class="display"></span></div>
     <div class="span-2"><label for="POW">POW</label></div>
-    <div class="span-9 last"><input type="text" id="POW" name="POW" class="characteristic" value="5" /></div>
+    <div class="span-9 last"><input type="text" id="POW" name="POW" class="characteristic" value="5" /><span class="display"></span></div>
     <div class="span-2"><label for="WP">WP</label></div>
-    <div class="span-9 last"><input type="text" id="WP" name="WP" class="characteristic" value="5" /></div>
+    <div class="span-9 last"><input type="text" id="WP" name="WP" class="characteristic" value="5" /><span class="display"></span></div>
     <div class="span-2"><label for="PER">PER</label></div>
-    <div class="span-9 last"><input type="text" id="PER" name="PER" class="characteristic" value="5" /></div>
+    <div class="span-9 last"><input type="text" id="PER" name="PER" class="characteristic" value="5" /><span class="display"></span></div>
     <div class="span-2"><label for="Appearance">Appearance</label></div>
-    <div class="span-9 last"><input type="text" id="Appearance" name="Appearance" value="5" /></div>
+    <div class="span-9 last"><input type="text" id="Appearance" name="Appearance" value="5" /><span class="display"></span></div>
 
     <div class="span-2"><label for="Gender">Gender</label></div>
     <div class="span-9 last"><select id="Gender" name="Gender" class="required">
       <option value="">----</option>
       <option value="Female">Female</option>
       <option value="Male">Male</option>
-    </select></div>
+    </select><span class="display"></span></div>
 
     <div class="span-2"><label for="Race">Race</label></div>
     <div class="span-9 last"><select id="Race" name="Race" class="required">
@@ -94,7 +93,7 @@
       <option value="Being Between Worlds">Being Between Worlds</option>
       <option value="Natural">Natural</option>
       <option value="Spirit">Spirit</option>
-    </select></div>
+    </select><span class="display"></span></div>
     
     <div class="span-2"><label for="first_class">Class</label></div>
     <div class="span-9 last"><select id="first_class" name="first_class" class="required">
@@ -118,12 +117,16 @@
       <option value="Warrior Summoner">Warrior Summoner</option>
       <option value="Weaponsmaster">Weaponsmaster</option>
       <option value="Wizard">Wizard</option>
-    </select></div>
+    </select><span class="display"></span></div>
 
     <div class="span-2"><label for="level">XP</label></div>
-    <div class="span-9 last"><input type="text" id="XP" name="XP" class="required number" value="0" /></div>
+    <div class="span-9 last"><input type="text" id="XP" name="XP" class="required number" value="0" /><span class="display"></span>&nbsp;<a id="add_xp" href="#">+</a></div>
+
+    <div class="span-2"><label for="name">Name</label></div>
+    <div class="span-9 last"><input type="text" id="Name" name="Name" /></div>
+    
     <div class="span-11 last">
-      <button id="update_display" type="button">Update Display</button>
+      <button id="choose_advantages" type="button">Choose Advantages</button>
       <button id="save_button" type="button">Save</button>
       <button id="load_button" type="button">Load</button>
     </div>
@@ -137,13 +140,10 @@
     <div class="span-3"><strong>Disadvantages</strong></div>
     <div class="span-10 last"><span id="Disadvantages">huh?</span> <a id="add_disadvantage" href="#">+</a></div>
 
-    <div class="span-13 last"><button id="update_level" type="button">Update Level</button>
+    <div class="span-13 last"><button id="choose_abilities" type="button">Choose Abilities</button>
       <input type="hidden" id="dialog_level" name="dialog_level" value="" />
     </div>
   </div>
-
-  <div class="span-3"><label for="name">Name</label></div>
-  <div class="span-10 last"><input type="text" id="Name" name="Name" class="required" /></div>
 </div>
 </form>
 
@@ -353,6 +353,11 @@
 <div id="save_dialog" style="display:none;" title="Save Character">
   <p>Copy the following into a text file and save it for future use:</p>
   <div><textarea id="save_text"></textarea></div>
+</div>
+
+<div id="xp_dialog" style="display: none;" title="Add Experience Points">
+  <p>Enter the number of Experience Points gained:</p>
+  <div><input type="text" name="xp_added" id="xp_added" value="0" /></div>
 </div>
 
 <script src="js/libs/json2.js"></script>

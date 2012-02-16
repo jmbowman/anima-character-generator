@@ -16,6 +16,11 @@ div.label-parent
   line-height: 26px;
 }
 
+span.display
+{
+  line-height: 26px;
+}
+
 .error {
   padding: 0.1em;
 }
