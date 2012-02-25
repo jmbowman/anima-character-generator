@@ -1,7 +1,7 @@
 /*global define: false */
-define(['jquery', 'abilities', 'characters', 'dialogs', 'tables', 'primaries',
-'creation_points', 'development_points'],
-function ($, abilities, characters, dialogs, tables, primaries) {
+define(['jquery', 'abilities', 'characters', 'dialogs', 'modules', 'tables',
+'primaries', 'creation_points', 'development_points'],
+function ($, abilities, characters, dialogs, modules, tables, primaries) {
     
     var load_value,
         next_step,
@@ -125,6 +125,7 @@ function ($, abilities, characters, dialogs, tables, primaries) {
         $('.WP', root).text(data.characteristic('WP'));
         $('.PER', root).text(data.characteristic('PER'));
         $('.Appearance', root).text(data.appearance());
+        $('.Size', root).text(data.size());
         $('.MV', root).text(data.movement_value());
         $('.Regeneration', root).text(data.regeneration());
         $('.PhR', root).text(data.resistance('PhR'));
@@ -436,6 +437,12 @@ function ($, abilities, characters, dialogs, tables, primaries) {
                     primary = primaries.for_ability(name);
                     if (name.indexOf('Save ') === 0) {
                         line = dp[name] + ' ' + primary + ' DP saved for later <span class="name" style="display: none;">' + name + '</span>';
+                    }
+                    else if (name in modules) {
+                        line = '<span class="name">' + name + '</span>';
+                        if (modules[name].Option_Title) {
+                            line += ' (' + dp[name].join(', ') + ')';
+                        }
                     }
                     else {
                         amount = dp[name];

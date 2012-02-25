@@ -35,7 +35,9 @@
   <div class="span-2">WP <span class="WP"></span></div>
   <div class="span-2">PER <span class="PER"></span></div>
   <div class="span-3">Appearance <span class="Appearance"></span></div>
-  <div class="span-5 last">&nbsp;</div>
+  <div class="span-3">Size <span class="Size"></span></div>
+  <div class="span-2 last">&nbsp;</div>
+
   
   <div class="span-2">PhR <span class="PhR"></span></div>
   <div class="span-2">MR <span class="MR"></span></div>
@@ -284,7 +286,11 @@
       <li><a href="#Secondary">Secondary Abilities</a></li>
       <li><a href="#Other">Other</a></li>
     </ul>
-    <div id="Combat"></div>
+    <div id="Combat" class="container">
+      <div id="Combat_Abilities" class="span-8"></div>
+      <div id="Combat_Modules_1" class="span-8"></div>
+      <div id="Combat_Modules_2" class="span-8 last"></div>
+    </div>
     <div id="Psychic"></div>
     <div id="Supernatural"></div>
     <div id="Secondary" class="container">
@@ -299,7 +305,7 @@
 		<span class="field">Intellectual</span><br />
 		<div id="DP_Intellectual"></div>
 	  </div>
-	  <div class="span-6 last">
+	  <div class="span-6">
 		<span class="field">Perceptive</span><br />
 		<div id="DP_Perceptive"></div>
 		<br />
@@ -320,6 +326,12 @@
 <div id="load_dialog" style="display:none;" title="Load Character">
   <p>Enter the character data to be loaded:</p>
   <div><textarea id="load_text"></textarea></div>
+</div>
+
+<div id="module_options_dialog" style="display: none;">
+  <input type="hidden" id="module_options_name" name="module_options_name" value="" />
+  <input type="hidden" id="module_options_level" name="module_options_level" value="" />
+  <div id="module_options"></div>
 </div>
 
 <div id="natural_bonus_dialog" style="display: none;" title="Select an ability to improve">

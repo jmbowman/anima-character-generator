@@ -1,8 +1,9 @@
 /*global define: false, document: false */
 define(['jquery', 'abilities', 'advantages', 'characters', 'cultural_roots',
-'disadvantages', 'primaries', 'tables', 'creation_points', 'development_points',
-'jqueryui/dialog', 'jqueryui/tabs', 'pubsub'], function ($, abilities,
-advantages, characters, cultural_roots, disadvantages, primaries, tables) {
+'disadvantages', 'modules', 'primaries', 'tables', 'creation_points',
+'development_points', 'jqueryui/dialog', 'jqueryui/tabs', 'pubsub'],
+function ($, abilities, advantages, characters, cultural_roots, disadvantages,
+          modules, primaries, tables) {
 
     var ability_dp_init,
         add_cultural_roots_choice,
@@ -12,6 +13,7 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
         advantages_init,
         characteristic_bonus_init,
         class_init,
+        configure_module,
         cultural_roots_init,
         delete_advantage_init,
         delete_disadvantage_init,
@@ -21,6 +23,7 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
         disadvantages_init,
         dp_init,
         load_character_init,
+        module_options_init,
         natural_bonus_init,
         save_character_init,
         set_ability_dp,
@@ -64,7 +67,7 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
         dialogs.Add_XP.dialog('open');
         return false;
     };
-        
+
     advantage_options_init = function () {
         if ('Advantage_Options' in dialogs) {
             return;
@@ -111,7 +114,7 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
             }
         });
     };
-    
+
     characteristic_bonus_init = function () {
         if ('Characteristic_Bonus' in dialogs) {
             return;
@@ -157,6 +160,52 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
                 }
             }
         });
+    };
+
+    configure_module = function (name, level) {
+        // summary:
+        //         Prompt for any option required by a module being purchased,
+        //         otherwise just add it to the specified level.
+        // name: String
+        //         The name of the combat module
+        // level: Integer
+        //         The level at which the module is being obtained
+        var data = characters.current(),
+            input,
+            module = modules[name],
+            multiple = module.Option_Title,
+            options,
+            panel,
+            select;
+        if (!multiple && data.has_module(name)) {
+            return false;
+        }
+        if (!multiple) {
+            data.add_module(name, level);
+            $.publish('level_data_changed');
+            return false;
+        }
+        $('#module_options_name').val(name);
+        $('#module_options_level').val(level);
+        panel = $('#module_options');
+        panel.html('');
+        options = module.Options;
+        if (options.length === 0) {
+            input = $('<input>', {type: 'text', value: ''}).addClass('required');
+            panel.append(input);
+        }
+        else {
+            select = $('<select>');
+            $.each(options, function (i, option) {
+                if (!data.has_module(name, option)) {
+                    select.append($('<option>', {value: option}).text(option));
+                }
+            });
+            panel.append(select);
+        }
+        dialogs.Module_Options.dialog('option', 'title', module.Option_Title);
+        dialogs.Module_Options.dialog('open');
+        return false;
     };
   
     cultural_roots_init = function () {
@@ -357,6 +406,7 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
         var ability,
             count,
             i,
+            module,
             name,
             parts,
             primary;
@@ -377,9 +427,27 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
                         $('#DP_' + abilities[ability].Field).append(parts.join(''));
                     }
                     else {
+                        if (name === 'Combat') {
+                            name = 'Combat_Abilities';
+                        }
                         $('#' + name).append(parts.join(''));
                     }
                 }
+            }
+        }
+        i = 1;
+        for (name in modules) {
+            if (modules.hasOwnProperty(name)) {
+                module = modules[name];
+                parts = ['<a href="#" class="ability"><span class="name">',
+                         name, '</span></a> (<span class="cost">', module.DP,
+                         '</span>)<br />'];
+                primary = module.Primary;
+                if (primary === 'Combat') {
+                    primary = 'Combat_Modules_' + ((i < 24) ? 1 : 2);
+                }
+                $('#' + primary).append(parts.join(''));
+                i++;
             }
         }
         dialogs.DP = $('#dp_dialog').dialog({
@@ -420,6 +488,39 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
                 },
                 Cancel: function () {
                     dialogs.Load_Character.dialog('close');
+                }
+            }
+        });
+    };
+
+    module_options_init = function () {
+        if ('Module_Options' in dialogs) {
+            return;
+        }
+        dialogs.Module_Options = $('#module_options_dialog').dialog({
+            autoOpen: false,
+            modal: true,
+            width: '400px',
+            buttons: {
+                OK: function () {
+                    var data = characters.current(),
+                        level = parseInt($('#module_options_level').val(), 10),
+                        name = $('#module_options_name').val(),
+                        option,
+                        select;
+                    select = $('#module_options select');
+                    if (select.length > 0) {
+                        option = select.val();
+                    }
+                    else {
+                        option = $('#module_options input').val();
+                    }
+                    data.add_module(name, level, option);
+                    dialogs.Module_Options.dialog('close');
+                    $.publish('level_data_changed');
+                },
+                Cancel: function () {
+                    dialogs.Module_Options.dialog('close');
                 }
             }
         });
@@ -465,11 +566,15 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
             level_info = data.level_info(level),
             cls = level_info.Class,
             name = link.find('.name').text(),
-            cost = data.cost(name, cls),
+            cost = data.dp_cost(name, cls),
             max = Math.floor(available / cost) * cost,
             parent = $('#ability_dp_parent'),
             purchased = level_info.DP[name],
             start = max;
+        dialogs.DP.dialog('close');
+        if (name in modules) {
+            return configure_module(name, level);
+        }
         if (purchased) {
             // Add in any amount already spent this level; show the total
             start = purchased * cost;
@@ -490,7 +595,6 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
         }
         parent.html('');
         parent.append($('<input>', {id: 'ability_dp', type: 'text', value: '' + start}));
-        dialogs.DP.dialog('close');
         dialogs.Ability_DP.dialog('open');
         parent.find('input').spinner({min: 0, max: max, step: cost});
         return false;
@@ -950,35 +1054,69 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
             count,
             data = characters.current(),
             i,
+            j,
             level = $(this).data('level'),
             index = level === 0 ? 0 : level - 1,
             cls = data.levels[index].Class,
             remaining = data.dp_remaining(),
             limits = remaining[index],
+            links,
+            link_count,
             link,
-            primary,
-            primary_name;
-        for (primary_name in primaries) {
-            if (primaries.hasOwnProperty(primary_name)) {
-                available = limits[primary_name === 'Other' ? 'Total' : primary_name];
-                primary = primaries[primary_name];
+            name,
+            primary;
+        for (name in primaries) {
+            if (primaries.hasOwnProperty(name)) {
+                available = limits[name === 'Other' ? 'Total' : name];
+                primary = primaries[name];
                 count = primary.length;
                 for (i = 0; i < count; i++) {
                     ability = primary[i];
-                    link = $('#dp_tabs a:contains("' + ability + '")');
-                    cost = data.cost(ability, cls);
-                    link.next('.cost').text(cost);
-                    cap = available;
-                    if (ability in limits) {
-                        cap = limits[ability];
+                    links = $('#dp_tabs a:contains("' + ability + '")');
+                    // Check for false matches like "Attack" & "Area Attack"
+                    link_count = links.size();
+                    for (j = 0; j < link_count; j++) {
+                        link = links.eq(j);
+                        if (link.text() === ability) {
+                            cost = data.dp_cost(ability, cls);
+                            link.next('.cost').text(cost);
+                            cap = available;
+                            if (ability in limits) {
+                                cap = limits[ability];
+                            }
+                            link.data('available', cap);
+                            link.data('level', level);
+                            if (cost > cap) {
+                                link.addClass('disabled');
+                            }
+                            else {
+                                link.removeClass('disabled');
+                            }
+                        }
                     }
-                    link.data('available', cap);
-                    link.data('level', level);
-                    if (cost > cap) {
-                        link.addClass('disabled');
-                    }
-                    else {
-                        link.removeClass('disabled');
+                }
+            }
+        }
+        for (name in modules) {
+            if (modules.hasOwnProperty(name)) {
+                ability = modules[name];
+                available = limits[ability.Primary];
+                links = $('#dp_tabs a:contains("' + name + '")');
+                // Check for false matches like "Attack" & "Area Attack"
+                link_count = links.size();
+                for (i = 0; i < link_count; i++) {
+                    link = links.eq(i);
+                    if (link.text() === name) {
+                        cost = ability.DP;
+                        link.next('.cost').text(cost);
+                        link.data('available', available);
+                        link.data('level', level);
+                        if (cost > available) {
+                            link.addClass('disabled');
+                        }
+                        else {
+                            link.removeClass('disabled');
+                        }
                     }
                 }
             }
@@ -1006,6 +1144,7 @@ advantages, characters, cultural_roots, disadvantages, primaries, tables) {
         disadvantage_option_init();
         dp_init();
         load_character_init();
+        module_options_init();
         natural_bonus_init();
         save_character_init();
         xp_dialog_init();

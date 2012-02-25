@@ -288,46 +288,6 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
         }
         return levels[level - 2].Class === levels[level - 3].Class;
     };
-  
-    Character.prototype.cost = function (name, class_name) {
-        var ability = abilities[name],
-            character_class = classes[class_name],
-            field,
-            info,
-            myAdvantages = this.Advantages,
-            reduced,
-            result;
-        if (name.indexOf('Save ') === 0) {
-            // Saving DP for later can be done in any quantity
-            return 1;
-        }
-        if (ability) {
-            field = ability.Field;
-        }
-        reduced = character_class.reduced[name];
-        if (reduced) {
-            result = reduced;
-        }
-        else if (field) {
-            result = character_class[field];
-        }
-        else {
-            result = character_class[name];
-        }
-        if (field) {
-            if (myAdvantages['Aptitude in a Field'] === field) {
-                result--;
-            }
-            info = myAdvantages['Aptitude in a Subject'];
-            if (info && info.Ability === name) {
-                result -= info.Points;
-            }
-        }
-        if (result < 1) {
-            result = 1;
-        }
-        return result;
-    };
     
     Character.prototype.creation_stage = function () {
         // summary:
@@ -650,7 +610,7 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
     };
   
     Character.prototype.size = function () {
-        var total = this.modifier('STR') + this.modifier('CON'),
+        var total = this.characteristic('STR') + this.characteristic('CON'),
             uncommon_size = this.Advantages['Uncommon Size'];
         switch (this.Race) {
         case 'Daimah Nephilim':

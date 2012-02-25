@@ -1,10 +1,12 @@
 /*global define: false */
-define(['jquery', 'abilities', 'libs/utils'], function ($, abilities) {
+define(['jquery', 'abilities', 'modules', 'libs/utils'],
+    function ($, abilities, modules) {
 
     var Primaries = function () {
         var ability_list,
             count,
             i,
+            name,
             primary;
         if (!(this instanceof Primaries)) {
             return new Primaries();
@@ -52,6 +54,11 @@ define(['jquery', 'abilities', 'libs/utils'], function ($, abilities) {
                 for (i = 0; i < count; i++) {
                     this.reverse_lookup_cache[ability_list[i]] = primary;
                 }
+            }
+        }
+        for (name in modules) {
+            if (modules.hasOwnProperty(name)) {
+                this.reverse_lookup_cache[name] = modules[name].Primary;
             }
         }
     };

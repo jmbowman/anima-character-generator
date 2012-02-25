@@ -1,8 +1,98 @@
 /*global define: false */
-define(['jquery', 'character', 'classes', 'primaries'],
-       function ($, Character, classes, primaries) {
+define(['jquery', 'abilities', 'character', 'classes', 'modules', 'primaries'],
+       function ($, abilities, Character, classes, modules, primaries) {
+  
+    Character.prototype.add_module = function (name, level, option) {
+        // summary:
+        //         Give the character a combat module at the specified level.
+        // name: String
+        //         The name of the combat module obtained
+        // level: Integer
+        //         The level at which the module was purchased
+        // option: String?
+        //         Any relevant parameter, such as a weapon name or type
+        var index = (level === 0) ? 0 : level - 1,
+            dp = this.levels[index].DP,
+            module = modules[name],
+            options;
+        if (this.has_module(name, option)) {
+            // already have it, do nothing
+            return;
+        }
+        if (name in dp) {
+            dp[name].push(option);
+            dp[name].sort();
+        }
+        else {
+            if (module.Option_Title) {
+                dp[name] = [option];
+            }
+            else {
+                dp[name] = module.DP;
+            }
+        }
+    };
+
+    Character.prototype.dp_cost = function (name, class_name) {
+        // summary:
+        //         Get the cost in DP to the character of taking the specified
+        //         ability while in a particular class.
+        // name: String
+        //         The name of the ability
+        // class_name: String
+        //         The name of the character's class when the ability is taken
+        // returns:
+        //         The appropriate DP cost
+        var ability = abilities[name],
+            character_class = classes[class_name],
+            field,
+            info,
+            myAdvantages = this.Advantages,
+            reduced,
+            result;
+        if (name.indexOf('Save ') === 0) {
+            // Saving DP for later can be done in any quantity
+            return 1;
+        }
+        if (name in modules) {
+            return modules[name].DP;
+        }
+        if (ability) {
+            field = ability.Field;
+        }
+        reduced = character_class.reduced[name];
+        if (reduced) {
+            result = reduced;
+        }
+        else if (field) {
+            result = character_class[field];
+        }
+        else {
+            result = character_class[name];
+        }
+        if (field) {
+            if (myAdvantages['Aptitude in a Field'] === field) {
+                result--;
+            }
+            info = myAdvantages['Aptitude in a Subject'];
+            if (info && info.Ability === name) {
+                result -= info.Points;
+            }
+        }
+        if (result < 1) {
+            result = 1;
+        }
+        return result;
+    };
   
     Character.prototype.dp_remaining = function () {
+        // sumary:
+        //        Calculate the number of DP still available to be spent in
+        //        each primary at each of the character's levels.
+        // returns:
+        //        An array (one entry per level) of objects whose property
+        //        names are primaries or special case abilities and whose
+        //        property values are the corresponding number of available DP
         var attack,
             categories = Object.keys(primaries),
             class_info,
@@ -60,8 +150,18 @@ define(['jquery', 'character', 'classes', 'primaries'],
             level_dp = level_info.DP;
             for (item in level_dp) {
                 if (level_dp.hasOwnProperty(item)) {
-                    cost = this.cost(item, class_name);
-                    spent = level_dp[item] * cost;
+                    cost = this.dp_cost(item, class_name);
+                    if (item in modules) {
+                        if (modules[item].Option_Title) {
+                            spent = level_dp[item].length * cost;
+                        }
+                        else {
+                            spent = cost;
+                        }
+                    }
+                    else {
+                        spent = level_dp[item] * cost;
+                    }
                     result.Total -= spent;
                     primary = primaries.for_ability(item);
                     result[primary] -= spent;
@@ -139,10 +239,44 @@ define(['jquery', 'character', 'classes', 'primaries'],
     };
 
     Character.prototype.dp_total = function (level) {
+        // summary:
+        //         Get the character's total DP count at a particular level.
+        // level: Number
+        //         The level number (0+)
+        // returns:
+        //         The character's total DP at that level
         if (level === 0) {
             return 400;
         }
         return 500 + (level * 100);
+    };
+
+    Character.prototype.has_module = function (name, option) {
+        // summary:
+        //         Does the character already have a certain combat module?
+        // name: String
+        //         The name of the module
+        // option: String?
+        //         The name of the option, in the case of modules that can be
+        //         taken for multiple weapons or weapon types.
+        // returns:
+        //         True if the character already has it, false otherwise
+        var dp,
+            i,
+            levels = this.levels,
+            count = levels.length;
+        for (i = 0; i < count; i++) {
+            dp = levels[i].DP;
+            if (name in dp) {
+                if (!modules[name].Option_Title) {
+                    return true;
+                }
+                if ($.inArray(option, dp[name]) >= 0) {
+                    return true;
+                } 
+            }
+        }
+        return false;
     };
   
     return {};
