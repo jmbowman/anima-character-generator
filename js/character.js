@@ -169,6 +169,9 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
     Character.prototype.armor_type = function (type) {
         var myAdvantages = this.Advantages,
             total = 0;
+        if (this['Damage Resistance']) {
+            total = this.damage_reduction_armor_type();
+        }
         if ('Natural Armor' in myAdvantages && type !== 'Energy') {
             total += 2;
         }
@@ -312,7 +315,11 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
     };
   
     Character.prototype.class_change_possible = function (level) {
-        var levels = this.levels;
+        var levels = this.levels,
+            racial_level = this['Racial Level'];
+        if (racial_level && racial_level >= level) {
+            return false;
+        }
         if (level < 2 || 'Versatile' in this.Advantages) {
             return true;
         }
@@ -379,7 +386,50 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         }
         return 1;
     };
-  
+
+    Character.prototype.damage_resistance_armor_type = function () {
+        var size = this.size();
+        if (size < 4) {
+            return 1;
+        }
+        if (size < 9) {
+            return 2;
+        }
+        if (size < 23) {
+            return 3;
+        }
+        if (size < 25) {
+            return 4;
+        }
+        if (size < 29) {
+            return 6;
+        }
+        if (size < 34) {
+            return 8;
+        }
+        return 10;
+    };
+
+    Character.prototype.damage_resistance_multiple = function () {
+        var size = this.size();
+        if (size < 4) {
+            return 1;
+        }
+        if (size < 9) {
+            return 2;
+        }
+        if (size < 25) {
+            return 5;
+        }
+        if (size < 29) {
+            return 10;
+        }
+        if (size < 34) {
+            return 15;
+        }
+        return 20;
+    };
+
     Character.prototype.discipline_access = function () {
         var first_level_dp = this.levels[0].DP,
             myAdvantages = this.Advantages,
@@ -442,8 +492,33 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             levels = this.levels,
             length = levels.length,
             qr = this.Advantages['Quick Reflexes'],
+            size,
             sr = this.Disadvantages['Slow Reactions'],
-            total = 20 + this.modifier('AGI') + this.modifier('DEX');
+            total = this.modifier('AGI') + this.modifier('DEX');
+        if (this.Type === 'Human') {
+            total += 20;
+        }
+        else {
+            size = this.size();
+            if (size < 4) {
+                total += 40;
+            }
+            else if (size < 9) {
+                total += 30;
+            }
+            else if (size < 23) {
+                total += 20;
+            }
+            else if (size < 25) {
+                total += 10;
+            }
+            else if (size > 33) {
+                total -= 20;
+            }
+            else if (size > 28) {
+                total -= 10;
+            }
+        }
         if (qr) {
             if (qr === 1) {
                 total += 25;
@@ -525,13 +600,18 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             if (multiple) {
                 result += multiple * con_mod;
             }
+            // Damage Resistance
+            multiple = info.DP['Life Points'];
+            if (multiple) {
+                result += multiple * this.damage_resistance_multiple();
+            }
             if (hard_to_kill) {
                 result += hard_to_kill * 10;
             }
         }
         return result;
     };
-  
+
     Character.prototype.ma = function () {
         var base = tables.base_ma[this.characteristic('POW')],
             i,
@@ -555,7 +635,26 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
     };
   
     Character.prototype.movement_value = function () {
-        var result = this.characteristic('AGI');
+        var result = this.characteristic('AGI'),
+            size;
+        if (this.Type !== 'Human') {
+            size = this.size();
+            if (size < 4) {
+                result -= 4;
+            }
+            else if (size < 9) {
+                result -= 2;
+            }
+            else if (size > 33) {
+                result += 3;
+            }
+            else if (size > 28) {
+                result += 2;
+            }
+            else if (size > 24) {
+                result += 1;
+            }
+        }
         if (this.levels[0].DP['Atrophied Members'] === 'Legs') {
             result -= 6;
         }
@@ -564,7 +663,7 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         }
         return result;
     };
-  
+
     Character.prototype.presence = function () {
         return this.level() * 5 + 25;
     };

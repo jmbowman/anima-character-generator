@@ -447,6 +447,10 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 count = primary.length;
                 for (i = 0; i < count; i++) {
                     ability = primary[i];
+                    if (ability === 'Life Points') {
+                        // share one link between Life Points and Life Point Multiples
+                        continue;
+                    }
                     parts = ['<a href="#" class="ability"><span class="name">',
                              ability,
                              '</span></a> (<span class="cost"></span>)<br />'];
@@ -496,7 +500,8 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             column = 1,
             count = 1,
             link,
-            name;
+            name,
+            text;
         if ('Essential_Advantages' in dialogs) {
             return;
         }
@@ -505,17 +510,17 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             if (advantages.hasOwnProperty(name)) {
                 advantage = advantages[name];
                 link = $('<a>', {href: '#'}).addClass('essential_ability').text(name);
-                link.append('<br />');
+                text = ' (' + advantage.DP + ', Gnosis ' + advantage.Gnosis + '+)<br />';
                 if (!('Category' in advantage)) {
-                    $('#EA_Common_Advantages_' + column).append(link);
+                    $('#EA_Common_Advantages_' + column).append(link).append(text);
                     count++;
-                    if (count > 20) {
+                    if (count > 19) {
                         column += 1;
                         count = 1;
                     }
                 }
                 else {
-                    $('#EA_' + advantage.Category + '_Advantages').append(link);
+                    $('#EA_' + advantage.Category + '_Advantages').append(link).append(text);
                 }
             }
         }
@@ -527,7 +532,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             position: 'top',
             buttons: {
                 'Cancel': function () {
-                    dialogs.EssentialAdvantages.dialog('close');
+                    dialogs.Essential_Advantages.dialog('close');
                 }
             }
         });
@@ -541,17 +546,18 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         var name,
             disadvantage,
             disadvantages = essential_abilities.disadvantages,
-            link;
+            link,
+            text;
         for (name in disadvantages) {
             if (disadvantages.hasOwnProperty(name)) {
                 disadvantage = disadvantages[name];
                 link = $('<a>', {href: '#'}).addClass('essential_ability').text(name);
-                link.append('<br />');
+                text = ' (' + (-disadvantage.DP) + ', Gnosis ' + disadvantage.Gnosis + '+)<br />';
                 if (!('Category' in disadvantage)) {
-                    $('#EA_Common_Disadvantages').append(link);
+                    $('#EA_Common_Disadvantages').append(link).append(text);
                 }
                 else {
-                    $('#EA_' + disadvantage.Category + '_Disadvantages').append(link);
+                    $('#EA_' + disadvantage.Category + '_Disadvantages').append(link).append(text);
                 }
             }
         }
@@ -960,6 +966,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
 
     dialogs.add_ea_advantage = function () {
         var advantages = essential_abilities.advantages,
+            allowed,
             count,
             data = characters.current(),
             i,
@@ -974,11 +981,18 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 for (i = 0; i < count; i++) {
                     link = links.eq(i);
                     if (link.text() === name) {
-                        if (data.essential_ability_allowed(name, null)) {
+                        allowed = data.essential_ability_allowed(name, null);
+                        if (allowed  === 'maybe') {
                             link.removeClass('disabled');
+                            link.addClass('maybe');
+                        }
+                        else if (allowed) {
+                            link.removeClass('disabled');
+                            link.removeClass('maybe');
                         }
                         else {
                             link.addClass('disabled');
+                            link.removeClass('maybe');
                         }
                     }
                 }
@@ -989,18 +1003,26 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
     };
 
     dialogs.add_ea_disadvantage = function () {
-        var data = characters.current(),
+        var allowed,
+            data = characters.current(),
             disadvantages = essential_abilities.disadvantages,
             name,
             link;
         for (name in disadvantages) {
             if (disadvantages.hasOwnProperty(name)) {
                 link = $('#ea_disadvantages_tabs a:contains("' + name + '")');
-                if (data.essential_ability_allowed(name, null)) {
+                allowed = data.essential_ability_allowed(name, null);
+                if (allowed === 'maybe') {
                     link.removeClass('disabled');
+                    link.addClass('maybe');
+                }
+                else if (allowed) {
+                    link.removeClass('disabled');
+                    link.removeClass('maybe');
                 }
                 else {
                     link.addClass('disabled');
+                    link.removeClass('maybe');
                 }
             }
         }
@@ -1307,6 +1329,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             cost,
             count,
             data = characters.current(),
+            dr = data['Damage Resistance'],
             i,
             j,
             level = $(this).data('level'),
@@ -1319,6 +1342,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             link,
             name,
             primary;
+        $('#Other a:contains("Life Point") .name').text(dr ? 'Life Points' : 'Life Point Multiple');
         for (name in primaries) {
             if (primaries.hasOwnProperty(name)) {
                 available = limits[name === 'Other' ? 'Total' : name];

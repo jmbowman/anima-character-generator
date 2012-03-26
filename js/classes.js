@@ -7,6 +7,7 @@ define(function () {
             return new Class();
         }
         this['Life Point Multiple'] = 20;
+        this['Life Points'] = 1; // Damage Resistance DP cost for LP
         this.LP = 5;
         this.Initiative = 5;
         this.MK = 20;

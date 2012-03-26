@@ -344,9 +344,9 @@ function ($, abilities, characters, dialogs, essential_abilities, modules,
             a = 0,
             d = 0,
             name,
-            remaining = data.available_for_essential_abilities(),
+            remaining = data.creature_dp_remaining(),
             summary,
-            total = 300 + data.bonus_dp_from_gnosis();
+            total = data.creature_dp_total();
         $('#dp_left_for_ea').text(remaining);
         $('#dp_total_for_ea').text(total);
         if (remaining > 0 && !read_only) {
@@ -400,6 +400,7 @@ function ($, abilities, characters, dialogs, essential_abilities, modules,
         //         Update the character data entry area based on the current
         //         character data.  Used when loading or switching characters.
         var data = characters.current(),
+            first_class = data.levels[0].Class,
             stage = data.creation_stage();
         $('input.characteristic, #Appearance, #XP').show().next('span').show().nextAll('span.display').hide();
         $('#Physical, #Spiritual, #Gender, #Race, #first_class').show().nextAll('span.display').hide();
@@ -420,6 +421,8 @@ function ($, abilities, characters, dialogs, essential_abilities, modules,
                 $('#Created').val(data.Created ? 'Yes': 'No');
                 load_value('Element');
                 load_value('Gnosis');
+                $('#creature_class').val(first_class);
+                $('#creature_level').val(data['Racial Level']);
                 if (stage > 2) {
                     render.start_essential_abilities();
                 }
@@ -439,7 +442,7 @@ function ($, abilities, characters, dialogs, essential_abilities, modules,
                 load_value('Race');
                 load_value('XP');
                 load_value('Name');
-                $('#first_class').val(data.levels[0].Class);
+                $('#first_class').val(first_class);
                 render.update_basics();
                 if (stage > 4) {
                     render.start_advantages();
@@ -498,11 +501,12 @@ function ($, abilities, characters, dialogs, essential_abilities, modules,
         select.hide().nextAll('span.display').text(type).show();
         $('#proceed').hide();
         if (type === 'Human') {
+            select.nextAll('span.display').text('Human or Nephilim');
             return render.start_characteristics();
         }
         $('#attributes').show();
         $('#choose_essential_abilities').show();
-        $('#Created').show().nextAll('span.display').hide();
+        $('#Created, #creature_class').show().nextAll('span.display').hide();
         if (data.element_allowed()) {
             $('#Element_label').show();
             $('#Element').show().nextAll('span.display').hide();
@@ -513,9 +517,10 @@ function ($, abilities, characters, dialogs, essential_abilities, modules,
         }
         if (!$('#Gnosis').find('.ui-spinner').length) {
             $('#Gnosis').spinner({min: 0, max: 50, step: 5});
+            $('#creature_level').spinner({min: 0, max: 16});
         }
         else {
-            $('#Gnosis').show().next('span').show().nextAll('span.display').hide();
+            $('#Gnosis, #creature_level').show().next('span').show().nextAll('span.display').hide();
         }
         if (type !== 'Human' && type !== 'Natural') {
             $('#Gnosis').spinner('option', 'min', 10);
@@ -536,6 +541,11 @@ function ($, abilities, characters, dialogs, essential_abilities, modules,
             value = select.val();
         data.Created = (value === 'Yes');
         select.hide().nextAll('span.display').text(value).show();
+        select = $('#Damage_Resistance');
+        if (select.val() === 'Yes') {
+            data['Damage Resistance'] = true;
+        }
+        select.hide().nextAll('span.display').text(value).show();
         if (data.element_allowed()) {
             update_text('Element');
             select = $('#Element');
@@ -547,10 +557,18 @@ function ($, abilities, characters, dialogs, essential_abilities, modules,
         }
         update_int('Gnosis');
         $('#Gnosis').hide().next('span').hide().nextAll('span.display').show();
+        select = $('#creature_class');
+        value = select.val();
+        $('#first_class').val(value);
+        select.hide().nextAll('span.display').text(value).show();
+        select = $('#creature_level');
+        value = parseInt(select.val(), 10);
+        data['Racial Level'] = value;
+        data.XP = value === 0 ? -100 : tables.xp_chart[value - 1];
+        select.hide().next('span').hide().nextAll('span.display').text(value).show();
         $('#choose_essential_abilities').hide();
         render.update_essential_abilities();
-        $('#essential_abilities').show();
-        $('#choose_characteristics').show();
+        $('#essential_abilities, #ea_dp, #choose_characteristics').show();
         render.render($('.container'));
     };
     
@@ -559,9 +577,11 @@ function ($, abilities, characters, dialogs, essential_abilities, modules,
         //         Conclude specification of limits on characteristics and
         //         start entering the actual values.
         var data = characters.current(),
-            first_level = data.levels[0];
+            first_level = data.levels[0],
+            racial_level,
+            xp;
         $('#characteristics').show();
-        $('#choose_characteristics').hide();
+        $('#ea_dp, #choose_characteristics').hide();
         $('#choose_advantages').text(data.Type === 'Human' ? 'Choose Advantages' : 'Choose Abilities').show();
         $('#add_xp').hide();
         if (!$('#characteristics').find('.ui-spinner').length) {
@@ -587,9 +607,17 @@ function ($, abilities, characters, dialogs, essential_abilities, modules,
         $('#first_class').val('Freelancer');
         if (data.Type !== 'Human') {
             $('#Race').val('Other');
+            racial_level = data['Racial Level'];
+            if (racial_level === 0) {
+                xp = -100;
+            }
+            else {
+                xp = tables.xp_chart[racial_level - 1];
+            }
+            $('#XP').spinner('option', 'min', xp).val(xp);
             render.update_essential_abilities(true);
         }
-        $('#race_line').toggle(data.Type === 'Human');
+        $('#race_and_class').toggle(data.Type === 'Human');
     };
     
     render.start_advantages = function () {

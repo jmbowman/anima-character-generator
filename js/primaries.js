@@ -48,6 +48,7 @@ define(['jquery', 'abilities', 'essential_abilities', 'modules', 'libs/utils'],
             }
         });
         this.Other.push('Life Point Multiple');
+        this.Other.push('Life Points'); // Damage Resistance creatures
         this.Other.push('Save generic DP for later');
         for (primary in this) {
             if (this.hasOwnProperty(primary)) {
@@ -60,12 +61,12 @@ define(['jquery', 'abilities', 'essential_abilities', 'modules', 'libs/utils'],
         }
         for (name in essentialAdvantages) {
             if (essentialAdvantages.hasOwnProperty(name)) {
-                this.reverse_lookup_cache[name] = 'Powers';
+                this.reverse_lookup_cache[name] = 'Other';
             }
         }
         for (name in essentialDisadvantages) {
             if (essentialDisadvantages.hasOwnProperty(name)) {
-                this.reverse_lookup_cache[name] = 'Powers';
+                this.reverse_lookup_cache[name] = 'Other';
             }
         }
         for (name in modules) {

@@ -78,13 +78,18 @@
     </div>
     
     <div id="attributes" class="span-11 last" style="display: none;">
-        <div class="span-3"><label for="Created">Created by a spell?</label></div>
-        <div class="span-8 last"><select id="Created" name="Created">
+        <div class="span-4"><label for="Created">Created by a spell?</label></div>
+        <div class="span-7 last"><select id="Created" name="Created">
           <option value="No">No</option>
           <option value="Yes">Yes</option>
         </select><span class="display"></span></div>
-        <div class="span-2"><label id="Element_label" for="Element">Element</label></div>
-        <div class="span-9 last"><select id="Element" name="Element">
+        <div class="span-4"><label for="Damage_Resistance">Damage Resistance?</label></div>
+        <div class="span-7 last"><select id="Damage_Resistance" name="Damage_Resistance">
+          <option value="No">No</option>
+          <option value="Yes">Yes</option>
+        </select><span class="display"></span></div>
+        <div class="span-4"><label id="Element_label" for="Element">Element</label></div>
+        <div class="span-7 last"><select id="Element" name="Element">
           <option value="">None</option>
           <option value="Air">Air</option>
           <option value="Darkness">Darkness</option>
@@ -93,20 +98,46 @@
           <option value="Light">Light</option>
           <option value="Water">Water</option>
         </select><span class="display"></span></div>
-        <div class="span-2"><label for="Gnosis">Gnosis</label></div>
-        <div class="span-9 last"><input type="text" id="Gnosis" name="Gnosis" value="10" /><span class="display"></span></div>
+        <div class="span-4"><label for="Gnosis">Gnosis</label></div>
+        <div class="span-7 last"><input type="text" id="Gnosis" name="Gnosis" value="10" /><span class="display"></span></div>
+
+        <div class="span-4"><label for="creature_class">Class</label></div>
+        <div class="span-7 last"><select id="creature_class" name="creature_class">
+          <option value="Acrobatic Warrior">Acrobatic Warrior</option>
+          <option value="Assassin">Assassin</option>
+          <option value="Dark Paladin">Dark Paladin</option>
+          <option value="Freelancer" selected="selected">Freelancer</option>
+          <option value="Illusionist">Illusionist</option>
+          <option value="Mentalist">Mentalist</option>
+          <option value="Paladin">Paladin</option>
+          <option value="Ranger">Ranger</option>
+          <option value="Shadow">Shadow</option>
+          <option value="Summoner">Summoner</option>
+          <option value="Tao">Tao</option>
+          <option value="Technician">Technician</option>
+          <option value="Thief">Thief</option>
+          <option value="Warlock">Warlock</option>
+          <option value="Warrior">Warrior</option>
+          <option value="Warrior Mentalist">Warrior Mentalist</option>
+          <option value="Wizard Mentalist">Wizard Mentalist</option>
+          <option value="Warrior Summoner">Warrior Summoner</option>
+          <option value="Weaponsmaster">Weaponsmaster</option>
+          <option value="Wizard">Wizard</option>
+        </select><span class="display"></span></div>
+
+        <div class="span-4"><label for="creature_level">Level</label></div>
+        <div class="span-7 last"><input type="text" id="creature_level" name="creature_level" value="0" /><span class="display"></span></div>
         
         <div class="span-11 last"><button id="choose_essential_abilities" type="button">Choose Essential Abilities</button></div>
     </div>
     
     <div id="essential_abilities" class="span-11 last" style="display: none;">
       <div class="span-11 last"><strong>Essential Abilities</strong></div>
-      <div class="span-11 last"><span id="dp_left_for_ea"></span> DP remaining out of <span id="dp_total_for_ea"></span>
-          total that can be spent on Essential Abilities (any not used now can be spent on Powers or class abilities)</div>
+      <div class="span-11 last" id="ea_dp"><span id="dp_left_for_ea"></span> DP remaining out of <span id="dp_total_for_ea"></span></div>
       <div class="span-3"><strong>Advantages</strong></div>
-      <div class="span-8 last"><span id="ea_advantages"></span> <a id="add_ea_advantage" href="#">+</a></div>
+      <div class="span-8 last"><span id="ea_advantages"></span>&nbsp;<a id="add_ea_advantage" href="#">+</a></div>
       <div class="span-3"><strong>Disadvantages</strong></div>
-      <div class="span-8 last"><span id="ea_disadvantages"></span> <a id="add_ea_disadvantage" href="#">+</a></div>
+      <div class="span-8 last"><span id="ea_disadvantages"></span>&nbsp;<a id="add_ea_disadvantage" href="#">+</a></div>
 
       <div class="span-11 last"><button id="choose_characteristics" type="button">Choose Characteristics</button></div>
     </div>
@@ -138,51 +169,51 @@
       <option value="Male">Male</option>
     </select><span class="display"></span></div>
     
-    <div id="race_line" class="span-11 last">
-    <div class="span-2"><label for="Race">Race</label></div>
-    <div class="span-9 last"><select id="Race" name="Race" class="required">
-      <option value="">----</option>
-      <option value="Human">Human</option>
-      <option value="D'Anjayni Nephilim">D'Anjayni Nephilim</option>
-      <option value="Daimah Nephilim">Daimah Nephilim</option>
-      <option value="Duk'zarist Nephilim">Duk'zarist Nephilim</option>
-      <option value="Ebudan Nephilim">Ebudan Nephilim</option>
-      <option value="Jayan Nephilim">Jayan Nephilim</option>
-      <option value="Sylvain Nephilim">Sylvain Nephilim</option>
-      <option value="Other">Other</option>
-    </select><span class="display"></span></div>
+    <div id="race_and_class" class="span-11 last">
+      <div class="span-2"><label for="Race">Race</label></div>
+      <div class="span-9 last"><select id="Race" name="Race" class="required">
+        <option value="">----</option>
+        <option value="Human">Human</option>
+        <option value="D'Anjayni Nephilim">D'Anjayni Nephilim</option>
+        <option value="Daimah Nephilim">Daimah Nephilim</option>
+        <option value="Duk'zarist Nephilim">Duk'zarist Nephilim</option>
+        <option value="Ebudan Nephilim">Ebudan Nephilim</option>
+        <option value="Jayan Nephilim">Jayan Nephilim</option>
+        <option value="Sylvain Nephilim">Sylvain Nephilim</option>
+        <option value="Other">Other</option>
+      </select><span class="display"></span></div>
+
+      <div class="span-2"><label for="first_class">Class</label></div>
+      <div class="span-9 last"><select id="first_class" name="first_class" class="required">
+        <option value="Acrobatic Warrior">Acrobatic Warrior</option>
+        <option value="Assassin">Assassin</option>
+        <option value="Dark Paladin">Dark Paladin</option>
+        <option value="Freelancer" selected="selected">Freelancer</option>
+        <option value="Illusionist">Illusionist</option>
+        <option value="Mentalist">Mentalist</option>
+        <option value="Paladin">Paladin</option>
+        <option value="Ranger">Ranger</option>
+        <option value="Shadow">Shadow</option>
+        <option value="Summoner">Summoner</option>
+        <option value="Tao">Tao</option>
+        <option value="Technician">Technician</option>
+        <option value="Thief">Thief</option>
+        <option value="Warlock">Warlock</option>
+        <option value="Warrior">Warrior</option>
+        <option value="Warrior Mentalist">Warrior Mentalist</option>
+        <option value="Wizard Mentalist">Wizard Mentalist</option>
+        <option value="Warrior Summoner">Warrior Summoner</option>
+        <option value="Weaponsmaster">Weaponsmaster</option>
+        <option value="Wizard">Wizard</option>
+      </select><span class="display"></span></div>
     </div>
-    
-    <div class="span-2"><label for="first_class">Class</label></div>
-    <div class="span-9 last"><select id="first_class" name="first_class" class="required">
-      <option value="Acrobatic Warrior">Acrobatic Warrior</option>
-      <option value="Assassin">Assassin</option>
-      <option value="Dark Paladin">Dark Paladin</option>
-      <option value="Freelancer" selected="selected">Freelancer</option>
-      <option value="Illusionist">Illusionist</option>
-      <option value="Mentalist">Mentalist</option>
-      <option value="Paladin">Paladin</option>
-      <option value="Ranger">Ranger</option>
-      <option value="Shadow">Shadow</option>
-      <option value="Summoner">Summoner</option>
-      <option value="Tao">Tao</option>
-      <option value="Technician">Technician</option>
-      <option value="Thief">Thief</option>
-      <option value="Warlock">Warlock</option>
-      <option value="Warrior">Warrior</option>
-      <option value="Warrior Mentalist">Warrior Mentalist</option>
-      <option value="Wizard Mentalist">Wizard Mentalist</option>
-      <option value="Warrior Summoner">Warrior Summoner</option>
-      <option value="Weaponsmaster">Weaponsmaster</option>
-      <option value="Wizard">Wizard</option>
-    </select><span class="display"></span></div>
-    
+
     <div class="span-2"><label for="level">XP</label></div>
     <div class="span-9 last"><input type="text" id="XP" name="XP" class="required number" value="0" /><span class="display"></span>&nbsp;<a id="add_xp" href="#">+</a></div>
-    
+
     <div class="span-2"><label for="name">Name</label></div>
     <div class="span-9 last"><input type="text" id="Name" name="Name" /></div>
-    
+
     <div class="span-11 last">
       <button id="choose_advantages" type="button">Choose Advantages</button>
     </div>
@@ -397,8 +428,8 @@
     </ul>
     <div id="EA_Common_Advantages">
       <div class="container">
-        <div id="EA_Common_Advantages_1" class="span-8"></div>
-        <div id="EA_Common_Advantages_2" class="span-8 last"></div>
+        <div id="EA_Common_Advantages_1" class="span-10"></div>
+        <div id="EA_Common_Advantages_2" class="span-14 last"></div>
       </div>
     </div>
     <div id="EA_Magic_Advantages"></div>

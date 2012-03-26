@@ -3,7 +3,7 @@ body {
   color: white;*/
 }
 
-input.characteristic, #Appearance, #Gnosis {
+#creature_level, input.characteristic, #Appearance, #Gnosis {
   width: 40px;
 }
 
@@ -29,6 +29,10 @@ a.disabled {
   color: #D3D3D3;
   cursor: text;
   text-decoration: none;
+}
+
+a.maybe {
+  color: #808080;
 }
 
 .field {

@@ -65,20 +65,20 @@ function ($, abilities, Character, classes, essential_abilities, modules,
         }
     };
 
-    Character.prototype.available_for_essential_abilities = function () {
+    Character.prototype.creature_dp_remaining = function () {
         // summary:
         //         Get the number of unallocated DP still available for use in
-        //         purchasing Essential Abilities for a creature.  It doesn't
-        //         bother subtract DP already spent on powers or class
-        //         abilities, because the Essential Abilities are finalized
-        //         before those are chosen.
+        //         purchasing Essential Abilities and Characteristics for a
+        //         creature.  It doesn't bother subtract DP already spent on
+        //         powers or class abilities, because the Essential Abilities
+        //         and Characteristics are finalized before those are chosen.
         // returns:
-        //         The number of DP still available for this purpose.
+        //         The number of DP still available for these purposes.
         var ability,
             advantages = essential_abilities.advantages,
             first_level_dp = this.levels[0].DP,
             name,
-            remaining = 300 + this.bonus_dp_from_gnosis();
+            remaining = this.creature_dp_total();
         if (this.is_spirit()) {
             remaining -= 100;
         }
@@ -99,6 +99,20 @@ function ($, abilities, Character, classes, essential_abilities, modules,
             }
         }
         return remaining;
+    };
+
+    Character.prototype.creature_dp_total = function () {
+        // summary:
+        //         Get the total number of DP that can be spent on Essential
+        //         Abilities and Characteristics based on level and Gnosis.
+        // returns:
+        //         The calculated DP number.
+        var bonus = this.bonus_dp_from_gnosis(),
+            level = this.level();
+        if (level === 0) {
+            return 400 + bonus;
+        }
+        return 500 + (level * 100) + bonus;
     };
 
     Character.prototype.bonus_dp_from_gnosis = function () {
@@ -315,8 +329,14 @@ function ($, abilities, Character, classes, essential_abilities, modules,
             count = totals.DP / 2 - j;
             quarter = totals.DP / 4;
             result.Attack = Math.min(count, Math.max((defense + 50 - attack) * costs.Attack, quarter - totals.Attack));
-            result.Block = Math.min(count, Math.max((attack + 50 - scores.Block) * costs.Block, quarter - totals.Block));
-            result.Dodge = Math.min(count, Math.max((attack + 50 - scores.Dodge) * costs.Dodge, quarter - totals.Dodge));
+            if (this['Damage Resistance']) {
+                result.Block = 0;
+                result.Dodge = 0;
+            }
+            else {
+                result.Block = Math.min(count, Math.max((attack + 50 - scores.Block) * costs.Block, quarter - totals.Block));
+                result.Dodge = Math.min(count, Math.max((attack + 50 - scores.Dodge) * costs.Dodge, quarter - totals.Dodge));
+            }
             cost = this.class_change_dp((level === 0) ? 0 : (i + 1));
             if (cost > 0) {
                 result.Other -= cost;
@@ -398,7 +418,7 @@ function ($, abilities, Character, classes, essential_abilities, modules,
             count,
             disadvantages = essential_abilities.disadvantages,
             element = this.Element,
-            dp_remaining = this.available_for_essential_abilities(),
+            dp_remaining = this.creature_dp_remaining(),
             first_level_dp = this.levels[0].DP,
             i,
             myAdvantages = this.Advantages,
@@ -546,7 +566,7 @@ function ($, abilities, Character, classes, essential_abilities, modules,
         if (name in first_level_dp) {
             return false;
         }
-        return true;
+        return allowed;
     };
 
     Character.prototype.has_module = function (name, option) {
