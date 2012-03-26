@@ -1,9 +1,10 @@
 /*global define: false, document: false */
 define(['jquery', 'abilities', 'advantages', 'characters', 'cultural_roots',
-'disadvantages', 'modules', 'primaries', 'tables', 'creation_points',
-'development_points', 'jqueryui/dialog', 'jqueryui/tabs', 'pubsub'],
+'disadvantages', 'essential_abilities', 'modules', 'primaries', 'tables',
+'creation_points', 'development_points', 'jqueryui/dialog', 'jqueryui/tabs',
+'pubsub'],
 function ($, abilities, advantages, characters, cultural_roots, disadvantages,
-          modules, primaries, tables) {
+          essential_abilities, modules, primaries, tables) {
 
     var ability_dp_init,
         add_cultural_roots_choice,
@@ -17,11 +18,15 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         cultural_roots_init,
         delete_advantage_init,
         delete_disadvantage_init,
+        delete_ea_init,
         dialogs = {},
         disadvantage_benefit_init,
         disadvantage_option_init,
         disadvantages_init,
         dp_init,
+        ea_advantages_init,
+        ea_disadvantages_init,
+        ea_option_init,
         load_character_init,
         module_options_init,
         natural_bonus_init,
@@ -294,6 +299,28 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         });
     };
   
+    delete_ea_init = function () {
+        if ('Delete_Essential_Ability' in dialogs) {
+            return;
+        }
+        dialogs.Delete_Essential_Ability = $('#delete_ea_dialog').dialog({
+            autoOpen: false,
+            modal: true,
+            buttons: {
+                Yes: function () {
+                    var name = $('#delete_ea_name').val(),
+                        data = characters.current();
+                    delete data.levels[0].DP[name];
+                    $.publish('essential_abilities_changed');
+                    dialogs.Delete_Essential_Ability.dialog('close');
+                },
+                No: function () {
+                    dialogs.Delete_Essential_Ability.dialog('close');
+                }
+            }
+        });
+    };
+  
     disadvantages_init = function () {
         if ('Disadvantages' in dialogs) {
             return;
@@ -458,6 +485,116 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             buttons: {
                 Cancel: function () {
                     dialogs.DP.dialog('close');
+                }
+            }
+        });
+    };
+  
+    ea_advantages_init = function () {
+        var advantage,
+            advantages = essential_abilities.advantages,
+            column = 1,
+            count = 1,
+            link,
+            name;
+        if ('Essential_Advantages' in dialogs) {
+            return;
+        }
+        $('#ea_advantages_tabs').tabs();
+        for (name in advantages) {
+            if (advantages.hasOwnProperty(name)) {
+                advantage = advantages[name];
+                link = $('<a>', {href: '#'}).addClass('essential_ability').text(name);
+                link.append('<br />');
+                if (!('Category' in advantage)) {
+                    $('#EA_Common_Advantages_' + column).append(link);
+                    count++;
+                    if (count > 20) {
+                        column += 1;
+                        count = 1;
+                    }
+                }
+                else {
+                    $('#EA_' + advantage.Category + '_Advantages').append(link);
+                }
+            }
+        }
+        dialogs.Essential_Advantages = $('#ea_advantages_dialog').dialog({
+            autoOpen: false,
+            modal: true,
+            title: 'Select an essential ability',
+            width: '1000px',
+            position: 'top',
+            buttons: {
+                'Cancel': function () {
+                    dialogs.EssentialAdvantages.dialog('close');
+                }
+            }
+        });
+    };
+  
+    ea_disadvantages_init = function () {
+        if ('Essential_Disadvantages' in dialogs) {
+            return;
+        }
+        $('#ea_disadvantages_tabs').tabs();
+        var name,
+            disadvantage,
+            disadvantages = essential_abilities.disadvantages,
+            link;
+        for (name in disadvantages) {
+            if (disadvantages.hasOwnProperty(name)) {
+                disadvantage = disadvantages[name];
+                link = $('<a>', {href: '#'}).addClass('essential_ability').text(name);
+                link.append('<br />');
+                if (!('Category' in disadvantage)) {
+                    $('#EA_Common_Disadvantages').append(link);
+                }
+                else {
+                    $('#EA_' + disadvantage.Category + '_Disadvantages').append(link);
+                }
+            }
+        }
+        dialogs.Essential_Disadvantages = $('#ea_disadvantages_dialog').dialog({
+            autoOpen: false,
+            modal: true,
+            title: 'Select an essential ability',
+            width: '1000px',
+            position: 'top',
+            buttons: {
+                'Cancel': function () {
+                    dialogs.Essential_Disadvantages.dialog('close');
+                }
+            }
+        });
+    };
+
+    ea_option_init = function () {
+        if ('Essential_Ability_Option' in dialogs) {
+            return;
+        }
+        dialogs.Essential_Ability_Option = $('#ea_option_dialog').dialog({
+            autoOpen: false,
+            modal: true,
+            width: '400px',
+            buttons: {
+                OK: function () {
+                    var data = characters.current(),
+                        name = $('#ea_option_name').val(),
+                        param,
+                        select = $('#ea_option select');
+                    if (select.length > 0) {
+                        param = select.val();
+                    }
+                    else {
+                        param = $('#ea_option input').val();
+                    }
+                    data.add_essential_ability(name, param);
+                    $.publish('essential_abilities_changed');
+                    dialogs.Essential_Ability_Option.dialog('close');      
+                },
+                Cancel: function () {
+                    dialogs.Essential_Ability_Option.dialog('close');
                 }
             }
         });
@@ -821,6 +958,56 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         return false;
     };
 
+    dialogs.add_ea_advantage = function () {
+        var advantages = essential_abilities.advantages,
+            count,
+            data = characters.current(),
+            i,
+            name,
+            link,
+            links;
+        for (name in advantages) {
+            if (advantages.hasOwnProperty(name)) {
+                links = $('#ea_advantages_tabs a:contains("' + name + '")');
+                count = links.size();
+                // Check for false matches
+                for (i = 0; i < count; i++) {
+                    link = links.eq(i);
+                    if (link.text() === name) {
+                        if (data.essential_ability_allowed(name, null)) {
+                            link.removeClass('disabled');
+                        }
+                        else {
+                            link.addClass('disabled');
+                        }
+                    }
+                }
+            }
+        }    
+        dialogs.Essential_Advantages.dialog('open');
+        return false;
+    };
+
+    dialogs.add_ea_disadvantage = function () {
+        var data = characters.current(),
+            disadvantages = essential_abilities.disadvantages,
+            name,
+            link;
+        for (name in disadvantages) {
+            if (disadvantages.hasOwnProperty(name)) {
+                link = $('#ea_disadvantages_tabs a:contains("' + name + '")');
+                if (data.essential_ability_allowed(name, null)) {
+                    link.removeClass('disabled');
+                }
+                else {
+                    link.addClass('disabled');
+                }
+            }
+        }
+        dialogs.Essential_Disadvantages.dialog('open');
+        return false;
+    };
+
     dialogs.configure_advantage = function () {
         var name = $.trim($(this).text()),
             data = characters.current(),
@@ -866,6 +1053,29 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         return false;
     };
 
+    dialogs.configure_essential_ability = function () {
+        var ability,
+            data = characters.current(),
+            name = $.trim($(this).text());
+        if (!data.essential_ability_allowed(name, null)) {
+            return false;
+        }
+        if (name in essential_abilities.advantages) {
+            ability = essential_abilities.advantages[name];
+            dialogs.Essential_Advantages.dialog('close');
+        }
+        else {
+            ability = essential_abilities.disadvantages[name];
+            dialogs.Essential_Disadvantages.dialog('close');
+        }
+        if ('Options' in ability) {
+            return dialogs.edit_ea_option(name);
+        }
+        data.add_essential_ability(name);
+        $.publish('essential_abilities_changed');
+        return false;
+    };
+
     dialogs.delete_advantage = function () {
         var name = $(this).data('name');
         $('#delete_advantage_name').val(name);
@@ -877,6 +1087,13 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         var name = $(this).data('name');
         $('#delete_disadvantage_name').val(name);
         dialogs.Delete_Disadvantage.dialog('open');
+        return false;
+    };
+
+    dialogs.delete_essential_ability = function () {
+        var name = $(this).data('name');
+        $('#delete_ea_name').val(name);
+        dialogs.Delete_Essential_Ability.dialog('open');
         return false;
     };
 
@@ -999,6 +1216,43 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         }
         this.Disadvantage_Option.dialog('option', 'title', disadvantage.Option_Title);
         this.Disadvantage_Option.dialog('open');
+        return false;
+    };
+
+    dialogs.edit_ea_option = function (name) {
+        var ability,
+            advantages = essential_abilities.advantages,
+            data,
+            input,
+            options,
+            panel = $('#ea_option'),
+            select;
+        if (name in advantages) {
+            ability = advantages[name];
+        }
+        else {
+            ability = essential_abilities.disadvantages[name];
+        }
+        $('#ea_option_name').val(name);
+
+        panel.html('');
+        options = ability.Options;
+        if (options.length === 0) {
+            input = $('<input>', {type: 'text', value: ''}).addClass('required');
+            panel.append(input);
+        }
+        else {
+            select = $('<select>');
+            data = characters.current();
+            $.each(options, function (i, option) {
+                if (data.essential_ability_allowed(name, option)) {
+                    select.append($('<option>', {value: option}).text(option));
+                }
+            });
+            panel.append(select);
+        }
+        this.Essential_Ability_Option.dialog('option', 'title', ability.Option_Title);
+        this.Essential_Ability_Option.dialog('open');
         return false;
     };
 
@@ -1143,6 +1397,9 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         disadvantage_benefit_init();
         disadvantage_option_init();
         dp_init();
+        ea_advantages_init();
+        ea_disadvantages_init();
+        ea_option_init();
         load_character_init();
         module_options_init();
         natural_bonus_init();
@@ -1152,6 +1409,9 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         $('#add_disadvantage').click(dialogs.add_disadvantage);
         $('#advantages_tabs a.advantage').live('click', dialogs.configure_advantage);
         $('#disadvantages_tabs a.disadvantage').live('click', dialogs.configure_disadvantage);
+        $('#add_ea_advantage').click(dialogs.add_ea_advantage);
+        $('#add_ea_disadvantage').click(dialogs.add_ea_disadvantage);
+        $('a.essential_ability').live('click', dialogs.configure_essential_ability);
     });
 
     return dialogs;

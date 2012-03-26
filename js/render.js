@@ -1,11 +1,14 @@
 /*global define: false */
-define(['jquery', 'abilities', 'characters', 'dialogs', 'modules', 'tables',
-'primaries', 'creation_points', 'development_points'],
-function ($, abilities, characters, dialogs, modules, tables, primaries) {
+define(['jquery', 'abilities', 'characters', 'dialogs', 'essential_abilities',
+'modules', 'tables', 'primaries', 'creation_points', 'development_points'],
+function ($, abilities, characters, dialogs, essential_abilities, modules,
+          tables, primaries) {
     
-    var load_value,
+    var add_race,
+        load_value,
         next_step,
         render = {},
+        set_characteristics_limits,
         update_int,
         update_text;
     
@@ -68,6 +71,28 @@ function ($, abilities, characters, dialogs, modules, tables, primaries) {
         }
         return 'Done!';
     };
+    
+    set_characteristics_limits = function (data, type) {
+        // summary:
+        //         Set appropriate limits on physical or spiritual
+        //         characteristics for creatures.
+        // data: Character
+        //         The character data object being edited
+        // type: String
+        //         'Physical' or 'Spiritual'
+        var first_level_dp = data.levels[0].DP,
+            limit = 10;
+        if (('Superhuman ' + type + ' Characteristics') in first_level_dp) {
+            limit = 13;
+        }
+        else if (('Supernatural ' + type + ' Characteristics') in first_level_dp) {
+            limit = 15;
+        }
+        else if (('Divine ' + type + ' Characteristics') in first_level_dp) {
+            limit = 20;
+        }
+        $('#characteristics .' + type.toLowerCase()).spinner('option', 'max', limit);
+    };
 
     update_int = function (name) {
         // summary:
@@ -108,12 +133,20 @@ function ($, abilities, characters, dialogs, modules, tables, primaries) {
             ability_list,
             count,
             data = characters.current(),
+            element = data.Element,
+            first_level_dp = data.levels[0].DP,
+            acute = first_level_dp['Acute Sense'],
+            attuned = first_level_dp.Attuned,
             i,
+            keys,
+            modifiers = data.resistance_modifiers(),
             name,
             primary,
-            racial = data.racial_abilities(),
-            score;
+            score,
+            text;
+        $('.resistance_bonuses', root).hide();
         $('.summary', root).text(data.summary());
+        $('.Gnosis', root).text(data.type_and_gnosis());
         $('.lp', root).text(data.life_points());
         $('.fatigue', root).text(data.fatigue());
         $('.STR', root).text(data.characteristic('STR'));
@@ -133,13 +166,43 @@ function ($, abilities, characters, dialogs, modules, tables, primaries) {
         $('.PsR', root).text(data.resistance('PsR'));
         $('.VR', root).text(data.resistance('VR'));
         $('.DR', root).text(data.resistance('DR'));
+        keys = Object.keys(modifiers);
+        count = keys.length;
+        if (count > 0) {
+            text = '(';
+            for (i = 0; i < count; i++) {
+                if (i > 0) {
+                    text += ', ';
+                }
+                name = keys[i];
+                score = modifiers[name];
+                if (score > 0) {
+                    text += '+';
+                }
+                text += score + ' ' + name;
+            }
+            text += ')';
+            $('.Attuned', root).text(attuned);
+            $('.resistance_modifiers', root).show();
+        }
+        else {
+            $('.resistance_modifiers', root).hide();
+        }
         $('.Initiative', root).text(data.initiative());
         $('.MK', root).text(data.mk_total());
-        $('.MA', root).text(data.ma());
+        $('.magic', root).toggle(data.has_gift());
+        score = data.ma();
+        if (element) {
+            $('.MA', root).text(score + ' (' + (score + 20) + ' ' + element + ', ' + (score - 20) + ' ' + tables.opposite_elements[element] + ')');
+        }
+        else {
+            $('.MA', root).text(score);
+        }
         $('.Zeon', root).text(data.zeon());
         $('.Magic_Level', root).text(data.magic_level());
-        if (racial) {
-            $('.Racial-Abilities').text(racial);
+        text = data.racial_abilities();
+        if (text) {
+            $('.Racial-Abilities').text(text);
             $('.racial-row').show();
         }
         else {
@@ -159,7 +222,11 @@ function ($, abilities, characters, dialogs, modules, tables, primaries) {
                     ability = abilities[name];
                     score = data.ability(name);
                     if (score > data.modifier(ability.Characteristic)) {
-                        abilities_block.append(name + ': ' + score + '<br />');
+                        abilities_block.append(name + ': ' + score);
+                        if (acute && ability.Characteristic === 'PER') {
+                            abilities_block.append(' (' + (score + 30) + ' ' + acute + ')');
+                        }
+                        abilities_block.append('<br />');
                     }
                 }
             }
@@ -259,6 +326,74 @@ function ($, abilities, characters, dialogs, modules, tables, primaries) {
   
     $('#Advantages a').live('click', dialogs.delete_advantage);
     $('#Disadvantages a').live('click', dialogs.delete_disadvantage);
+
+    render.update_essential_abilities = function (read_only) {
+        // summary:
+        //         Update the section of the page where the creature's
+        //         essential abilities are chosen.
+        // read_only: Boolean
+        //         True if the display of essential abilities should
+        //         be read-only (because we've moved on to choosing powers)
+        var advantages = essential_abilities.advantages,
+            a_content = '',
+            d_content = '',
+            data = characters.current(),
+            disadvantage,
+            disadvantages = essential_abilities.disadvantages,
+            first_level_dp = data.levels[0].DP,
+            a = 0,
+            d = 0,
+            name,
+            remaining = data.available_for_essential_abilities(),
+            summary,
+            total = 300 + data.bonus_dp_from_gnosis();
+        $('#dp_left_for_ea').text(remaining);
+        $('#dp_total_for_ea').text(total);
+        if (remaining > 0 && !read_only) {
+            $('#add_ea_advantage').show();
+        }
+        else {
+            $('#add_ea_advantage').hide();
+        }
+        for (name in first_level_dp) {
+            if (first_level_dp.hasOwnProperty(name)) {
+                if (name in advantages) {
+                    if (a > 0) {
+                        a_content += ', ';
+                    }
+                    summary = data.ea_advantage_summary(name);
+                    if (read_only) {
+                        a_content += summary;
+                    }
+                    else {
+                        a_content += '<a href="#" data-name="' + name + '">' + summary + '</a>';
+                    }
+                    a++;
+                }
+                else if (name in disadvantages) {
+                    if (d > 0) {
+                        d_content += ', ';
+                    }
+                    summary = data.ea_disadvantage_summary(name);
+                    disadvantage = disadvantages[name];
+                    if (read_only || remaining < -disadvantage.DP) {
+                        d_content += summary;
+                    }
+                    else {
+                        d_content += '<a href="#" data-name="' + name + '">' + summary + '</a>';
+                    }
+                    d++;
+                }
+            }
+        }
+        $('#ea_advantages').html(a_content);
+        $('#ea_disadvantages').html(d_content);
+        $('#add_ea_disadvantage').toggle(!read_only);
+        render.render($('.container'));
+    };
+  
+    $('#ea_advantages a').live('click', dialogs.delete_essential_ability);
+    $('#ea_disadvantages a').live('click', dialogs.delete_essential_ability);
     
     render.load_data = function () {
         // summary:
@@ -267,31 +402,51 @@ function ($, abilities, characters, dialogs, modules, tables, primaries) {
         var data = characters.current(),
             stage = data.creation_stage();
         $('input.characteristic, #Appearance, #XP').show().next('span').show().nextAll('span.display').hide();
-        $('#Gender, #Race, #first_class').show().nextAll('span.display').hide();
+        $('#Physical, #Spiritual, #Gender, #Race, #first_class').show().nextAll('span.display').hide();
         $('#add_xp').hide();
-        $('#choose_abilities').show().attr('disabled', 'disabled');
-        $('#after_class').hide();
+        $('#proceed').show();
+        $('#choose_essential_abilities').show();
+        $('#choose_characteristics').show();
         $('#choose_advantages').show().attr('disabled', 'disabled');
+        $('#choose_abilities').show().attr('disabled', 'disabled');
+        $('#characteristics').hide();
+        $('#advantages').hide();
+        $('#levels').hide();
         $('.level').remove();
-        load_value('STR');
-        load_value('DEX');
-        load_value('AGI');
-        load_value('CON');
-        load_value('INT');
-        load_value('POW');
-        load_value('WP');
-        load_value('PER');
-        load_value('Appearance');
-        load_value('Gender');
-        load_value('Race');
-        load_value('XP');
-        load_value('Name');
-        $('#first_class').val(data.levels[0].Class);
-        render.update_basics();
+        load_value('Type');
         if (stage > 1) {
-            render.start_advantages();
-            if (stage > 2) {
-                render.start_abilities();
+            if (data.Type !== 'Human') {
+                render.start_attributes();
+                $('#Created').val(data.Created ? 'Yes': 'No');
+                load_value('Element');
+                load_value('Gnosis');
+                if (stage > 2) {
+                    render.start_essential_abilities();
+                }
+            }
+            if (stage > 3) {
+                render.start_characteristics();
+                load_value('STR');
+                load_value('DEX');
+                load_value('AGI');
+                load_value('CON');
+                load_value('INT');
+                load_value('POW');
+                load_value('WP');
+                load_value('PER');
+                load_value('Appearance');
+                load_value('Gender');
+                load_value('Race');
+                load_value('XP');
+                load_value('Name');
+                $('#first_class').val(data.levels[0].Class);
+                render.update_basics();
+                if (stage > 4) {
+                    render.start_advantages();
+                    if (stage > 5) {
+                        render.start_abilities();
+                    }
+                }
             }
         }
     };
@@ -331,6 +486,112 @@ function ($, abilities, characters, dialogs, modules, tables, primaries) {
         $('.container .summary').text(characters.current().summary());
     };
     
+    render.start_attributes = function () {
+        // summary:
+        //         Conclude specification of creature type and start entering
+        //         Gnosis, optional elemental type, and creature origin.
+        var data = characters.current(),
+            select = $('#Type'),
+            type = select.val();
+        data.Type = type;
+        data.Race = 'Other';
+        select.hide().nextAll('span.display').text(type).show();
+        $('#proceed').hide();
+        if (type === 'Human') {
+            return render.start_characteristics();
+        }
+        $('#attributes').show();
+        $('#choose_essential_abilities').show();
+        $('#Created').show().nextAll('span.display').hide();
+        if (data.element_allowed()) {
+            $('#Element_label').show();
+            $('#Element').show().nextAll('span.display').hide();
+        }
+        else {
+            $('#Element_label').hide();
+            $('#Element').hide().nextAll('span.display').hide();
+        }
+        if (!$('#Gnosis').find('.ui-spinner').length) {
+            $('#Gnosis').spinner({min: 0, max: 50, step: 5});
+        }
+        else {
+            $('#Gnosis').show().next('span').show().nextAll('span.display').hide();
+        }
+        if (type !== 'Human' && type !== 'Natural') {
+            $('#Gnosis').spinner('option', 'min', 10);
+        }
+        // Reset fields to default values
+        $('#Created').val('No');
+        $('#Element').val('None');
+        $('#Gnosis').val(10);
+        render.render($('.container'));
+    };
+    
+    render.start_essential_abilities = function () {
+        // summary:
+        //         Conclude specification of creature attributes and start
+        //         choosing essential abilites.
+        var data = characters.current(),
+            select = $('#Created'),
+            value = select.val();
+        data.Created = (value === 'Yes');
+        select.hide().nextAll('span.display').text(value).show();
+        if (data.element_allowed()) {
+            update_text('Element');
+            select = $('#Element');
+            value = select.val();
+            if (!value) {
+                value = 'None';
+            }
+            select.hide().nextAll('span.display').text(value).show();
+        }
+        update_int('Gnosis');
+        $('#Gnosis').hide().next('span').hide().nextAll('span.display').show();
+        $('#choose_essential_abilities').hide();
+        render.update_essential_abilities();
+        $('#essential_abilities').show();
+        $('#choose_characteristics').show();
+        render.render($('.container'));
+    };
+    
+    render.start_characteristics = function () {
+        // summary:
+        //         Conclude specification of limits on characteristics and
+        //         start entering the actual values.
+        var data = characters.current(),
+            first_level = data.levels[0];
+        $('#characteristics').show();
+        $('#choose_characteristics').hide();
+        $('#choose_advantages').text(data.Type === 'Human' ? 'Choose Advantages' : 'Choose Abilities').show();
+        $('#add_xp').hide();
+        if (!$('#characteristics').find('.ui-spinner').length) {
+            $('#characteristics .characteristic').spinner({min: 1, max: 10});
+            $('#Appearance').spinner({min: 1, max: 10});
+            $('.characteristic, #Appearance, #XP').change(render.update_basics);
+            $('#XP').spinner({min: -100, max: 9999});
+            $('input.characteristic, #Appearance, #Gender, #Race, #first_class, #XP').nextAll('span.display').hide();
+            $('#main_form').validate();
+            $('#Gender, #Race, #first_class').change(function () { $(this).blur(); render.update_basics(); });
+            $('#Name').change(render.update_name);
+        }
+        else {
+            $('input.characteristic, #Appearance, #XP').show().next('span').show().nextAll('span.display').hide();
+            $('#Gender, #Race, #first_class').show().nextAll('span.display').hide();
+        }
+        set_characteristics_limits(data, 'Physical');
+        set_characteristics_limits(data, 'Spiritual');
+        // Reset fields to default values
+        $('.characteristic, #Appearance').val(5);
+        $('#XP').val(0);
+        $('#Gender, #Race, #Name').val('');
+        $('#first_class').val('Freelancer');
+        if (data.Type !== 'Human') {
+            $('#Race').val('Other');
+            render.update_essential_abilities(true);
+        }
+        $('#race_line').toggle(data.Type === 'Human');
+    };
+    
     render.start_advantages = function () {
         // summary:
         //         Conclude entry of basic statistics and start choosing
@@ -343,8 +604,11 @@ function ($, abilities, characters, dialogs, modules, tables, primaries) {
                 select.hide().nextAll('span.display').text(value).show();
             });
             $('input.characteristic, #Appearance, #XP').hide().next('span').hide().nextAll('span.display').show();
+            if (characters.current().Type !== 'Human') {
+                return render.start_abilities();
+            }
             render.update_cp();
-            $('#after_class').show();
+            $('#advantages').show();
             $('#choose_advantages').hide();
         }
     };
@@ -354,7 +618,8 @@ function ($, abilities, characters, dialogs, modules, tables, primaries) {
         //         Conclude selection of advantages and disadvantages, and start
         //         choosing abilities acquired at each level.
         render.update_cp(true);
-        $('#choose_abilities').hide();
+        $('#choose_advantages, #choose_abilities').hide();
+        $('#levels').show();
         render.update_level();
         $('#add_xp').show();
     };
@@ -369,6 +634,8 @@ function ($, abilities, characters, dialogs, modules, tables, primaries) {
             data = characters.current(),
             current_level = data.level(),
             dp,
+            ea_advantages = essential_abilities.advantages,
+            ea_disadvantages = essential_abilities.disadvantages,
             hr,
             i,
             level,
@@ -401,7 +668,7 @@ function ($, abilities, characters, dialogs, modules, tables, primaries) {
             remaining_for_level = remaining[i];
             if (i > 0) {
                 hr = $('<hr />').addClass('span-13 last level');
-                $('.levels').append(hr);
+                $('#levels').append(hr);
             }
             level_number = current_level === 0 ? 0 : i + 1;
             content = 'Level ' + level_number + ' (';
@@ -423,13 +690,17 @@ function ($, abilities, characters, dialogs, modules, tables, primaries) {
                 content += ' <a href="#" class="natural_bonus" data-level="' + level_number + '">' + (nb ? nb + ' +' + data.modifier(abilities[nb].Characteristic, level_number) : 'Select natural bonus') + '</a>';
             }
             line = $('<div>').addClass('span-13 last level').html(content);
-            $('.levels').append(line);
+            $('#levels').append(line);
             if (remaining_for_level.Total > 0) {
-                content = remaining_for_level.Total + ' DP remaining (Limits: ' + remaining_for_level.Combat + ' Combat, ' + remaining_for_level.Psychic + ' Psychic, ' + remaining_for_level.Supernatural + ' Supernatural)';
+                content = remaining_for_level.Total + ' DP remaining (Limits: ' + remaining_for_level.Combat + ' Combat, ' + remaining_for_level.Psychic + ' Psychic, ' + remaining_for_level.Supernatural + ' Supernatural';
+                if (data.Type !== 'Human') {
+                    content += ', ' + remaining_for_level.Powers + ' Powers';
+                }
+                content += ')';
                 line = $('<div>').addClass('span-13 last level').html(content);
-                $('.levels').append(line);
+                $('#levels').append(line);
             }
-            $('.levels').append('<div class="span-1 level"><strong>DP</strong></div>');
+            $('#levels').append('<div class="span-1 level"><strong>DP</strong></div>');
             parts = [];
             dp = level.DP;
             for (name in dp) {
@@ -457,7 +728,12 @@ function ($, abilities, characters, dialogs, modules, tables, primaries) {
                     else {
                         available = remaining_for_level[primary];
                     }
-                    parts.push('<a href="#" class="ability" data-available="' + available + '" data-level="' + level_number + '">' + line + '</a>');
+                    if (name in ea_advantages || name in ea_disadvantages) {
+                        continue;
+                    }
+                    else {
+                        parts.push('<a href="#" class="ability" data-available="' + available + '" data-level="' + level_number + '">' + line + '</a>');
+                    }
                 }
             }
             if ('Class_Change' in remaining_for_level) {
@@ -471,7 +747,7 @@ function ($, abilities, characters, dialogs, modules, tables, primaries) {
                 content += ' <a href="#" class="spend_dp" data-level="' + level_number + '">+</a>';
             }
             line = '<div class="span-12 last level">' + content + '</div>';
-            $('.levels').append(line);
+            $('#levels').append(line);
             render.render($('.container'));
         }
     };

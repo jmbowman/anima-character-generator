@@ -45,10 +45,10 @@ characters at a time, and easily editing any of them.
 Status
 ------
 The basic data format and many of the core calculations have been implemented.
-Most of the things that DP can be spent on are supported, although weapon/style
-modules and Ars Magnus aren't implemented yet.  The visual design of the page
-is still pretty basic, as I've been focused on functionality.  It's currently
-useful for starting almost any character, and can fully represent characters
-with only basic martial abilities.  The code has been uploaded to Github in
-order to make it easier for the players in my game to contribute to its
-development, and for any other interested individuals to play around with.
+Most of the things that DP can be spent on are supported, although martial arts,
+Ars Magnus, and creature powers aren't implemented yet.  The visual design of
+the page is still pretty basic, as I've been focused on functionality.  It's
+currently useful for starting almost any character, and can fully represent
+characters with only basic martial abilities.  The code has been uploaded to
+Github in order to make it easier for the players in my game to contribute to
+its development, and for any other interested individuals to play around with.

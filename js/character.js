@@ -1,7 +1,7 @@
 /*global define: false */
 define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines',
-'tables', 'libs/utils'], function ($, abilities, classes, cultural_roots,
-    disciplines, tables, utils) {
+'essential_abilities', 'tables', 'libs/utils'], function ($, abilities, classes,
+cultural_roots, disciplines, essential_abilities, tables, utils) {
 
     var Character = function () {
         if (!(this instanceof Character)) {
@@ -188,7 +188,9 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
     };
 
     Character.prototype.characteristic = function (name, at_level) {
-        var i,
+        var count,
+            first_level_dp = this.levels[0].DP,
+            i,
             reroll,
             length,
             level,
@@ -225,6 +227,37 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
                 if (params[i] === name) {
                     total += 1;
                 }
+            }
+        }
+        params = first_level_dp['Attribute Increased +1'];
+        if (params) {
+            length = params.length;
+            for (i = 0; i < length; i++) {
+                if (params[i] === name) {
+                    total += 1;
+                }
+            }
+        }
+        params = first_level_dp['Attribute Increased +2'];
+        if (params) {
+            length = params.length;
+            for (i = 0; i < length; i++) {
+                if (params[i] === name) {
+                    total += 2;
+                }
+            }
+        }
+        params = first_level_dp['Attribute Increased +3'];
+        if (params) {
+            length = params.length;
+            count = 0;
+            for (i = 0; i < length; i++) {
+                if (params[i] === name) {
+                    count += 1;
+                }
+            }
+            if (count) {
+                total += count + 2;
             }
         }
         if (myDisadvantages['Deduct Two Points from a Characteristic'] === name) {
@@ -291,34 +324,65 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
     
     Character.prototype.creation_stage = function () {
         // summary:
-        //         Returns the current stage in creating the character.
+        //         Returns the current stage in creating the character.  Not
+        //         every character goes through all stages; humans and Nephilim
+        //         can't choose elemental affinity or essential abilities,
+        //         other creatures don't choose advantages or disadvantages.
         // returns:
-        //         1 for basic stats, 2 for (dis)advantages, 3 if beyond that
-        var i,
+        //         1 for creature type, 2 for Gnosis and elemental tie,
+        //         3 for essential abilities, 4 for basic stats,
+        //         5 for (dis)advantages, 6 if beyond that
+        var dp,
+            ea = 0,
+            i,
+            key,
             level,
             levels = this.levels,
             count = levels.length,
-            first_class = levels[0].Class;
+            first_class = levels[0].Class,
+            other = 0;
         for (i = 0; i < count; i++) {
             level = levels[i];
             if (level.Characteristic || level['Natural Bonus']) {
-                return 3;
+                return 6;
             }
-            if (level.Class !== first_class) {
-                return 3;
+            if (i > 0 && level.Class !== first_class) {
+                return 6;
             }
-            if (Object.keys(level.DP).length > 0) {
-                return 3;
+            dp = level.DP;
+            for (key in dp) {
+                if (dp.hasOwnProperty(key)) {
+                    if (key in essential_abilities.advantages) {
+                        ea += 1;
+                    }
+                    else if (key in essential_abilities.disadvantages) {
+                        ea += 1;
+                    }
+                    else {
+                        return 6;
+                    }
+                }
             }
         }
-        if (this.Advantages || this.Disadvantages) {
+        if (Object.keys(this.Advantages).length > 0 ||
+            Object.keys(this.Disadvantages).length > 0) {
+            return 5;
+        }
+        if (this.STR) {
+            return 4;
+        }
+        if (ea > 0) {
+            return 3;
+        }
+        if (this.Gnosis || this.Element) {
             return 2;
         }
         return 1;
     };
   
     Character.prototype.discipline_access = function () {
-        var myAdvantages = this.Advantages,
+        var first_level_dp = this.levels[0].DP,
+            myAdvantages = this.Advantages,
             one = myAdvantages['Access to One Psychic Discipline'];
         if (one) {
             return [one];
@@ -326,17 +390,36 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
         if ('Free Access to Any Psychic Discipline' in myAdvantages) {
             return Object.keys(disciplines.disciplines);
         }
+        if ('Access to a Psychic Discipline' in first_level_dp) {
+            return [first_level_dp['Access to a Psychic Discipline']];
+        }
+        if ('Access to Psychic Disciplines' in first_level_dp) {
+            return Object.keys(disciplines.disciplines);
+        }
         return [];
     };
-  
+
+    Character.prototype.element_allowed = function () {
+        var type = this.Type;
+        return (type === 'Between Worlds' || type === 'Spirit');
+    };
+
     Character.prototype.fatigue = function () {
-        var total = this.characteristic('CON'),
+        var first_level_dp = this.levels[0].DP,
+            fatigue_resistance = first_level_dp['Fatigue Resistance'],
+            total = this.characteristic('CON'),
             untiring = this.Advantages.Untiring;
+        if ('Tireless' in first_level_dp || 'Physical Exemption' in first_level_dp) {
+            return 'N/A';
+        }
         if (this.Race === 'Jayan Nephilim') {
             total += 1;
         }
         if (untiring) {
             total += untiring * 3;
+        }
+        if (fatigue_resistance) {
+            total += 2 * fatigue_resistance;
         }
         if ('Exhausted' in this.Disadvantages) {
             total--;
@@ -380,7 +463,17 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
         }
         return total;
     };
-  
+
+    Character.prototype.is_corporeal_undead = function () {
+        var type = this.Type;
+        return type && type.indexOf('Between Worlds, Undead') > -1;
+    };
+
+    Character.prototype.is_spirit = function () {
+        var type = this.Type;
+        return type && type.indexOf('Spirit') > -1;
+    };
+
     Character.prototype.ki_concealment = function () {
         var total = 0;
         if (this.Race === "D'Anjayni Nephilim") {
@@ -417,7 +510,11 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
             levels = this.levels,
             length = levels.length,
             multiple,
-            result = tables.base_lp[this.characteristic('CON')];
+            result = tables.base_lp[this.characteristic('CON')],
+            type = this.Type;
+        if (this.is_spirit()) {
+            result = tables.base_lp[this.characteristic('POW')];
+        }
         for (i = 0; i < length; i++) {
             info = levels[i];
             cls = classes[info.Class];
@@ -459,6 +556,9 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
   
     Character.prototype.movement_value = function () {
         var result = this.characteristic('AGI');
+        if (this.levels[0].DP['Atrophied Members'] === 'Legs') {
+            result -= 6;
+        }
         if (result > 10) {
             result = 10;
         }
@@ -516,6 +616,9 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
         }
         if (advantage) {
             total += advantage * 2;
+        }
+        if (this.is_corporeal_undead()) {
+            total = 0;
         }
         if (total > 18 && gnosis < 40) {
             total = 18;
@@ -591,9 +694,38 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
         }
         return total;
     };
-  
+
+    Character.prototype.resistance_modifiers = function () {
+        // summary:
+        //         Get the character's situation modifiers to his resistance
+        //         checks (elemental affinity, etc.)
+        // returns:
+        //         An object whose keys are situation descriptions and values
+        //         are bonus or penalty magnitudes.
+        var element = this.Element,
+            first_level_dp = this.levels[0].DP,
+            attuned = first_level_dp.Attuned,
+            result = {};
+        if (element) {
+            result[element] = 20;
+            result[tables.opposite_elements[element]] = -20;
+        }
+        if (attuned && $.inArray(attuned, tables.elements) > -1) {
+            if (attuned in result) {
+                result[attuned] += 20;
+            }
+            else {
+                result[attuned] = 20;
+            }
+        }
+        return result;
+    };
+
     Character.prototype.second_hand_penalty = function () {
         if ('Ambidextrous' in this.Advantages) {
+            return 10;
+        }
+        if ('Ambidextrous' in this.levels[0].DP) {
             return 10;
         }
         else {
@@ -611,7 +743,8 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
   
     Character.prototype.size = function () {
         var total = this.characteristic('STR') + this.characteristic('CON'),
-            uncommon_size = this.Advantages['Uncommon Size'];
+            uncommon_size = this.Advantages['Uncommon Size'],
+            unnatural_size = this.levels[0].DP['Unnatural Size'];
         switch (this.Race) {
         case 'Daimah Nephilim':
             total -= 1;
@@ -621,6 +754,9 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
         }
         if (uncommon_size) {
             total += uncommon_size;
+        }
+        if (unnatural_size) {
+            total += unnatural_size;
         }
         return total;
     };
@@ -661,7 +797,25 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
         result += ')';
         return result;
     };
-  
+    
+    Character.prototype.type_and_gnosis = function () {
+        var element = this.Element,
+            gnosis = this.Gnosis,
+            result,
+            type = this.Type;
+        if (!type || type === 'Human') {
+            return '';
+        }
+        result = type;
+        if (element) {
+            result += ', Elemental';
+        }
+        if (typeof gnosis === 'number') {
+            result += ' ' + gnosis;
+        }
+        return result;
+    };
+
     Character.prototype.mk_total = function () {
         var i,
             level_info,
@@ -701,7 +855,27 @@ define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines
         }
         return used;
     };
-  
+
+    Character.prototype.has_gift = function () {
+        // summary:
+        //         Determine if the character is capable of developing the
+        //         ability to cast spells.
+        // returns:
+        //         True if the character has some form of The Gift, false
+        //         otherwise.
+        var myAdvantages = this.Advantages;
+        if ('The Gift' in myAdvantages) {
+            return true;
+        }
+        if ('Incomplete Gift' in myAdvantages) {
+            return true;
+        }
+        if ('Gift' in this.levels[0].DP) {
+            return true;
+        }
+        return false;
+    };
+
     Character.prototype.zeon = function () {
         var i,
             level,

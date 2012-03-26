@@ -18,7 +18,7 @@
 <body>
 <form id="main_form" action="#">
 <div class="container">
-  <div class="span-24 last summary"></div>
+  <div class="span-24 last"><span class="summary"></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="Gnosis"></span></div>
   
   <div class="span-2">LP <span class="lp"></span></div>
   <div class="span-2">Fatigue <span class="fatigue"></span></div>
@@ -44,11 +44,11 @@
   <div class="span-2">PsR <span class="PsR"></span></div>
   <div class="span-2">VR <span class="VR"></span></div>
   <div class="span-2">DR <span class="DR"></span></div>
-  <div class="span-14 last">&nbsp;</div>
+  <div class="span-14 last"><span class="resistance_modifiers"></span>&nbsp;</div>
   
   <div class="span-24 last">Initiative: <span class="Initiative"></span></div>
   <div class="span-24 last">MK: <span class="MK"></span></div>
-  <div class="span-24 last">MA: <span class="MA"></span>&nbsp;&nbsp;&nbsp;Zeon: <span class="Zeon"></span>&nbsp;&nbsp;&nbsp;Magic Level: <span class="Magic_Level"></span></div>
+  <div class="span-24 last magic">MA: <span class="MA"></span>&nbsp;&nbsp;&nbsp;Zeon: <span class="Zeon"></span>&nbsp;&nbsp;&nbsp;Magic Level: <span class="Magic_Level"></span></div>
   
   <div class="span-24 last racial-row" style="display: none;">Racial Abilities: <span class="Racial-Abilities"></span></div>
   
@@ -57,32 +57,88 @@
   <hr />
   
   <div class="span-11">
+    <div id="creature_type" class="span-11 last">
+      <div class="span-2"><label for="Type">Type</label></div>
+      <div class="span-9 last"><select id="Type" name="Type">
+        <option value="Human">Human or Nephilim</option>
+        <option value="Natural">Natural</option>
+        <option value="Between Worlds">Between Worlds</option>
+        <option value="Between Worlds (Construct)">Between Worlds (Construct)</option>
+        <option value="Between Worlds, Undead">Between Worlds, Undead</option>
+        <option value="Between Worlds, Undead (Construct)">Between Worlds, Undead (Construct)</option>
+        <option value="Spirit">Spirit</option>
+        <option value="Spirit, Undead">Spirit, Undead</option>
+      </select><span class="display"></span></div>
+    
+      <div class="span-11 last">
+        <button id="proceed" type="button">Proceed</button>
+        <button id="save_button" type="button">Save</button>
+        <button id="load_button" type="button">Load</button>
+      </div>
+    </div>
+    
+    <div id="attributes" class="span-11 last" style="display: none;">
+        <div class="span-3"><label for="Created">Created by a spell?</label></div>
+        <div class="span-8 last"><select id="Created" name="Created">
+          <option value="No">No</option>
+          <option value="Yes">Yes</option>
+        </select><span class="display"></span></div>
+        <div class="span-2"><label id="Element_label" for="Element">Element</label></div>
+        <div class="span-9 last"><select id="Element" name="Element">
+          <option value="">None</option>
+          <option value="Air">Air</option>
+          <option value="Darkness">Darkness</option>
+          <option value="Earth">Earth</option>
+          <option value="Fire">Fire</option>
+          <option value="Light">Light</option>
+          <option value="Water">Water</option>
+        </select><span class="display"></span></div>
+        <div class="span-2"><label for="Gnosis">Gnosis</label></div>
+        <div class="span-9 last"><input type="text" id="Gnosis" name="Gnosis" value="10" /><span class="display"></span></div>
+        
+        <div class="span-11 last"><button id="choose_essential_abilities" type="button">Choose Essential Abilities</button></div>
+    </div>
+    
+    <div id="essential_abilities" class="span-11 last" style="display: none;">
+      <div class="span-11 last"><strong>Essential Abilities</strong></div>
+      <div class="span-11 last"><span id="dp_left_for_ea"></span> DP remaining out of <span id="dp_total_for_ea"></span>
+          total that can be spent on Essential Abilities (any not used now can be spent on Powers or class abilities)</div>
+      <div class="span-3"><strong>Advantages</strong></div>
+      <div class="span-8 last"><span id="ea_advantages"></span> <a id="add_ea_advantage" href="#">+</a></div>
+      <div class="span-3"><strong>Disadvantages</strong></div>
+      <div class="span-8 last"><span id="ea_disadvantages"></span> <a id="add_ea_disadvantage" href="#">+</a></div>
+
+      <div class="span-11 last"><button id="choose_characteristics" type="button">Choose Characteristics</button></div>
+    </div>
+    
+    <div id="characteristics" class="span-11 last" style="display: none;">
     <div class="span-2"><label for="STR">STR</label></div>
-    <div class="span-9 last"><input type="text" id="STR" name="STR" class="characteristic" value="5" /><span class="display"></span></div>
+    <div class="span-9 last"><input type="text" id="STR" name="STR" class="physical characteristic" value="5" /><span class="display"></span></div>
     <div class="span-2"><label for="DEX">DEX</label></div>
-    <div class="span-9 last"><input type="text" id="DEX" name="DEX" class="characteristic" value="5" /><span class="display"></span></div>
+    <div class="span-9 last"><input type="text" id="DEX" name="DEX" class="physical characteristic" value="5" /><span class="display"></span></div>
     <div class="span-2"><label for="AGI">AGI</label></div>
-    <div class="span-9 last"><input type="text" id="AGI" name="AGI" class="characteristic" value="5" /><span class="display"></span></div>
+    <div class="span-9 last"><input type="text" id="AGI" name="AGI" class="physical characteristic" value="5" /><span class="display"></span></div>
     <div class="span-2"><label for="CON">CON</label></div>
-    <div class="span-9 last"><input type="text" id="CON" name="CON" class="characteristic" value="5" /><span class="display"></span></div>
+    <div class="span-9 last"><input type="text" id="CON" name="CON" class="physical characteristic" value="5" /><span class="display"></span></div>
     <div class="span-2"><label for="INT">INT</label></div>
-    <div class="span-9 last"><input type="text" id="INT" name="INT" class="characteristic" value="5" /><span class="display"></span></div>
+    <div class="span-9 last"><input type="text" id="INT" name="INT" class="spiritual characteristic" value="5" /><span class="display"></span></div>
     <div class="span-2"><label for="POW">POW</label></div>
-    <div class="span-9 last"><input type="text" id="POW" name="POW" class="characteristic" value="5" /><span class="display"></span></div>
+    <div class="span-9 last"><input type="text" id="POW" name="POW" class="spiritual characteristic" value="5" /><span class="display"></span></div>
     <div class="span-2"><label for="WP">WP</label></div>
-    <div class="span-9 last"><input type="text" id="WP" name="WP" class="characteristic" value="5" /><span class="display"></span></div>
+    <div class="span-9 last"><input type="text" id="WP" name="WP" class="spiritual characteristic" value="5" /><span class="display"></span></div>
     <div class="span-2"><label for="PER">PER</label></div>
-    <div class="span-9 last"><input type="text" id="PER" name="PER" class="characteristic" value="5" /><span class="display"></span></div>
+    <div class="span-9 last"><input type="text" id="PER" name="PER" class="spiritual characteristic" value="5" /><span class="display"></span></div>
     <div class="span-2"><label for="Appearance">Appearance</label></div>
     <div class="span-9 last"><input type="text" id="Appearance" name="Appearance" value="5" /><span class="display"></span></div>
-
+    
     <div class="span-2"><label for="Gender">Gender</label></div>
     <div class="span-9 last"><select id="Gender" name="Gender" class="required">
       <option value="">----</option>
       <option value="Female">Female</option>
       <option value="Male">Male</option>
     </select><span class="display"></span></div>
-
+    
+    <div id="race_line" class="span-11 last">
     <div class="span-2"><label for="Race">Race</label></div>
     <div class="span-9 last"><select id="Race" name="Race" class="required">
       <option value="">----</option>
@@ -93,10 +149,9 @@
       <option value="Ebudan Nephilim">Ebudan Nephilim</option>
       <option value="Jayan Nephilim">Jayan Nephilim</option>
       <option value="Sylvain Nephilim">Sylvain Nephilim</option>
-      <option value="Being Between Worlds">Being Between Worlds</option>
-      <option value="Natural">Natural</option>
-      <option value="Spirit">Spirit</option>
+      <option value="Other">Other</option>
     </select><span class="display"></span></div>
+    </div>
     
     <div class="span-2"><label for="first_class">Class</label></div>
     <div class="span-9 last"><select id="first_class" name="first_class" class="required">
@@ -121,32 +176,33 @@
       <option value="Weaponsmaster">Weaponsmaster</option>
       <option value="Wizard">Wizard</option>
     </select><span class="display"></span></div>
-
+    
     <div class="span-2"><label for="level">XP</label></div>
     <div class="span-9 last"><input type="text" id="XP" name="XP" class="required number" value="0" /><span class="display"></span>&nbsp;<a id="add_xp" href="#">+</a></div>
-
+    
     <div class="span-2"><label for="name">Name</label></div>
     <div class="span-9 last"><input type="text" id="Name" name="Name" /></div>
     
     <div class="span-11 last">
       <button id="choose_advantages" type="button">Choose Advantages</button>
-      <button id="save_button" type="button">Save</button>
-      <button id="load_button" type="button">Load</button>
+    </div>
     </div>
   </div>
 
-  <div id="after_class" class="span-13 last levels" style="display: none;">
+  <div id="advantages" class="span-13 last" style="display: none;">
     <div class="span-3"><strong>Creation Points</strong></div>
     <div class="span-10 last"><span id="cp_remaining"></span> remaining out of <span id="cp_total"></span></div>
     <div class="span-3"><strong>Advantages</strong></div>
-    <div class="span-10 last"><span id="Advantages">huh?</span> <a id="add_advantage" href="#">+</a></div>
+    <div class="span-10 last"><span id="Advantages"></span> <a id="add_advantage" href="#">+</a></div>
     <div class="span-3"><strong>Disadvantages</strong></div>
-    <div class="span-10 last"><span id="Disadvantages">huh?</span> <a id="add_disadvantage" href="#">+</a></div>
+    <div class="span-10 last"><span id="Disadvantages"></span> <a id="add_disadvantage" href="#">+</a></div>
 
     <div class="span-13 last"><button id="choose_abilities" type="button">Choose Abilities</button>
       <input type="hidden" id="dialog_level" name="dialog_level" value="" />
     </div>
   </div>
+  
+  <div id="levels" class="span-13 last" style="display: none;"></div>
 </div>
 </form>
 
@@ -244,6 +300,10 @@
   <input type="hidden" id="delete_disadvantage_name" value="" />
 </div>
 
+<div id="delete_ea_dialog" style="display: none;" title="Remove this essential ability?">
+  <input type="hidden" id="delete_ea_name" value="" />
+</div>
+
 <div id="disadvantages_dialog" style="display: none;">
   <div id="disadvantages_tabs">
     <ul>
@@ -321,6 +381,42 @@
 	  </div>
     </div>
     <div id="Other"></div>
+</div>
+
+<div id="ea_option_dialog" style="display: none;">
+  <input type="hidden" id="ea_option_name" name="ea_option_name" value="" />
+  <div id="ea_option"></div>
+</div>
+
+<div id="ea_advantages_dialog" style="display: none;">
+  <div id="ea_advantages_tabs">
+    <ul>
+      <li><a href="#EA_Common_Advantages">Common</a></li>
+      <li><a href="#EA_Magic_Advantages">Magic</a></li>
+      <li><a href="#EA_Psychic_Advantages">Psychic</a></li>
+    </ul>
+    <div id="EA_Common_Advantages">
+      <div class="container">
+        <div id="EA_Common_Advantages_1" class="span-8"></div>
+        <div id="EA_Common_Advantages_2" class="span-8 last"></div>
+      </div>
+    </div>
+    <div id="EA_Magic_Advantages"></div>
+    <div id="EA_Psychic_Advantages"></div>
+  </div>
+</div>
+
+<div id="ea_disadvantages_dialog" style="display: none;">
+  <div id="ea_disadvantages_tabs">
+    <ul>
+      <li><a href="#EA_Common_Disadvantages">Common</a></li>
+      <li><a href="#EA_Magic_Disadvantages">Magic</a></li>
+      <li><a href="#EA_Psychic_Disadvantages">Psychic</a></li>
+    </ul>
+    <div id="EA_Common_Disadvantages"></div>
+    <div id="EA_Magic_Disadvantages"></div>
+    <div id="EA_Psychic_Disadvantages"></div>
+  </div>
 </div>
 
 <div id="load_dialog" style="display:none;" title="Load Character">

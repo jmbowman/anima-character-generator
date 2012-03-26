@@ -1,11 +1,13 @@
 /*global define: false */
-define(['jquery', 'abilities', 'modules', 'libs/utils'],
-    function ($, abilities, modules) {
+define(['jquery', 'abilities', 'essential_abilities', 'modules', 'libs/utils'],
+    function ($, abilities, essential_abilities, modules) {
 
     var Primaries = function () {
         var ability_list,
             count,
             i,
+            essentialAdvantages = essential_abilities.advantages,
+            essentialDisadvantages = essential_abilities.disadvantages,
             name,
             primary;
         if (!(this instanceof Primaries)) {
@@ -54,6 +56,16 @@ define(['jquery', 'abilities', 'modules', 'libs/utils'],
                 for (i = 0; i < count; i++) {
                     this.reverse_lookup_cache[ability_list[i]] = primary;
                 }
+            }
+        }
+        for (name in essentialAdvantages) {
+            if (essentialAdvantages.hasOwnProperty(name)) {
+                this.reverse_lookup_cache[name] = 'Powers';
+            }
+        }
+        for (name in essentialDisadvantages) {
+            if (essentialDisadvantages.hasOwnProperty(name)) {
+                this.reverse_lookup_cache[name] = 'Powers';
             }
         }
         for (name in modules) {
