@@ -100,6 +100,7 @@ define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines', 'tables',
         'Unlimited Familiars': {Cost: 2},
         'Unspoken Casting': {Category: 'Magic', Cost: 1}, // no reduction to MA when casting unspoken
         Untiring: {Cost: [1, 2, 3]},
+        'Usage Affinity': {Cost: 1},
         'Use of Armor': {Cost: [1, 2, 3]},  // +5/+10/+15 per level to wear armor
         Versatile: {Cost: 1},
         'Versatile Metamagic': {Category: 'Magic', Cost: 1}

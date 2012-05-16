@@ -1,8 +1,8 @@
 /*global define: false */
-define(['jquery', 'abilities', 'characters', 'dialogs', 'essential_abilities',
-'modules', 'tables', 'primaries', 'creation_points', 'development_points'],
-function ($, abilities, characters, dialogs, essential_abilities, modules,
-          tables, primaries) {
+define(['jquery', 'abilities', 'characters', 'essential_abilities', 'modules',
+'primaries', 'tables', 'creation_points', 'development_points'],
+function ($, abilities, characters, essential_abilities, modules, primaries,
+          tables) {
     
     var add_race,
         load_value,
@@ -182,8 +182,7 @@ function ($, abilities, characters, dialogs, essential_abilities, modules,
                 text += score + ' ' + name;
             }
             text += ')';
-            $('.Attuned', root).text(attuned);
-            $('.resistance_modifiers', root).show();
+            $('.resistance_modifiers', root).show().text(text);
         }
         else {
             $('.resistance_modifiers', root).hide();
@@ -323,9 +322,6 @@ function ($, abilities, characters, dialogs, essential_abilities, modules,
         $('#Disadvantages').html(content);
         render.render($('.container'));
     };
-  
-    $('#Advantages a').live('click', dialogs.delete_advantage);
-    $('#Disadvantages a').live('click', dialogs.delete_disadvantage);
 
     render.update_essential_abilities = function (read_only) {
         // summary:
@@ -391,9 +387,6 @@ function ($, abilities, characters, dialogs, essential_abilities, modules,
         $('#add_ea_disadvantage').toggle(!read_only);
         render.render($('.container'));
     };
-  
-    $('#ea_advantages a').live('click', dialogs.delete_essential_ability);
-    $('#ea_disadvantages a').live('click', dialogs.delete_essential_ability);
     
     render.load_data = function () {
         // summary:
@@ -700,7 +693,7 @@ function ($, abilities, characters, dialogs, essential_abilities, modules,
             }
             level_number = current_level === 0 ? 0 : i + 1;
             content = 'Level ' + level_number + ' (';
-            if (data.class_change_possible(level_number) && i > 0) {
+            if (data.class_change_possible(level_number)) {
                 content += '<a href="#" class="edit_class" data-level="' + level_number + '">' + level.Class + '</a>):';
             }
             else {
@@ -779,11 +772,6 @@ function ($, abilities, characters, dialogs, essential_abilities, modules,
             render.render($('.container'));
         }
     };
-  
-    $('a.edit_class').live('click', dialogs.edit_class);
-    $('a.characteristic_bonus').live('click', dialogs.edit_characteristic_bonus);
-    $('a.natural_bonus').live('click', dialogs.edit_natural_bonus);
-    $('a.spend_dp').live('click', dialogs.spend_dp);
   
     return render;
 });

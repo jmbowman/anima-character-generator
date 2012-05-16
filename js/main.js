@@ -6,12 +6,10 @@ require({
         spinner: 'libs/ui.spinner.min',
         validate: 'libs/jquery.validate.min'
     }
-}, ['jquery', 'dialogs', 'render', 'pubsub', 'spinner', 'validate'], function ($, dialogs, render) {
+}, ['jquery', 'render', 'dialogs', 'pubsub', 'spinner', 'validate'], function ($, render) {
     $(document).ready(function () {
         $('label').parent().addClass('label-parent');
         render.render($('.container'));
-        $('#save_button').click(dialogs.save);
-        $('#load_button').click(dialogs.load);
         $('#proceed').click(render.start_attributes);
         $('#choose_essential_abilities').click(render.start_essential_abilities);
         $('#choose_characteristics').click(render.start_characteristics);

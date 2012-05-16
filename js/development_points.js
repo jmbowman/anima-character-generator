@@ -1,8 +1,8 @@
 /*global define: false */
 define(['jquery', 'abilities', 'character', 'classes', 'essential_abilities',
-'modules', 'primaries', 'tables'],
+'modules', 'powers', 'primaries', 'tables'],
 function ($, abilities, Character, classes, essential_abilities, modules,
-          primaries, tables) {
+          powers, primaries, tables) {
 
     Character.prototype.add_essential_ability = function (name, option) {
         var ability,
@@ -61,6 +61,32 @@ function ($, abilities, Character, classes, essential_abilities, modules,
             }
             else {
                 dp[name] = module.DP;
+            }
+        }
+    };
+
+    Character.prototype.add_power = function (type, level, params) {
+        // summary:
+        //         Add a new or updgraded creature power to the character.
+        // type: String
+        //         The type of power being added or upgraded.
+        // level: Integer
+        //         The level at which the creature added/upgraded this power.
+        // params: Object
+        //         Additional parameters for the power (options, disadvantages,
+        //         etc.)
+        var dp = this.level_info(level).DP,
+            power;
+        if (type in dp) {
+            dp[type].push(params);
+        }
+        else {
+            power = powers[type];
+            if (power.Repeatable || power.Attack_Linked) {
+                dp[type] = [params];
+            }
+            else {
+                dp[type] = params;
             }
         }
     };
@@ -223,6 +249,7 @@ function ($, abilities, Character, classes, essential_abilities, modules,
             i,
             item,
             j,
+            k,
             level = this.level(),
             levels = this.levels,
             level_count = levels.length,
@@ -354,6 +381,22 @@ function ($, abilities, Character, classes, essential_abilities, modules,
                     }
                     result.Withdrawn -= remaining;
                     saved[primary] += remaining;
+                    item = (primary === 'Other') ? 'generic' : primary;
+                    item = 'Save ' + item + ' DP for later';
+                    // make the saved DP just used unavailable earlier
+                    for (k = i - 1; k > 0; k--) {
+                        level_dp = levels[k].DP
+                        if (item in level_dp) {
+                            remaining += level_dp[item];
+                        }
+                        if (remaining < 0) {
+                            results[k][primary] += remaining;
+                            results[k].Total += remaining;
+                        }
+                        else {
+                            break;
+                        }
+                    }
                     result[primary] = 0;
                 }
                 // now add in the remaining saved amount
@@ -596,6 +639,37 @@ function ($, abilities, Character, classes, essential_abilities, modules,
         }
         return false;
     };
-  
+
+    Character.prototype.power_parameters = function (type) {
+        // summary:
+        //         Determine if the character has a specific type of creature
+        //         power, and if so return its current parameters.
+        // type: String
+        //         The type of power to look for (Natural Weapons, etc.)
+        // returns:
+        //         An array of power parameter objects (evaluates to false if
+        //         the power has never been taken).  If a power has been
+        //         upgraded over time, its current parameters are returned.
+        var dp,
+            i,
+            instance,
+            levels = this.levels,
+            count = levels.length,
+            result = [];
+        for (i = 0; i < count; i++) {
+            dp = levels[i].DP;
+            instance = dp[type];
+            if (instance) {
+                if ($.isArray(instance)) {
+                    $.merge(result, instance);
+                }
+                else {
+                    result.push(dp[type]);
+                }
+            }
+        }
+        return result;
+    };
+
     return {};
 });

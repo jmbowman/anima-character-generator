@@ -1,24 +1,34 @@
 /*global define: false, document: false */
 define(['jquery', 'abilities', 'advantages', 'characters', 'cultural_roots',
-'disadvantages', 'essential_abilities', 'modules', 'primaries', 'tables',
-'creation_points', 'development_points', 'jqueryui/dialog', 'jqueryui/tabs',
-'pubsub'],
+'disadvantages', 'essential_abilities', 'modules', 'powers', 'primaries',
+'tables', 'creation_points', 'development_points', 'jqueryui/dialog',
+'jqueryui/tabs', 'pubsub'],
 function ($, abilities, advantages, characters, cultural_roots, disadvantages,
-          essential_abilities, modules, primaries, tables) {
+          essential_abilities, modules, powers, primaries, tables) {
 
     var ability_dp_init,
+        add_advantage,
         add_cultural_roots_choice,
+        add_disadvantage,
+        add_ea_advantage,
+        add_ea_disadvantage,
         add_xp,
         advantage_cost_init,
         advantage_options_init,
         advantages_init,
         characteristic_bonus_init,
         class_init,
+        configure_advantage,
+        configure_disadvantage,
+        configure_essential_ability,
         configure_module,
         cultural_roots_init,
+        delete_advantage,
         delete_advantage_init,
+        delete_disadvantage,
         delete_disadvantage_init,
         delete_ea_init,
+        delete_essential_ability,
         dialogs = {},
         disadvantage_benefit_init,
         disadvantage_option_init,
@@ -27,12 +37,25 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         ea_advantages_init,
         ea_disadvantages_init,
         ea_option_init,
+        edit_advantage_cost,
+        edit_advantage_options,
+        edit_characteristic_bonus,
+        edit_class,
+        edit_disadvantage_benefit,
+        edit_disadvantage_option,
+        edit_ea_option,
+        edit_natural_bonus,
+        load,
         load_character_init,
         module_options_init,
         natural_bonus_init,
+        power_options_init,
+        save,
         save_character_init,
         set_ability_dp,
         set_natural_bonus,
+        spend_dp,
+        update_cultural_roots,
         xp_dialog_init;
     
     ability_dp_init = function () {
@@ -68,9 +91,180 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         });
     };
 
+    add_advantage = function () {
+        var count,
+            data = characters.current(),
+            i,
+            name,
+            link,
+            links;
+        for (name in advantages) {
+            if (advantages.hasOwnProperty(name)) {
+                links = $('#advantages_tabs a:contains("' + name + '")');
+                count = links.size();
+                // Check for false matches like "Learning" & "Martial Learning"
+                for (i = 0; i < count; i++) {
+                    link = links.eq(i);
+                    if (link.text() === name) {
+                        if (data.advantage_allowed(name, null)) {
+                            link.removeClass('disabled');
+                        }
+                        else {
+                            link.addClass('disabled');
+                        }
+                    }
+                }
+            }
+        }    
+        dialogs.Advantages.dialog('open');
+        return false;
+    };
+
+    add_cultural_roots_choice = function (i, choice) {
+        var ability,
+            amount,
+            option,
+            parts = ['<select>'],
+            specialty;
+        for (option in choice) {
+            if (choice.hasOwnProperty(option)) {
+                parts.push('<option value="', option, '">');
+                ability = option;
+                parts.push(ability);
+                amount = choice[option];
+                if ($.isPlainObject(amount)) {
+                    specialty = Object.keys(amount)[0];
+                    parts.push(' (', specialty, ')');
+                    amount = amount[specialty];
+                }
+                parts.push(' +', amount, '</option>');
+            }
+        }
+        parts.push('</select><br />');
+        $('#cultural_roots').append(parts.join(''));
+    };
+
+    add_disadvantage = function () {
+        var data = characters.current(),
+            name,
+            link;
+        for (name in disadvantages) {
+            if (disadvantages.hasOwnProperty(name)) {
+                link = $('#disadvantages_tabs a:contains("' + name + '")');
+                if (data.disadvantage_allowed(name, null)) {
+                    link.removeClass('disabled');
+                }
+                else {
+                    link.addClass('disabled');
+                }
+            }
+        }
+        dialogs.Disadvantages.dialog('open');
+        return false;
+    };
+
+    add_ea_advantage = function () {
+        var advantages = essential_abilities.advantages,
+            allowed,
+            count,
+            data = characters.current(),
+            i,
+            name,
+            link,
+            links;
+        for (name in advantages) {
+            if (advantages.hasOwnProperty(name)) {
+                links = $('#ea_advantages_tabs a:contains("' + name + '")');
+                count = links.size();
+                // Check for false matches
+                for (i = 0; i < count; i++) {
+                    link = links.eq(i);
+                    if (link.text() === name) {
+                        allowed = data.essential_ability_allowed(name, null);
+                        if (allowed  === 'maybe') {
+                            link.removeClass('disabled');
+                            link.addClass('maybe');
+                        }
+                        else if (allowed) {
+                            link.removeClass('disabled');
+                            link.removeClass('maybe');
+                        }
+                        else {
+                            link.addClass('disabled');
+                            link.removeClass('maybe');
+                        }
+                    }
+                }
+            }
+        }    
+        dialogs.Essential_Advantages.dialog('open');
+        return false;
+    };
+
+    add_ea_disadvantage = function () {
+        var allowed,
+            data = characters.current(),
+            disadvantages = essential_abilities.disadvantages,
+            name,
+            link;
+        for (name in disadvantages) {
+            if (disadvantages.hasOwnProperty(name)) {
+                link = $('#ea_disadvantages_tabs a:contains("' + name + '")');
+                allowed = data.essential_ability_allowed(name, null);
+                if (allowed === 'maybe') {
+                    link.removeClass('disabled');
+                    link.addClass('maybe');
+                }
+                else if (allowed) {
+                    link.removeClass('disabled');
+                    link.removeClass('maybe');
+                }
+                else {
+                    link.addClass('disabled');
+                    link.removeClass('maybe');
+                }
+            }
+        }
+        dialogs.Essential_Disadvantages.dialog('open');
+        return false;
+    };
+
     add_xp = function () {
         dialogs.Add_XP.dialog('open');
         return false;
+    };
+  
+    advantage_cost_init = function () {
+        if ('Advantage_Cost' in dialogs) {
+            return;
+        }
+        dialogs.Advantage_Cost = $('#advantage_cost_dialog').dialog({
+            autoOpen: false,
+            modal: true,
+            width: '400px',
+            buttons: {
+                'OK': function () {
+                    var advantage,
+                        cost = parseInt($('input:radio[name=advantage_cost]:checked').val(), 10),
+                        data,
+                        name = $('#advantage_cost_name').val();
+                    advantage = advantages[name];
+                    if ('Options' in advantage) {
+                        dialogs.Advantage_Cost.dialog('close');
+                        edit_advantage_options(name, cost);
+                    }
+                    else {
+                        data = characters.current();
+                        data.Advantages[name] = cost;
+                        $.publish('cp_changed');
+                        dialogs.Advantage_Cost.dialog('close');
+                    }
+                },
+                'Cancel': function () {
+                    dialogs.Advantage_Cost.dialog('close');
+                }
+            }
+        });
     };
 
     advantage_options_init = function () {
@@ -115,6 +309,48 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 },
                 Cancel: function () {
                     dialogs.Advantage_Options.dialog('close');
+                }
+            }
+        });
+    };
+  
+    advantages_init = function () {
+        var advantage,
+            column = 1,
+            count = 1,
+            link,
+            name;
+        if ('Advantages' in dialogs) {
+            return;
+        }
+        $('#advantages_tabs').tabs();
+        for (name in advantages) {
+            if (advantages.hasOwnProperty(name)) {
+                advantage = advantages[name];
+                link = $('<a>', {href: '#'}).addClass('advantage').text(name);
+                link.append('<br />');
+                if (!('Category' in advantage)) {
+                    $('#Common_Advantages_' + column).append(link);
+                    count++;
+                    if (count > 20) {
+                        column += 1;
+                        count = 1;
+                    }
+                }
+                else {
+                    $('#' + advantage.Category + '_Advantages').append(link);
+                }
+            }
+        }
+        dialogs.Advantages = $('#advantages_dialog').dialog({
+            autoOpen: false,
+            modal: true,
+            title: 'Select an advantage',
+            width: '1000px',
+            position: 'top',
+            buttons: {
+                'Cancel': function () {
+                    dialogs.Advantages.dialog('close');
                 }
             }
         });
@@ -165,6 +401,74 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 }
             }
         });
+    };
+
+    configure_advantage = function () {
+        var name = $.trim($(this).text()),
+            data = characters.current(),
+            advantage = advantages[name];
+        if (!data.advantage_allowed(name, null)) {
+            return false;
+        }
+        dialogs.Advantages.dialog('close');
+
+        if (name === 'Cultural Roots') {
+            dialogs.Cultural_Roots.dialog('open');
+            return false;
+        }
+        if ($.isArray(advantage.Cost)) {
+            return edit_advantage_cost(name);
+        }
+        if ('Options' in advantage) {
+            return edit_advantage_options(name, null);
+        }
+        data.Advantages[name] = advantage.Cost;
+        $.publish('cp_changed');
+        return false;
+    };
+
+    configure_disadvantage = function () {
+        var name = $.trim($(this).text()),
+            data = characters.current(),
+            disadvantage = disadvantages[name];        
+        
+        if (!data.disadvantage_allowed(name, null)) {
+            return false;
+        }
+        dialogs.Disadvantages.dialog('close');
+
+        if ($.isArray(disadvantage.Benefit)) {
+            return edit_disadvantage_benefit(name);
+        }
+        if ('Options' in disadvantage) {
+            return edit_disadvantage_option(name, null);
+        }
+        data.Disadvantages[name] = disadvantage.Benefit;
+        $.publish('cp_changed');
+        return false;
+    };
+
+    configure_essential_ability = function () {
+        var ability,
+            data = characters.current(),
+            name = $.trim($(this).text());
+        if (!data.essential_ability_allowed(name, null)) {
+            return false;
+        }
+        if (name in essential_abilities.advantages) {
+            ability = essential_abilities.advantages[name];
+            dialogs.Essential_Advantages.dialog('close');
+        }
+        else {
+            ability = essential_abilities.disadvantages[name];
+            dialogs.Essential_Disadvantages.dialog('close');
+        }
+        if ('Options' in ability) {
+            return edit_ea_option(name);
+        }
+        data.add_essential_ability(name);
+        $.publish('essential_abilities_changed');
+        return false;
     };
 
     configure_module = function (name, level) {
@@ -229,8 +533,8 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             }
         }
         $('#cultural_roots_background').html(parts.join(''));
-        $('#cultural_roots_background').change(dialogs.update_cultural_roots);
-        dialogs.update_cultural_roots();
+        $('#cultural_roots_background').change(update_cultural_roots);
+        update_cultural_roots();
         dialogs.Cultural_Roots = $('#cultural_roots_dialog').dialog({
             autoOpen: false,
             modal: true,
@@ -254,6 +558,13 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             }
         });  
     };
+
+    delete_advantage = function () {
+        var name = $(this).data('name');
+        $('#delete_advantage_name').val(name);
+        dialogs.Delete_Advantage.dialog('open');
+        return false;
+    };
   
     delete_advantage_init = function () {
         if ('Delete_Advantage' in dialogs) {
@@ -275,6 +586,13 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 }
             }
         });
+    };
+
+    delete_disadvantage = function () {
+        var name = $(this).data('name');
+        $('#delete_disadvantage_name').val(name);
+        dialogs.Delete_Disadvantage.dialog('open');
+        return false;
     };
   
     delete_disadvantage_init = function () {
@@ -320,47 +638,12 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             }
         });
     };
-  
-    disadvantages_init = function () {
-        if ('Disadvantages' in dialogs) {
-            return;
-        }
-        $('#disadvantages_tabs').tabs();
-        var column = 1,
-            count = 1,
-            name,
-            disadvantage,
-            link;
-        for (name in disadvantages) {
-            if (disadvantages.hasOwnProperty(name)) {
-                disadvantage = disadvantages[name];
-                link = $('<a>', {href: '#'}).addClass('disadvantage').text(name);
-                link.append('<br />');
-                if (!('Category' in disadvantage)) {
-                    $('#Common_Disadvantages_' + column).append(link);
-                    count++;
-                    if (count > 12) {
-                        column += 1;
-                        count = 1;
-                    }
-                }
-                else {
-                    $('#' + disadvantage.Category + '_Disadvantages').append(link);
-                }
-            }
-        }
-        dialogs.Disadvantages = $('#disadvantages_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            title: 'Select a disadvantage',
-            width: '1000px',
-            position: 'top',
-            buttons: {
-                'Cancel': function () {
-                    dialogs.Disadvantages.dialog('close');
-                }
-            }
-        });
+
+    delete_essential_ability = function () {
+        var name = $(this).data('name');
+        $('#delete_ea_name').val(name);
+        dialogs.Delete_Essential_Ability.dialog('open');
+        return false;
     };
   
     disadvantage_benefit_init = function () {
@@ -379,7 +662,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                         data = characters.current();
                     if ('Options' in disadvantage) {
                         dialogs.Disadvantage_Benefit.dialog('close');
-                        dialogs.edit_disadvantage_option(name, benefit);
+                        edit_disadvantage_option(name, benefit);
                     }
                     else {
                         data.Disadvantages[name] = benefit;
@@ -424,6 +707,48 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 },
                 Cancel: function () {
                     dialogs.Disadvantage_Option.dialog('close');
+                }
+            }
+        });
+    };
+  
+    disadvantages_init = function () {
+        if ('Disadvantages' in dialogs) {
+            return;
+        }
+        $('#disadvantages_tabs').tabs();
+        var column = 1,
+            count = 1,
+            name,
+            disadvantage,
+            link;
+        for (name in disadvantages) {
+            if (disadvantages.hasOwnProperty(name)) {
+                disadvantage = disadvantages[name];
+                link = $('<a>', {href: '#'}).addClass('disadvantage').text(name);
+                link.append('<br />');
+                if (!('Category' in disadvantage)) {
+                    $('#Common_Disadvantages_' + column).append(link);
+                    count++;
+                    if (count > 12) {
+                        column += 1;
+                        count = 1;
+                    }
+                }
+                else {
+                    $('#' + disadvantage.Category + '_Disadvantages').append(link);
+                }
+            }
+        }
+        dialogs.Disadvantages = $('#disadvantages_dialog').dialog({
+            autoOpen: false,
+            modal: true,
+            title: 'Select a disadvantage',
+            width: '1000px',
+            position: 'top',
+            buttons: {
+                'Cancel': function () {
+                    dialogs.Disadvantages.dialog('close');
                 }
             }
         });
@@ -606,6 +931,201 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         });
     };
 
+    edit_advantage_cost = function (name) {
+        var data = characters.current(),
+            advantage = advantages[name],
+            category = ('Category' in advantage) ? advantage.Category : 'Common',
+            remaining = data.cp_remaining(category),
+            options = advantages[name].Cost;
+        $('#advantage_cost_name').val(name);
+        if (category !== 'Common') {
+            remaining += data.cp_remaining('Common');
+        }
+        $.each([1, 2, 3], function (i, cost) {
+            if (cost > remaining || $.inArray(cost, options) === -1) {
+                $('.advantage_cost_' + cost).hide();
+            }
+            else {
+                $('.advantage_cost_' + cost).show();
+            }
+        });
+        $('#advantage_cost_' + options[0]).click();
+        dialogs.Advantage_Cost.dialog('open');
+    };
+
+    edit_advantage_options = function (name, cost) {
+        var advantage = advantages[name],
+            data,
+            input,
+            options,
+            panel = $('#advantage_options'),
+            select;
+        $('#advantage_options_name').val(name);
+        $('#advantage_options_cost').val(cost ? cost : '');
+
+        panel.html('');
+        options = advantage.Options;
+        if (options.length === 0) {
+            input = $('<input>', {type: 'text', value: ''}).addClass('required');
+            panel.append(input);
+        }
+        else {
+            select = $('<select>');
+            data = characters.current();
+            $.each(options, function (i, option) {
+                if (data.advantage_allowed(name, option)) {
+                    select.append($('<option>', {value: option}).text(option));
+                }
+            });
+            panel.append(select);
+            if (name === 'Repeat a Characteristics Roll') {
+                panel.append($('<br />'));
+                panel.append($('<label>', {'for': 'repeat_roll'}).text('New Roll '));
+                panel.append($('<input>', {id: 'repeat_roll', type: 'text', value: ''}).addClass('required digits two-digit'));
+            }
+        }
+        dialogs.Advantage_Options.dialog('option', 'title', advantage.Option_Title);
+        dialogs.Advantage_Options.dialog('open');
+        $('#repeat_roll').spinner({min: 4, max: 10});
+        return false;
+    };
+
+    edit_characteristic_bonus = function () {
+        var level = $(this).data('level'),
+            data = characters.current(),
+            index = (level === 0) ? 0 : level - 1;
+            
+        $('#dialog_level').val(level);
+        if ('Characteristic' in data.levels[index]) {
+            $('#Characteristic').val(data.levels[index].Characteristic);
+        }
+        else {
+            $('#Characteristic').val('STR');
+        }
+        dialogs.Characteristic_Bonus.dialog('open');
+        return false;
+    };
+
+    edit_class = function () {
+        var data = characters.current(),
+            level = $(this).data('level');
+        $('#class_dialog_level').text(level);
+        $('#Class').val(data.levels[level === 0 ? 0 : level - 1].Class);
+        dialogs.Class.dialog('open');
+        return false;
+    };
+
+    edit_disadvantage_benefit = function (name) {
+        $('#disadvantage_benefit_name').val(name);
+        $('#disadvantage_benefit_1').click();
+        dialogs.Disadvantage_Benefit.dialog('open');
+    };
+
+    edit_disadvantage_option = function (name, benefit) {
+        var disadvantage = disadvantages[name],
+            panel,
+            options,
+            input,
+            data,
+            select;
+
+        $('#disadvantage_option_name').val(name);
+        $('#disadvantage_option_benefit').val(benefit ? benefit : '');
+        panel = $('#disadvantage_option');
+        panel.html('');
+        options = disadvantage.Options;
+        if (options.length === 0) {
+            input = $('<input>', {type: 'text', value: ''}).addClass('required');
+            panel.append(input);
+        }
+        else {
+            data = characters.current();
+            select = $('<select>');
+            $.each(options, function (i, option) {
+                if (data.disadvantage_allowed(name, option)) {
+                    select.append($('<option>', {value: option}).text(option));
+                }
+            });
+            panel.append(select);
+        }
+        dialogs.Disadvantage_Option.dialog('option', 'title', disadvantage.Option_Title);
+        dialogs.Disadvantage_Option.dialog('open');
+        return false;
+    };
+
+    edit_ea_option = function (name) {
+        var ability,
+            advantages = essential_abilities.advantages,
+            data,
+            input,
+            options,
+            panel = $('#ea_option'),
+            select;
+        if (name in advantages) {
+            ability = advantages[name];
+        }
+        else {
+            ability = essential_abilities.disadvantages[name];
+        }
+        $('#ea_option_name').val(name);
+
+        panel.html('');
+        options = ability.Options;
+        if (options.length === 0) {
+            input = $('<input>', {type: 'text', value: ''}).addClass('required');
+            panel.append(input);
+        }
+        else {
+            select = $('<select>');
+            data = characters.current();
+            $.each(options, function (i, option) {
+                if (data.essential_ability_allowed(name, option)) {
+                    select.append($('<option>', {value: option}).text(option));
+                }
+            });
+            panel.append(select);
+        }
+        dialogs.Essential_Ability_Option.dialog('option', 'title', ability.Option_Title);
+        dialogs.Essential_Ability_Option.dialog('open');
+        return false;
+    };
+
+    edit_natural_bonus = function () {
+        var level = $(this).data('level'),
+            modifier,
+            name,
+            ability,
+            parts,
+            data = characters.current();
+        $('#natural_bonus_level').val(level);
+        $.each(tables.fields, function (i, field) {
+            $('#NB_' + field).html('');
+        });
+        for (name in abilities) {
+            if (abilities.hasOwnProperty(name)) {
+                ability = abilities[name];
+                if (!('Field' in ability)) {
+                    continue;
+                }
+                modifier = data.modifier(ability.Characteristic, level);
+                if (modifier <= 0) {
+                    $('#NB_' + ability.Field).append(name + '<br />');
+                }
+                else {
+                    parts = ['<a href="#" class="set_natural_bonus" data-name="', name, '">', name, ' +', modifier, '</a><br />'];
+                    $('#NB_' + ability.Field).append(parts.join(''));
+                }
+            }
+        }
+        dialogs.Natural_Bonus.dialog('open');
+    };
+    
+    load = function () {
+        $('#load_text').val('');
+        dialogs.Load_Character.dialog('open');
+        return false;
+    };
+
     load_character_init = function () {
         if ('Load_Character' in dialogs) {
             return;
@@ -685,6 +1205,56 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         });
     };
 
+    power_options_init = function () {
+        if ('Power_Options' in dialogs) {
+            return;
+        }
+        dialogs.Power_Options = $('#power_options_dialog').dialog({
+            autoOpen: false,
+            modal: true,
+            width: '400px',
+            buttons: {
+                OK: function () {
+                    var characteristic,
+                        count,
+                        level = parseInt($('#power_options_level').val(), 10),
+                        data,
+                        i,
+                        option,
+                        options,
+                        params = {Name: $('#power_options_name').val()},
+                        type = $('#power_options_type').val();
+                    options = $('#power_options input[type="text"], #power_options select');
+                    count = options.length;
+                    for (i = 0; i < count; i++) {
+                        option = options.eq(i);
+                        params[option.attr('name')] = option.val();
+                    }
+                    options = $('#power_options input[type="checkbox"]:checked');
+                    count = options.length;
+                    for (i = 0; i < count; i++) {
+                        params[option.attr('name')] = true;
+                    }
+                    data = characters.current();
+                    data.add_power(type, level, params);
+                    $.publish('level_data_changed');
+                    dialogs.Power_Options.dialog('close');      
+                },
+                Cancel: function () {
+                    dialogs.Power_Options.dialog('close');
+                }
+            }
+        });
+    };
+    
+    save = function () {
+        var data = characters.current();
+        $('#save_text').val(JSON.stringify(data, null, 2));
+        dialogs.Save_Character.dialog('open');
+        $('#save_text').select();
+        return false;
+    };
+
     save_character_init = function () {
         if ('Save_Character' in dialogs) {
             return;
@@ -752,577 +1322,8 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         $.publish('level_data_changed');
         return false;
     };
-    
-    xp_dialog_init = function () {
-        if ('Add_XP' in dialogs) {
-            return;
-        }
-        dialogs.Add_XP = $('#xp_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            width: '400px',
-            buttons: {
-                OK: function () {
-                    var data = characters.current(),
-                        added = $('#xp_added').spinner('value');
-                    data.XP += added;
-                    $('#XP').spinner('value', data.XP);
-                    $.publish('level_data_changed');
-                    dialogs.Add_XP.dialog('close');
-                },
-                Cancel: function () {
-                    dialogs.Add_XP.dialog('close');
-                }
-            },
-            open: function () {
-                if ($('#xp_dialog').find('.ui-spinner').length) {
-                    $('#xp_added').spinner('value', 0);
-                }
-                else {
-                    $('#xp_added').spinner({min: 0, max: 9999});
-                }
-            }
-        });
-    };
 
-    add_cultural_roots_choice = function (i, choice) {
-        var ability,
-            amount,
-            option,
-            parts = ['<select>'],
-            specialty;
-        for (option in choice) {
-            if (choice.hasOwnProperty(option)) {
-                parts.push('<option value="', option, '">');
-                ability = option;
-                parts.push(ability);
-                amount = choice[option];
-                if ($.isPlainObject(amount)) {
-                    specialty = Object.keys(amount)[0];
-                    parts.push(' (', specialty, ')');
-                    amount = amount[specialty];
-                }
-                parts.push(' +', amount, '</option>');
-            }
-        }
-        parts.push('</select><br />');
-        $('#cultural_roots').append(parts.join(''));
-    };
-  
-    advantages_init = function () {
-        var advantage,
-            column = 1,
-            count = 1,
-            link,
-            name;
-        if ('Advantages' in dialogs) {
-            return;
-        }
-        $('#advantages_tabs').tabs();
-        for (name in advantages) {
-            if (advantages.hasOwnProperty(name)) {
-                advantage = advantages[name];
-                link = $('<a>', {href: '#'}).addClass('advantage').text(name);
-                link.append('<br />');
-                if (!('Category' in advantage)) {
-                    $('#Common_Advantages_' + column).append(link);
-                    count++;
-                    if (count > 20) {
-                        column += 1;
-                        count = 1;
-                    }
-                }
-                else {
-                    $('#' + advantage.Category + '_Advantages').append(link);
-                }
-            }
-        }
-        dialogs.Advantages = $('#advantages_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            title: 'Select an advantage',
-            width: '1000px',
-            position: 'top',
-            buttons: {
-                'Cancel': function () {
-                    dialogs.Advantages.dialog('close');
-                }
-            }
-        });
-    };
-  
-    advantage_cost_init = function () {
-        if ('Advantage_Cost' in dialogs) {
-            return;
-        }
-        dialogs.Advantage_Cost = $('#advantage_cost_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            width: '400px',
-            buttons: {
-                'OK': function () {
-                    var advantage,
-                        cost = parseInt($('input:radio[name=advantage_cost]:checked').val(), 10),
-                        data,
-                        name = $('#advantage_cost_name').val();
-                    advantage = advantages[name];
-                    if ('Options' in advantage) {
-                        dialogs.Advantage_Cost.dialog('close');
-                        dialogs.edit_advantage_options(name, cost);
-                    }
-                    else {
-                        data = characters.current();
-                        data.Advantages[name] = cost;
-                        $.publish('cp_changed');
-                        dialogs.Advantage_Cost.dialog('close');
-                    }
-                },
-                'Cancel': function () {
-                    dialogs.Advantage_Cost.dialog('close');
-                }
-            }
-        });
-    };
-    
-    dialogs.update_cultural_roots = function () {
-        $('#cultural_roots').html('');
-        var parts,
-            background = $('#cultural_roots_background').val(),
-            bonuses = cultural_roots[background],
-            ability,
-            amount,
-            specialty,
-            bonus;
-        for (bonus in bonuses) {
-            if (bonus === 'choices') {
-                $.each(bonuses[bonus], add_cultural_roots_choice);
-            }
-            else {
-                ability = bonus;
-                parts = [ability];
-                amount = bonuses[bonus];
-                if ($.isPlainObject(amount)) {
-                    specialty = Object.keys(amount)[0];
-                    parts.push(' (');
-                    parts.push(specialty);
-                    parts.push(')');
-                    amount = amount[specialty];
-                }
-                parts.push(' +');
-                parts.push(amount);
-                parts.push('<br />');
-                $('#cultural_roots').append(parts.join(''));
-            }
-        }
-    };
-
-    dialogs.add_advantage = function () {
-        var count,
-            data = characters.current(),
-            i,
-            name,
-            link,
-            links;
-        for (name in advantages) {
-            if (advantages.hasOwnProperty(name)) {
-                links = $('#advantages_tabs a:contains("' + name + '")');
-                count = links.size();
-                // Check for false matches like "Learning" & "Martial Learning"
-                for (i = 0; i < count; i++) {
-                    link = links.eq(i);
-                    if (link.text() === name) {
-                        if (data.advantage_allowed(name, null)) {
-                            link.removeClass('disabled');
-                        }
-                        else {
-                            link.addClass('disabled');
-                        }
-                    }
-                }
-            }
-        }    
-        dialogs.Advantages.dialog('open');
-        return false;
-    };
-
-    dialogs.add_disadvantage = function () {
-        var data = characters.current(),
-            name,
-            link;
-        for (name in disadvantages) {
-            if (disadvantages.hasOwnProperty(name)) {
-                link = $('#disadvantages_tabs a:contains("' + name + '")');
-                if (data.disadvantage_allowed(name, null)) {
-                    link.removeClass('disabled');
-                }
-                else {
-                    link.addClass('disabled');
-                }
-            }
-        }
-        dialogs.Disadvantages.dialog('open');
-        return false;
-    };
-
-    dialogs.add_ea_advantage = function () {
-        var advantages = essential_abilities.advantages,
-            allowed,
-            count,
-            data = characters.current(),
-            i,
-            name,
-            link,
-            links;
-        for (name in advantages) {
-            if (advantages.hasOwnProperty(name)) {
-                links = $('#ea_advantages_tabs a:contains("' + name + '")');
-                count = links.size();
-                // Check for false matches
-                for (i = 0; i < count; i++) {
-                    link = links.eq(i);
-                    if (link.text() === name) {
-                        allowed = data.essential_ability_allowed(name, null);
-                        if (allowed  === 'maybe') {
-                            link.removeClass('disabled');
-                            link.addClass('maybe');
-                        }
-                        else if (allowed) {
-                            link.removeClass('disabled');
-                            link.removeClass('maybe');
-                        }
-                        else {
-                            link.addClass('disabled');
-                            link.removeClass('maybe');
-                        }
-                    }
-                }
-            }
-        }    
-        dialogs.Essential_Advantages.dialog('open');
-        return false;
-    };
-
-    dialogs.add_ea_disadvantage = function () {
-        var allowed,
-            data = characters.current(),
-            disadvantages = essential_abilities.disadvantages,
-            name,
-            link;
-        for (name in disadvantages) {
-            if (disadvantages.hasOwnProperty(name)) {
-                link = $('#ea_disadvantages_tabs a:contains("' + name + '")');
-                allowed = data.essential_ability_allowed(name, null);
-                if (allowed === 'maybe') {
-                    link.removeClass('disabled');
-                    link.addClass('maybe');
-                }
-                else if (allowed) {
-                    link.removeClass('disabled');
-                    link.removeClass('maybe');
-                }
-                else {
-                    link.addClass('disabled');
-                    link.removeClass('maybe');
-                }
-            }
-        }
-        dialogs.Essential_Disadvantages.dialog('open');
-        return false;
-    };
-
-    dialogs.configure_advantage = function () {
-        var name = $.trim($(this).text()),
-            data = characters.current(),
-            advantage = advantages[name];
-        if (!data.advantage_allowed(name, null)) {
-            return false;
-        }
-        dialogs.Advantages.dialog('close');
-
-        if (name === 'Cultural Roots') {
-            dialogs.Cultural_Roots.dialog('open');
-            return false;
-        }
-        if ($.isArray(advantage.Cost)) {
-            return dialogs.edit_advantage_cost(name);
-        }
-        if ('Options' in advantage) {
-            return dialogs.edit_advantage_options(name, null);
-        }
-        data.Advantages[name] = advantage.Cost;
-        $.publish('cp_changed');
-        return false;
-    };
-
-    dialogs.configure_disadvantage = function () {
-        var name = $.trim($(this).text()),
-            data = characters.current(),
-            disadvantage = disadvantages[name];        
-        
-        if (!data.disadvantage_allowed(name, null)) {
-            return false;
-        }
-        dialogs.Disadvantages.dialog('close');
-
-        if ($.isArray(disadvantage.Benefit)) {
-            return dialogs.edit_disadvantage_benefit(name);
-        }
-        if ('Options' in disadvantage) {
-            return dialogs.edit_disadvantage_option(name, null);
-        }
-        data.Disadvantages[name] = disadvantage.Benefit;
-        $.publish('cp_changed');
-        return false;
-    };
-
-    dialogs.configure_essential_ability = function () {
-        var ability,
-            data = characters.current(),
-            name = $.trim($(this).text());
-        if (!data.essential_ability_allowed(name, null)) {
-            return false;
-        }
-        if (name in essential_abilities.advantages) {
-            ability = essential_abilities.advantages[name];
-            dialogs.Essential_Advantages.dialog('close');
-        }
-        else {
-            ability = essential_abilities.disadvantages[name];
-            dialogs.Essential_Disadvantages.dialog('close');
-        }
-        if ('Options' in ability) {
-            return dialogs.edit_ea_option(name);
-        }
-        data.add_essential_ability(name);
-        $.publish('essential_abilities_changed');
-        return false;
-    };
-
-    dialogs.delete_advantage = function () {
-        var name = $(this).data('name');
-        $('#delete_advantage_name').val(name);
-        dialogs.Delete_Advantage.dialog('open');
-        return false;
-    };
-
-    dialogs.delete_disadvantage = function () {
-        var name = $(this).data('name');
-        $('#delete_disadvantage_name').val(name);
-        dialogs.Delete_Disadvantage.dialog('open');
-        return false;
-    };
-
-    dialogs.delete_essential_ability = function () {
-        var name = $(this).data('name');
-        $('#delete_ea_name').val(name);
-        dialogs.Delete_Essential_Ability.dialog('open');
-        return false;
-    };
-
-    dialogs.edit_advantage_cost = function (name) {
-        var data = characters.current(),
-            advantage = advantages[name],
-            category = ('Category' in advantage) ? advantage.Category : 'Common',
-            remaining = data.cp_remaining(category),
-            options = advantages[name].Cost;
-        $('#advantage_cost_name').val(name);
-        if (category !== 'Common') {
-            remaining += data.cp_remaining('Common');
-        }
-        $.each([1, 2, 3], function (i, cost) {
-            if (cost > remaining || $.inArray(cost, options) === -1) {
-                $('.advantage_cost_' + cost).hide();
-            }
-            else {
-                $('.advantage_cost_' + cost).show();
-            }
-        });
-        $('#advantage_cost_' + options[0]).click();
-        this.Advantage_Cost.dialog('open');
-    };
-
-    dialogs.edit_advantage_options = function (name, cost) {
-        var advantage = advantages[name],
-            data,
-            input,
-            options,
-            panel = $('#advantage_options'),
-            select;
-        $('#advantage_options_name').val(name);
-        $('#advantage_options_cost').val(cost ? cost : '');
-
-        panel.html('');
-        options = advantage.Options;
-        if (options.length === 0) {
-            input = $('<input>', {type: 'text', value: ''}).addClass('required');
-            panel.append(input);
-        }
-        else {
-            select = $('<select>');
-            data = characters.current();
-            $.each(options, function (i, option) {
-                if (data.advantage_allowed(name, option)) {
-                    select.append($('<option>', {value: option}).text(option));
-                }
-            });
-            panel.append(select);
-            if (name === 'Repeat a Characteristics Roll') {
-                panel.append($('<br />'));
-                panel.append($('<label>', {'for': 'repeat_roll'}).text('New Roll '));
-                panel.append($('<input>', {id: 'repeat_roll', type: 'text', value: ''}).addClass('required digits two-digit'));
-            }
-        }
-        this.Advantage_Options.dialog('option', 'title', advantage.Option_Title);
-        this.Advantage_Options.dialog('open');
-        $('#repeat_roll').spinner({min: 4, max: 10});
-        return false;
-    };
-
-    dialogs.edit_class = function () {
-        var data = characters.current(),
-            level = $(this).data('level');
-        $('#class_dialog_level').text(level);
-        $('#Class').val(data.levels[level === 0 ? 0 : level - 1].Class);
-        dialogs.Class.dialog('open');
-        return false;
-    };
-
-    dialogs.edit_characteristic_bonus = function () {
-        var level = $(this).data('level'),
-            data = characters.current(),
-            index = (level === 0) ? 0 : level - 1;
-            
-        $('#dialog_level').val(level);
-        if ('Characteristic' in data.levels[index]) {
-            $('#Characteristic').val(data.levels[index].Characteristic);
-        }
-        else {
-            $('#Characteristic').val('STR');
-        }
-        dialogs.Characteristic_Bonus.dialog('open');
-        return false;
-    };
-
-    dialogs.edit_disadvantage_benefit = function (name) {
-        $('#disadvantage_benefit_name').val(name);
-        $('#disadvantage_benefit_1').click();
-        this.Disadvantage_Benefit.dialog('open');
-    };
-
-    dialogs.edit_disadvantage_option = function (name, benefit) {
-        var disadvantage = disadvantages[name],
-            panel,
-            options,
-            input,
-            data,
-            select;
-
-        $('#disadvantage_option_name').val(name);
-        $('#disadvantage_option_benefit').val(benefit ? benefit : '');
-        panel = $('#disadvantage_option');
-        panel.html('');
-        options = disadvantage.Options;
-        if (options.length === 0) {
-            input = $('<input>', {type: 'text', value: ''}).addClass('required');
-            panel.append(input);
-        }
-        else {
-            data = characters.current();
-            select = $('<select>');
-            $.each(options, function (i, option) {
-                if (data.disadvantage_allowed(name, option)) {
-                    select.append($('<option>', {value: option}).text(option));
-                }
-            });
-            panel.append(select);
-        }
-        this.Disadvantage_Option.dialog('option', 'title', disadvantage.Option_Title);
-        this.Disadvantage_Option.dialog('open');
-        return false;
-    };
-
-    dialogs.edit_ea_option = function (name) {
-        var ability,
-            advantages = essential_abilities.advantages,
-            data,
-            input,
-            options,
-            panel = $('#ea_option'),
-            select;
-        if (name in advantages) {
-            ability = advantages[name];
-        }
-        else {
-            ability = essential_abilities.disadvantages[name];
-        }
-        $('#ea_option_name').val(name);
-
-        panel.html('');
-        options = ability.Options;
-        if (options.length === 0) {
-            input = $('<input>', {type: 'text', value: ''}).addClass('required');
-            panel.append(input);
-        }
-        else {
-            select = $('<select>');
-            data = characters.current();
-            $.each(options, function (i, option) {
-                if (data.essential_ability_allowed(name, option)) {
-                    select.append($('<option>', {value: option}).text(option));
-                }
-            });
-            panel.append(select);
-        }
-        this.Essential_Ability_Option.dialog('option', 'title', ability.Option_Title);
-        this.Essential_Ability_Option.dialog('open');
-        return false;
-    };
-
-    dialogs.edit_natural_bonus = function () {
-        var level = $(this).data('level'),
-            modifier,
-            name,
-            ability,
-            parts,
-            data = characters.current();
-        $('#natural_bonus_level').val(level);
-        $.each(tables.fields, function (i, field) {
-            $('#NB_' + field).html('');
-        });
-        for (name in abilities) {
-            if (abilities.hasOwnProperty(name)) {
-                ability = abilities[name];
-                if (!('Field' in ability)) {
-                    continue;
-                }
-                modifier = data.modifier(ability.Characteristic, level);
-                if (modifier <= 0) {
-                    $('#NB_' + ability.Field).append(name + '<br />');
-                }
-                else {
-                    parts = ['<a href="#" class="set_natural_bonus" data-name="', name, '">', name, ' +', modifier, '</a><br />'];
-                    $('#NB_' + ability.Field).append(parts.join(''));
-                }
-            }
-        }
-        dialogs.Natural_Bonus.dialog('open');
-    };
-    
-    dialogs.load = function () {
-        $('#load_text').val('');
-        dialogs.Load_Character.dialog('open');
-        return false;
-    };
-    
-    dialogs.save = function () {
-        var data = characters.current();
-        $('#save_text').val(JSON.stringify(data, null, 2));
-        dialogs.Save_Character.dialog('open');
-        $('#save_text').select();
-        return false;
-    };
-
-    dialogs.spend_dp = function () {
+    spend_dp = function () {
         var ability,
             available,
             cap,
@@ -1402,10 +1403,70 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         dialogs.DP.dialog('open');
         return false;
     };
-
-    $('a.ability').live('click', set_ability_dp);
-    $('#add_xp').click(add_xp);
-    $('a.set_natural_bonus').live('click', set_natural_bonus);
+    
+    update_cultural_roots = function () {
+        $('#cultural_roots').html('');
+        var parts,
+            background = $('#cultural_roots_background').val(),
+            bonuses = cultural_roots[background],
+            ability,
+            amount,
+            specialty,
+            bonus;
+        for (bonus in bonuses) {
+            if (bonus === 'choices') {
+                $.each(bonuses[bonus], add_cultural_roots_choice);
+            }
+            else {
+                ability = bonus;
+                parts = [ability];
+                amount = bonuses[bonus];
+                if ($.isPlainObject(amount)) {
+                    specialty = Object.keys(amount)[0];
+                    parts.push(' (');
+                    parts.push(specialty);
+                    parts.push(')');
+                    amount = amount[specialty];
+                }
+                parts.push(' +');
+                parts.push(amount);
+                parts.push('<br />');
+                $('#cultural_roots').append(parts.join(''));
+            }
+        }
+    };
+    
+    xp_dialog_init = function () {
+        if ('Add_XP' in dialogs) {
+            return;
+        }
+        dialogs.Add_XP = $('#xp_dialog').dialog({
+            autoOpen: false,
+            modal: true,
+            width: '400px',
+            buttons: {
+                OK: function () {
+                    var data = characters.current(),
+                        added = $('#xp_added').spinner('value');
+                    data.XP += added;
+                    $('#XP').spinner('value', data.XP);
+                    $.publish('level_data_changed');
+                    dialogs.Add_XP.dialog('close');
+                },
+                Cancel: function () {
+                    dialogs.Add_XP.dialog('close');
+                }
+            },
+            open: function () {
+                if ($('#xp_dialog').find('.ui-spinner').length) {
+                    $('#xp_added').spinner('value', 0);
+                }
+                else {
+                    $('#xp_added').spinner({min: 0, max: 9999});
+                }
+            }
+        });
+    };
   
     $(document).ready(function () {
         ability_dp_init();
@@ -1429,13 +1490,26 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         natural_bonus_init();
         save_character_init();
         xp_dialog_init();
-        $('#add_advantage').click(dialogs.add_advantage);
-        $('#add_disadvantage').click(dialogs.add_disadvantage);
-        $('#advantages_tabs a.advantage').live('click', dialogs.configure_advantage);
-        $('#disadvantages_tabs a.disadvantage').live('click', dialogs.configure_disadvantage);
-        $('#add_ea_advantage').click(dialogs.add_ea_advantage);
-        $('#add_ea_disadvantage').click(dialogs.add_ea_disadvantage);
-        $('a.essential_ability').live('click', dialogs.configure_essential_ability);
+        $('#add_advantage').click(add_advantage);
+        $('#add_disadvantage').click(add_disadvantage);
+        $('#add_xp').click(add_xp);
+        $('#advantages_tabs a.advantage').live('click', configure_advantage);
+        $('#disadvantages_tabs a.disadvantage').live('click', configure_disadvantage);
+        $('#add_ea_advantage').click(add_ea_advantage);
+        $('#add_ea_disadvantage').click(add_ea_disadvantage);
+        $('a.ability').live('click', set_ability_dp);
+        $('a.edit_class').live('click', edit_class);
+        $('a.essential_ability').live('click', configure_essential_ability);
+        $('a.characteristic_bonus').live('click', edit_characteristic_bonus);
+        $('a.natural_bonus').live('click', edit_natural_bonus);
+        $('a.set_natural_bonus').live('click', set_natural_bonus);
+        $('a.spend_dp').live('click', spend_dp);
+        $('#Advantages a').live('click', delete_advantage);
+        $('#Disadvantages a').live('click', delete_disadvantage);
+        $('#ea_advantages a').live('click', delete_essential_ability);
+        $('#ea_disadvantages a').live('click', delete_essential_ability);
+        $('#save_button').click(save);
+        $('#load_button').click(load);
     });
 
     return dialogs;

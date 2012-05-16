@@ -320,13 +320,27 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         if (racial_level && racial_level >= level) {
             return false;
         }
-        if (level < 2 || 'Versatile' in this.Advantages) {
+        if (level < 2) {
+            // Initial class chosen with basic statistics, can't edit later
+            return false;
+        }
+        if ('Versatile' in this.Advantages) {
+            // Any level from 2 up
             return true;
         }
         if (level === 2) {
+            // Not possible without Versatile advantage
             return false;
         }
-        return levels[level - 2].Class === levels[level - 3].Class;
+        if (levels[level - 2].Class !== levels[level - 3].Class) {
+            // Change must be declared 2 levels in advance
+            return false;
+        }
+        if (this.level() > level && levels[level - 1].Class !== levels[level].Class) {
+            // Can't change right before another change
+            return false;
+        }
+        return true;
     };
     
     Character.prototype.creation_stage = function () {
