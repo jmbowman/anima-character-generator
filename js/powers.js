@@ -1,6 +1,5 @@
 /*global define: false */
-define(['magic_paths', 'psychic_disciplines', 'tables', 'libs/utils'],
-function (paths, disciplines, tables, utils) {
+define([], function () {
     return {
         'Natural Weapons': {
             Category: 'Offensive Abilities',

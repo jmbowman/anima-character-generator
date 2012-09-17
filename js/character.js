@@ -360,8 +360,7 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             level,
             levels = this.levels,
             count = levels.length,
-            first_class = levels[0].Class,
-            other = 0;
+            first_class = levels[0].Class;
         for (i = 0; i < count; i++) {
             level = levels[i];
             if (level.Characteristic || level['Natural Bonus']) {
@@ -599,8 +598,7 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             levels = this.levels,
             length = levels.length,
             multiple,
-            result = tables.base_lp[this.characteristic('CON')],
-            type = this.Type;
+            result = tables.base_lp[this.characteristic('CON')];
         if (this.is_spirit()) {
             result = tables.base_lp[this.characteristic('POW')];
         }

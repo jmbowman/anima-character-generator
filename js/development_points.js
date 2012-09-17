@@ -45,8 +45,7 @@ function ($, abilities, Character, classes, essential_abilities, modules,
         //         Any relevant parameter, such as a weapon name or type
         var index = (level === 0) ? 0 : level - 1,
             dp = this.levels[index].DP,
-            module = modules[name],
-            options;
+            module = modules[name];
         if (this.has_module(name, option)) {
             // already have it, do nothing
             return;
@@ -100,8 +99,7 @@ function ($, abilities, Character, classes, essential_abilities, modules,
         //         and Characteristics are finalized before those are chosen.
         // returns:
         //         The number of DP still available for these purposes.
-        var ability,
-            advantages = essential_abilities.advantages,
+        var advantages = essential_abilities.advantages,
             first_level_dp = this.levels[0].DP,
             name,
             remaining = this.creature_dp_total();
@@ -385,7 +383,7 @@ function ($, abilities, Character, classes, essential_abilities, modules,
                     item = 'Save ' + item + ' DP for later';
                     // make the saved DP just used unavailable earlier
                     for (k = i - 1; k > 0; k--) {
-                        level_dp = levels[k].DP
+                        level_dp = levels[k].DP;
                         if (item in level_dp) {
                             remaining += level_dp[item];
                         }
@@ -634,7 +632,7 @@ function ($, abilities, Character, classes, essential_abilities, modules,
                 }
                 if ($.inArray(option, dp[name]) >= 0) {
                     return true;
-                } 
+                }
             }
         }
         return false;

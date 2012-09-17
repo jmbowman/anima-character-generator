@@ -39,7 +39,7 @@ define(['jquery', 'abilities', 'essential_abilities', 'modules', 'libs/utils'],
             'Psychic Projection',
             'Save Psychic DP for later'
         ];
-        this.Other = $.map(Object.keys(abilities), function (name, i) {
+        this.Other = $.map(Object.keys(abilities), function (name) {
             if ('Field' in abilities[name]) {
                 return name;
             }

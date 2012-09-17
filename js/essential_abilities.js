@@ -1,6 +1,6 @@
 /*global define: false */
-define(['magic_paths', 'psychic_disciplines', 'tables', 'libs/utils'],
-function (paths, disciplines, tables, utils) {
+define(['magic_paths', 'psychic_disciplines', 'tables'],
+function (paths, disciplines, tables) {
     return {
         advantages: {
             'Access to a Psychic Discipline': {DP: 15, Gnosis: 5, Options: Object.keys(disciplines.disciplines),

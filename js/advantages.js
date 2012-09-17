@@ -1,6 +1,6 @@
 /*global define: false */
-define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines', 'tables',
-'libs/utils'], function ($, abilities, paths, disciplines, tables, utils) {
+define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines',
+        'tables'], function ($, abilities, paths, disciplines, tables) {
     return {
         'Access to Natural Psychic Powers': {Cost: [1, 2, 3], Options: [], Option_Title: 'Select a Power'},
         'Access to One Psychic Discipline': {Cost: 1, Options: Object.keys(disciplines.disciplines), Option_Title: 'Select a discipline'},
@@ -10,7 +10,7 @@ define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines', 'tables',
         'Amplify Sustained Power': {Category: 'Psychic', Cost: 2},  // one difficulty level higher
         'Animal Affinity': {Cost: 1},
         'Aptitude in a Field': {Cost: 2, Options: tables.fields, Option_Title: 'Select a field'},
-        'Aptitude in a Subject': {Cost: [1, 2], Options: $.map(Object.keys(abilities), function (val, i) {
+        'Aptitude in a Subject': {Cost: [1, 2], Options: $.map(Object.keys(abilities), function (val) {
             return ('Field' in abilities[val]) ? val : null;
         }), Option_Title: 'Select a subject'},
         'Aptitude for Magic Development': {Category: 'Magic', Cost: 1}, // adds +3 to INT to determine max potential no other ability
@@ -20,10 +20,10 @@ define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines', 'tables',
         'Combat Senses': {Cost: 3, Options: tables.primary_combat_abilities, Option_Title: 'Select an ability'},
         Contacts: {Category: 'Background', Cost: [1, 2, 3], Options: [], Option_Title: 'Enter name of organization'},
         'Contested Spell Mastery': {Category: 'Magic', Cost: 1},
-        'Cultural Roots': {Category: 'Background', Cost: 1, Options: [], Option_Title: 'Select a background'}, 
+        'Cultural Roots': {Category: 'Background', Cost: 1, Options: [], Option_Title: 'Select a background'},
         'Danger Sense': {Cost: 2},
         Disquieting: {Cost: 1},
-        'Dual Limit': {Cost: 1}, // choose up to 2 limits 
+        'Dual Limit': {Cost: 1}, // choose up to 2 limits
         Elan: {Cost: [1, 2, 3], Options: [], Option_Title: 'Enter the name of the Beryl or Shajad'},
         'Elemental Compatibility': {Category: 'Magic', Cost: 1, Options: Object.keys(paths), Option_Title: 'Select a path'}, //+ 20 MA and +20 MR in one element -20 in opposing. if necro then all.
         'Exceptional Magic Resistance': {Cost: [1, 2]},  // +25 to MR , +50 to MR
@@ -46,7 +46,7 @@ define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines', 'tables',
         'Incomplete Gift': {Cost: 1},
         'Increased Ki Accumulation': {Cost: [1, 2]},
         'Increased Natural Bonus': {Cost: 2},  // twice the  usual bonus to a secondary when levelling
-        'Increased Psychic Modifiers': {Category: 'Psychic', Cost: 1},  
+        'Increased Psychic Modifiers': {Category: 'Psychic', Cost: 1},
         'Increase One Characteristic to Nine': {Cost: 2, Options: tables.characteristics, Option_Title: 'Select the characteristic to increase'},
         'Jack of All Trades': {Cost: 2},
         'Ki Perception': {Cost: 1},  // +10 per level to key detection
@@ -62,7 +62,7 @@ define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines', 'tables',
         'Mystical Armor': {Cost: 1},
         'Natural Armor': {Cost: 1},
         'Natural Knowledge of a Path': {Category: 'Magic', Cost: 1,  Options: Object.keys(paths), Option_Title: 'Select a path'},
-        'Natural Learner': {Cost: [1, 2, 3], Options: $.map(Object.keys(abilities), function (val, i) {
+        'Natural Learner': {Cost: [1, 2, 3], Options: $.map(Object.keys(abilities), function (val) {
             return ('Field' in abilities[val]) ? val : null;
         }), Option_Title: 'Select an ability'},   //+10, +20, +30 per level additional to specific secondary
         'Natural Learner, Field': {Cost: [2, 3], Options: Object.keys(tables.fields), Option_Title: 'Select a field'},   //+5 +10, per level additional to specific field

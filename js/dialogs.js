@@ -115,7 +115,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                     }
                 }
             }
-        }    
+        }
         dialogs.Advantages.dialog('open');
         return false;
     };
@@ -196,7 +196,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                     }
                 }
             }
-        }    
+        }
         dialogs.Essential_Advantages.dialog('open');
         return false;
     };
@@ -305,7 +305,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                     data = characters.current();
                     data.add_advantage(name, cost, params);
                     $.publish('cp_changed');
-                    dialogs.Advantage_Options.dialog('close');      
+                    dialogs.Advantage_Options.dialog('close');
                 },
                 Cancel: function () {
                     dialogs.Advantage_Options.dialog('close');
@@ -430,7 +430,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
     configure_disadvantage = function () {
         var name = $.trim($(this).text()),
             data = characters.current(),
-            disadvantage = disadvantages[name];        
+            disadvantage = disadvantages[name];
         
         if (!data.disadvantage_allowed(name, null)) {
             return false;
@@ -556,7 +556,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                     dialogs.Cultural_Roots.dialog('close');
                 }
             }
-        });  
+        });
     };
 
     delete_advantage = function () {
@@ -703,7 +703,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                     }
                     data.add_disadvantage(name, benefit, param);
                     $.publish('cp_changed');
-                    dialogs.Disadvantage_Option.dialog('close');      
+                    dialogs.Disadvantage_Option.dialog('close');
                 },
                 Cancel: function () {
                     dialogs.Disadvantage_Option.dialog('close');
@@ -922,7 +922,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                     }
                     data.add_essential_ability(name, param);
                     $.publish('essential_abilities_changed');
-                    dialogs.Essential_Ability_Option.dialog('close');      
+                    dialogs.Essential_Ability_Option.dialog('close');
                 },
                 Cancel: function () {
                     dialogs.Essential_Ability_Option.dialog('close');
@@ -1215,8 +1215,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             width: '400px',
             buttons: {
                 OK: function () {
-                    var characteristic,
-                        count,
+                    var count,
                         level = parseInt($('#power_options_level').val(), 10),
                         data,
                         i,
@@ -1238,7 +1237,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                     data = characters.current();
                     data.add_power(type, level, params);
                     $.publish('level_data_changed');
-                    dialogs.Power_Options.dialog('close');      
+                    dialogs.Power_Options.dialog('close');
                 },
                 Cancel: function () {
                     dialogs.Power_Options.dialog('close');

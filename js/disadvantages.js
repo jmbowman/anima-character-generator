@@ -1,7 +1,7 @@
 /*global define: false */
 define(['tables'], function (tables) {
     return {
-        'Action Requirement':  {Category: 'Magic', Benefit: 1, Options: [], Option_Title: 'Enter the type of action required'}, 
+        'Action Requirement':  {Category: 'Magic', Benefit: 1, Options: [], Option_Title: 'Enter the type of action required'},
         'Addiction or Serious Vice': {Benefit: 1, Options: [], Option_Title: 'Enter an addiction or serious vice'},
         'Atrophied Limb': {Benefit: 1, Options: ['Left leg', 'Right leg', 'Left arm', 'Right arm'], Option_Title: 'Select a limb'},  // -80 to anything using that limb
         'Bad Luck': {Benefit: 1}, // fumble range increases by +2
@@ -23,22 +23,22 @@ define(['tables'], function (tables) {
         Nearsighted: {Benefit: 1},
         'Magical Blockage':  {Category: 'Magic', Benefit: 2},  // cannot be comined with Slow Recovery.  character cannot regen zeon at all.
         'Magical Exhaustion':  {Category: 'Magic', Benefit: 1},  // 1fatigue point lost per 100/200/300 potential of spell.
-        'Magical Ties':  {Category: 'Magic', Benefit: 1}, 
+        'Magical Ties':  {Category: 'Magic', Benefit: 1},
         Mute: {Benefit: 1},
         'No Concentration':  {Category: 'Psychic', Benefit: 1},  // no bonus for concentrating
         'One Power at a Time':  {Category: 'Psychic', Benefit: 1},
-        'Oral Requirement':  {Category: 'Magic', Benefit: 1}, 
-        'Pariah':  {Category: 'Background', Benefit: 1}, 
+        'Oral Requirement':  {Category: 'Magic', Benefit: 1},
+        'Pariah':  {Category: 'Background', Benefit: 1},
         'Physical Weakness': {Benefit: 1}, // PhR reduced by half
         'Powerful Enemy': {Category: 'Background', Benefit: [1, 2], Options: [], Option_Title: 'Enter powerful enemy'},
         'Psychic Consumption':  {Category: 'Psychic', Benefit: 2},  // lose LP equal to the fail amount
         'Psychic Exhaustion':  {Category: 'Psychic', Benefit: 1},  // doubles fatigue points indicated when using psychic
-        'Require Gestures':  {Category: 'Magic', Benefit: 1}, 
-        'Rookie': {Benefit: 1}, 
+        'Require Gestures':  {Category: 'Magic', Benefit: 1},
+        'Rookie': {Benefit: 1},
         'Serious Illness': {Benefit: 2,  Options: [], Option_Title: 'Describe the illness'}, // you will die. -10 all actions every month cumulative
         'Severe Allergy':  {Benefit: 1, Options: [], Option_Title: 'Describe the allergy'},
         'Severe Phobia':   {Benefit: 1, Options: [], Option_Title: 'Describe the phobia'},
-        Shamanism: {Category: 'Magic', Benefit: 2}, 
+        Shamanism: {Category: 'Magic', Benefit: 2},
         Sickly: {Benefit: 1},
         'Slow Healer': {Benefit: 1},  // heals received are 1/2 strength regardless of supernatural/natural
         'Slow Learner': {Benefit: [1, 2]}, // -4 or -8 penalty to xp per session

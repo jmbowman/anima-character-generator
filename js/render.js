@@ -4,8 +4,7 @@ define(['jquery', 'abilities', 'characters', 'essential_abilities', 'modules',
 function ($, abilities, characters, essential_abilities, modules, primaries,
           tables) {
     
-    var add_race,
-        load_value,
+    var load_value,
         next_step,
         render = {},
         set_characteristics_limits,
@@ -31,8 +30,7 @@ function ($, abilities, characters, essential_abilities, modules, primaries,
             i,
             level,
             level_data,
-            levels,
-            result = false;
+            levels;
         for (i = 0; i < count; i++) {
             characteristic = characteristics[i];
             if (!(characteristic in data)) {
@@ -136,7 +134,6 @@ function ($, abilities, characters, essential_abilities, modules, primaries,
             element = data.Element,
             first_level_dp = data.levels[0].DP,
             acute = first_level_dp['Acute Sense'],
-            attuned = first_level_dp.Attuned,
             i,
             keys,
             modifiers = data.resistance_modifiers(),
@@ -452,8 +449,7 @@ function ($, abilities, characters, essential_abilities, modules, primaries,
         //         Update the basic data for the current character using the
         //         values currently in the appropriate input fields and refresh
         //         the stat block.
-        var after_class,
-            data = characters.current(),
+        var data = characters.current(),
             first_class = $('#first_class').val();
         update_int('STR');
         update_int('DEX');
@@ -570,7 +566,6 @@ function ($, abilities, characters, essential_abilities, modules, primaries,
         //         Conclude specification of limits on characteristics and
         //         start entering the actual values.
         var data = characters.current(),
-            first_level = data.levels[0],
             racial_level,
             xp;
         $('#characteristics').show();

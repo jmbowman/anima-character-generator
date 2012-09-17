@@ -166,7 +166,7 @@ disadvantages, tables, utils) {
             if (advantage.Category === 'Psychic' &&
                 !('Free Access to Any Psychic Discipline' in myAdvantages) &&
                 !('Access to One Psychic Discipline' in myAdvantages)) {
-                return false;   
+                return false;
             }
         }
         if (name === 'Add One Point to a Characteristic') {
@@ -396,7 +396,7 @@ disadvantages, tables, utils) {
             if (disadvantage.Category === 'Psychic' &&
                 !('Free Access to Any Psychic Discipline' in myAdvantages) &&
                 !('Access to One Psychic Discipline' in myAdvantages)) {
-                return false;   
+                return false;
             }
         }
         if (myRace === "Duk'zarist Nephilim") {
