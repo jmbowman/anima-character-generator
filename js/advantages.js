@@ -44,7 +44,7 @@ define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines',
         'Immunity to Pain and Fatigue': {Cost: 1},
         'Imperceptible Ki': {Cost: 1}, // +10 to ki concealment per level.  does not grant any benefit without ability ki concealment
         'Improved Innate Spell': {Category: 'Magic', Cost: [1, 2, 3]},
-        'Incomplete Gift': {Cost: 1},
+        'Incomplete Gift': {Cost: 1, Options: tables.theorems, Option_Title: 'Select the Theorem used'},
         'Increased Ki Accumulation': {Cost: [1, 2]},
         'Increased Natural Bonus': {Cost: 2},  // twice the  usual bonus to a secondary when levelling
         'Increased Psychic Modifiers': {Category: 'Psychic', Cost: 1},
@@ -94,7 +94,7 @@ define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines',
         'To the Limit': {Cost: 1},  //+20 all action when below 20% of total LP
         'Touched by Destiny': {Cost: 1},
         'Total Accumulation': {Cost: 2},
-        'The Gift': {Cost: 2},   // +10 to MR, can take magic advantages/disadvantages
+        'The Gift': {Cost: 2, Options: tables.theorems, Option_Title: 'Select the Theorem used'},   // +10 to MR, can take magic advantages/disadvantages
         'Uncommon Size': {Cost: 1, Options: [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5], Option_Title: 'Select the size modifier to apply'},
         'Unconnected Techniques': {Cost: 1},
         'Unlimited Familiars': {Cost: 2},
