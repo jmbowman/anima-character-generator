@@ -23,6 +23,7 @@ define({
     Forging: {Field: 'Creative', Characteristic: 'DEX', knowledge: true},
     'Jewelry Making': {Field: 'Creative', Characteristic: 'DEX'},
     Music: {Field: 'Creative', Characteristic: 'POW', knowledge: true},
+    'Ritual Calligraphy': {Field: 'Creative', Characteristic: 'DEX', knowledge: true},
     Runecrafting: {Field: 'Creative', Characteristic: 'DEX'},
     'Sleight of Hand': {Field: 'Creative', Characteristic: 'DEX'},
     Tailoring: {Field: 'Creative', Characteristic: 'DEX'},

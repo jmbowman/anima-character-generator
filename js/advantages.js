@@ -16,6 +16,7 @@ define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines',
         'Aptitude for Magic Development': {Category: 'Magic', Cost: 1}, // adds +3 to INT to determine max potential no other ability
         Artifact: {Category: 'Background', Cost: [1, 2, 3], Options: [], Option_Title: 'Enter the name of the artifact'},
         'Been Around': {Category: 'Background', Cost: [1, 2, 3]},
+        'Born Wizard': {Category: 'Magic', Cost: 1},
         Charm: {Cost: 1},
         'Combat Senses': {Cost: 3, Options: tables.primary_combat_abilities, Option_Title: 'Select an ability'},
         Contacts: {Category: 'Background', Cost: [1, 2, 3], Options: [], Option_Title: 'Enter name of organization'},
@@ -57,7 +58,7 @@ define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines',
         'Magical Diction': {Category: 'Magic', Cost: 1},  // no zeon for casting from scroll or grimoire
         'Martial Learning': {Cost: 1},  // increases learning level by 2
         'Martial Mastery': {Cost: [1, 2, 3]},
-        'Mass Invocation': {Cost: [1, 2, 3]},
+        'Mass Summoner': {Cost: [1, 2, 3]},
         'Masterful Seals': {Cost: 1}, // +2 levels for difficulty of setting a seal
         'Mystical Armor': {Cost: 1},
         'Natural Armor': {Cost: 1},
@@ -67,7 +68,6 @@ define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines',
         }), Option_Title: 'Select an ability'},   //+10, +20, +30 per level additional to specific secondary
         'Natural Learner, Field': {Cost: [2, 3], Options: Object.keys(tables.fields), Option_Title: 'Select a field'},   //+5 +10, per level additional to specific field
         'Natural Power': {Category: 'Magic', Cost: 1}, // maximum spell potential uses POW
-        'Natural Sorcerer': {Category: 'Magic', Cost: 1},
         'Night Vision': {Cost: 1},
         'No Gestures': {Cost: 1},  // no reduction to ki accumulation
         'Opposite Magic': {Category: 'Magic', Cost: 1},
@@ -84,7 +84,7 @@ define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines',
         Saint: {Category: 'Background', Cost: 2},
         Seducer: {Cost: 1},  // +60 to persuasion
         'See Supernatural': {Cost: 1},
-        'Sheela Essence': {Cost: 1},
+        'Sheele Essence': {Cost: 1},
         'Social Position': {Category: 'Background', Cost: [1, 2]},
         'Starting Wealth': {Category: 'Background', Cost: [1, 2, 3]},
         'Superior Magic Recovery': {Category: 'Magic', Cost: [1, 2, 3]},  //x2, x3, x4 magic recovery
