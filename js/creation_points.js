@@ -247,6 +247,9 @@ disadvantages, tables, utils) {
                     result += params;
                 }
             }
+            else if (name === 'Natural Learner, Field') {
+                result += params.Field;
+            }
             else if ($.isArray(params)) {
                 $.each(params, function (i, param) {
                     if (i > 0) {
