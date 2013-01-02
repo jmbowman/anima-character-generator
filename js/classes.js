@@ -210,12 +210,7 @@ define(function () {
         c.Combat = 60;
         c.Block = 3;
         c.Intellectual = 3;
-        c.bonuses = {Attack: 5, Dodge: 5, Notice: 10, Search: 10, Hide: 10, Stealth: 5};
-        c.ki_concealment = function (y) {
-            if (y) {
-                this.bonuses = {'Ki Concealment': 5};
-            }
-        };
+        c.bonuses = {Attack: 5, Dodge: 5, 'Ki Concealment': 5, Notice: 10, Search: 10, Hide: 10, Stealth: 5};
     }(classes.Shadow));
   
     // Summoner
@@ -275,12 +270,7 @@ define(function () {
         c.Vigor = 3;
         c.Subterfuge = 1;
         c.reduced.Appraisal = 1;
-        c.bonuses = {Dodge: 5, Notice: 5, Search: 5, Hide: 5, Stealth: 5, 'Trap Lore': 5, 'Sleight of Hand': 5, Theft: 10};
-        c.ki_concealment = function (y) {
-            if (y) {
-                this.bonuses = {'Ki Concealment': 5};
-            }
-        };
+        c.bonuses = {Dodge: 5, 'Ki Concealment': 5, Notice: 5, Search: 5, Hide: 5, Stealth: 5, 'Trap Lore': 5, 'Sleight of Hand': 5, Theft: 10};
     }(classes.Thief));
 
     // Warlock

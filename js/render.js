@@ -1,8 +1,9 @@
 /*global define: false */
-define(['jquery', 'abilities', 'characters', 'essential_abilities', 'modules',
-'primaries', 'tables', 'creation_points', 'development_points'],
-function ($, abilities, characters, essential_abilities, modules, primaries,
-          tables) {
+define(['jquery', 'abilities', 'characters', 'essential_abilities',
+'ki_abilities', 'martial_knowledge', 'modules', 'primaries', 'tables',
+'creation_points', 'development_points'],
+function ($, abilities, characters, essential_abilities, ki_abilities,
+          martial_knowledge, modules, primaries, tables) {
     
     var load_value,
         next_step,
@@ -140,7 +141,9 @@ function ($, abilities, characters, essential_abilities, modules, primaries,
             name,
             primary,
             score,
-            text;
+            text,
+            total_mk = data.mk_totals(),
+            remaining_mk = data.mk_remaining();
         $('.resistance_bonuses', root).hide();
         $('.summary', root).text(data.summary());
         $('.Gnosis', root).text(data.type_and_gnosis());
@@ -185,7 +188,9 @@ function ($, abilities, characters, essential_abilities, modules, primaries,
             $('.resistance_modifiers', root).hide();
         }
         $('.Initiative', root).text(data.initiative());
-        $('.MK', root).text(data.mk_total());
+        i = total_mk.length - 1;
+        $('.MK', root).text(total_mk[i]);
+        $('.unallocated_mk').text(remaining_mk[i]);
         $('.magic', root).toggle(data.has_gift());
         score = data.ma();
         if (element) {
@@ -659,13 +664,15 @@ function ($, abilities, characters, essential_abilities, modules, primaries,
             level_count = levels.length,
             level_number,
             line,
+            mk,
             name,
             nb,
             parts,
             primary,
-            remaining,
-            remaining_for_level,
-            times_five = ['Magic Level', 'Martial Knowledge', 'Zeon'];
+            remaining_dp,
+            remaining_dp_for_level,
+            times_five = ['Magic Level', 'Martial Knowledge', 'Zeon'],
+            remaining_mk = data.mk_remaining();
         update_int('XP');
         // remove any extra levels if revising XP down
         while (level_count > current_level && level_count > 1) {
@@ -678,10 +685,10 @@ function ($, abilities, characters, essential_abilities, modules, primaries,
             level_count++;
         }
         $('.level').remove();
-        remaining = data.dp_remaining();
+        remaining_dp = data.dp_remaining();
         for (i = 0; i < level_count; i++) {
             level = levels[i];
-            remaining_for_level = remaining[i];
+            remaining_dp_for_level = remaining_dp[i];
             if (i > 0) {
                 hr = $('<hr />').addClass('span-13 last level');
                 $('#levels').append(hr);
@@ -707,10 +714,10 @@ function ($, abilities, characters, essential_abilities, modules, primaries,
             }
             line = $('<div>').addClass('span-13 last level').html(content);
             $('#levels').append(line);
-            if (remaining_for_level.Total > 0) {
-                content = remaining_for_level.Total + ' DP remaining (Limits: ' + remaining_for_level.Combat + ' Combat, ' + remaining_for_level.Psychic + ' Psychic, ' + remaining_for_level.Supernatural + ' Supernatural';
+            if (remaining_dp_for_level.Total > 0) {
+                content = remaining_dp_for_level.Total + ' DP remaining (Limits: ' + remaining_dp_for_level.Combat + ' Combat, ' + remaining_dp_for_level.Psychic + ' Psychic, ' + remaining_dp_for_level.Supernatural + ' Supernatural';
                 if (data.Type !== 'Human') {
-                    content += ', ' + remaining_for_level.Powers + ' Powers';
+                    content += ', ' + remaining_dp_for_level.Powers + ' Powers';
                 }
                 content += ')';
                 line = $('<div>').addClass('span-13 last level').html(content);
@@ -738,11 +745,11 @@ function ($, abilities, characters, essential_abilities, modules, primaries,
                         }
                         line = '<span class="name">' + name + '</span> (+' + amount + ')';
                     }
-                    if (name in remaining_for_level) {
-                        available = remaining_for_level[name];
+                    if (name in remaining_dp_for_level) {
+                        available = remaining_dp_for_level[name];
                     }
                     else {
-                        available = remaining_for_level[primary];
+                        available = remaining_dp_for_level[primary];
                     }
                     if (name in ea_advantages || name in ea_disadvantages) {
                         continue;
@@ -752,20 +759,49 @@ function ($, abilities, characters, essential_abilities, modules, primaries,
                     }
                 }
             }
-            if ('Class_Change' in remaining_for_level) {
-                parts.push('Class change (' + remaining_for_level.Class_Change + ')');
+            if ('Class_Change' in remaining_dp_for_level) {
+                parts.push('Class change (' + remaining_dp_for_level.Class_Change + ')');
             }
             content = parts.join(', ');
-            if ('Withdrawn' in remaining_for_level) {
-                content += ' [used ' + remaining_for_level.Withdrawn + ' DP saved earlier]';
+            if ('Withdrawn' in remaining_dp_for_level) {
+                content += ' [used ' + remaining_dp_for_level.Withdrawn + ' DP saved earlier]';
             }
-            if (remaining_for_level.Total > 0) {
+            if (remaining_dp_for_level.Total > 0) {
                 content += ' <a href="#" class="spend_dp" data-level="' + level_number + '">+</a>';
             }
             line = '<div class="span-12 last level">' + content + '</div>';
             $('#levels').append(line);
-            render.render($('.container'));
+            available = remaining_mk[i];
+            if (available > 0) {
+                content = available + ' MK spendable at this level';
+                line = $('<div>').addClass('span-13 last level').html(content);
+                $('#levels').append(line);
+            }
+            $('#levels').append('<div class="span-1 level"><strong>MK</strong></div>');
+            parts = [];
+            mk = level.MK;
+            for (name in mk) {
+                if (mk.hasOwnProperty(name)) {
+                    if (name in ki_abilities) {
+                        line = '<span class="name">' + name + '</span>';
+                        if (ki_abilities[name].Option_Title) {
+                            line += ' (<span class="options">' + mk[name].Options.join(', ') + '</span>)';
+                        }
+                        parts.push('<a href="#" class="delete_ki_ability" data-level="' + level_number + '">' + line + '</a>');
+                    }
+                    else {
+                        // TODO: handle dominion techniques
+                    }
+                }
+            }
+            content = parts.join(', ');
+            if (available > 0) {
+                content += ' <a href="#" class="spend_mk" data-level="' + level_number + '">+</a>';
+            }
+            line = '<div class="span-12 last level">' + content + '</div>';
+            $('#levels').append(line);
         }
+        render.render($('.container'));
     };
   
     return render;

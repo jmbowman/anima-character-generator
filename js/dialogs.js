@@ -1,10 +1,11 @@
 /*global define: false, document: false */
 define(['jquery', 'abilities', 'advantages', 'characters', 'cultural_roots',
-'disadvantages', 'essential_abilities', 'modules', 'powers', 'primaries',
-'tables', 'creation_points', 'development_points', 'jqueryui/dialog',
-'jqueryui/tabs', 'pubsub'],
+'disadvantages', 'essential_abilities', 'ki_abilities', 'modules', 'powers',
+'primaries', 'tables', 'creation_points', 'development_points',
+'jqueryui/dialog', 'jqueryui/tabs', 'pubsub'],
 function ($, abilities, advantages, characters, cultural_roots, disadvantages,
-          essential_abilities, modules, powers, primaries, tables) {
+          essential_abilities, ki_abilities, modules, powers, primaries,
+          tables) {
 
     var ability_dp_init,
         add_advantage,
@@ -12,6 +13,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         add_disadvantage,
         add_ea_advantage,
         add_ea_disadvantage,
+        add_ki_ability,
         add_xp,
         advantage_cost_init,
         advantage_options_init,
@@ -21,6 +23,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         configure_advantage,
         configure_disadvantage,
         configure_essential_ability,
+        configure_ki_ability,
         configure_module,
         cultural_roots_init,
         delete_advantage,
@@ -29,6 +32,8 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         delete_disadvantage_init,
         delete_ea_init,
         delete_essential_ability,
+        delete_ki_ability,
+        delete_ki_ability_init,
         dialogs = {},
         disadvantage_benefit_init,
         disadvantage_option_init,
@@ -45,8 +50,10 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         edit_disadvantage_option,
         edit_ea_option,
         edit_natural_bonus,
+        ki_ability_options_init,
         load,
         load_character_init,
+        mk_init,
         module_options_init,
         natural_bonus_init,
         power_options_init,
@@ -55,6 +62,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         set_ability_dp,
         set_natural_bonus,
         spend_dp,
+        spend_mk,
         update_cultural_roots,
         xp_dialog_init;
     
@@ -226,6 +234,20 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             }
         }
         dialogs.Essential_Disadvantages.dialog('open');
+        return false;
+    };
+
+    add_ki_ability = function () {
+        var data = characters.current(),
+            level = $(this).data('level'),
+            name = $.trim($(this).find('.name').text()),
+            ability = ki_abilities[name];
+        dialogs.MK.dialog('close');
+        if ('Options' in ability) {
+            return configure_ki_ability(name, level);
+        }
+        data.add_ki_ability(name, level);
+        $.publish('level_data_changed');
         return false;
     };
 
@@ -471,6 +493,34 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         return false;
     };
 
+    configure_ki_ability = function (name, level) {
+        // summary:
+        //         Prompt for any option required by a ki ability being
+        //         purchased, then add it to the specified level.
+        // name: String
+        //         The name of the ki ability
+        // level: Integer
+        //         The level at which the ki ability is being obtained
+        var data = characters.current(),
+            ability = ki_abilities[name],
+            title = ability.Option_Title,
+            options = ability.Options,
+            panel = $('#ki_ability_options'),
+            select = $('<select>');
+        $('#ki_ability_options_name').val(name);
+        $('#ki_ability_options_level').val(level);
+        panel.html('');
+        $.each(options, function (i, option) {
+            if (!data.has_ki_ability(name, option)) {
+                select.append($('<option>', {value: option}).text(option));
+            }
+        });
+        panel.append(select);
+        dialogs.Ki_Ability_Options.dialog('option', 'title', title);
+        dialogs.Ki_Ability_Options.dialog('open');
+        return false;
+    };
+
     configure_module = function (name, level) {
         // summary:
         //         Prompt for any option required by a module being purchased,
@@ -643,6 +693,51 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         var name = $(this).data('name');
         $('#delete_ea_name').val(name);
         dialogs.Delete_Essential_Ability.dialog('open');
+        return false;
+    };
+  
+    delete_ki_ability_init = function () {
+        if ('Delete_Ki_Ability' in dialogs) {
+            return;
+        }
+        dialogs.Delete_Ki_Ability = $('#delete_ki_ability_dialog').dialog({
+            autoOpen: false,
+            modal: true,
+            buttons: {
+                Yes: function () {
+                    var data = characters.current(),
+                        level = $('#delete_ki_ability_level').val(),
+                        name = $('#delete_ki_ability_name').val(),
+                        options = $('#delete_ki_ability_options').val();
+                    if (options) {
+                        options = options.split(',');
+                        $.each(options, function (i, option) {
+                            options[i] = $.trim(option);
+                        });
+                    }
+                    data.remove_ki_ability(name, level, options);
+                    $.publish('level_data_changed');
+                    dialogs.Delete_Ki_Ability.dialog('close');
+                },
+                No: function () {
+                    dialogs.Delete_Ki_Ability.dialog('close');
+                }
+            }
+        });
+    };
+
+    delete_ki_ability = function () {
+        var self = $(this),
+            level = self.data('level'),
+            name = self.find('.name').text(),
+            option = self.find('.options');
+        $('#delete_ki_ability_level').val(level);
+        $('#delete_ki_ability_name').val(name);
+        if (option) {
+            option = option.text();
+        }
+        $('#delete_ki_ability_options').val(option);
+        dialogs.Delete_Ki_Ability.dialog('open');
         return false;
     };
   
@@ -1119,6 +1214,32 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         }
         dialogs.Natural_Bonus.dialog('open');
     };
+
+    ki_ability_options_init = function () {
+        if ('Ki_Ability_Options' in dialogs) {
+            return;
+        }
+        dialogs.Module_Options = $('#ki_ability_options_dialog').dialog({
+            autoOpen: false,
+            modal: true,
+            width: '400px',
+            buttons: {
+                OK: function () {
+                    var data = characters.current(),
+                        level = parseInt($('#ki_ability_options_level').val(), 10),
+                        name = $('#ki_ability_options_name').val(),
+                        option;
+                    option = $('#ki_ability_options select').val();
+                    data.add_ki_ability(name, level, option);
+                    dialogs.Ki_Ability_Options.dialog('close');
+                    $.publish('level_data_changed');
+                },
+                Cancel: function () {
+                    dialogs.Ki_Ability_Options.dialog('close');
+                }
+            }
+        });
+    };
     
     load = function () {
         $('#load_text').val('');
@@ -1151,6 +1272,56 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 },
                 Cancel: function () {
                     dialogs.Load_Character.dialog('close');
+                }
+            }
+        });
+    };
+  
+    mk_init = function () {
+        var ability,
+            ki_column = 1,
+            ki_count = 1,
+            link,
+            name,
+            nemesis_column = 1,
+            nemesis_count = 1,
+            uon = 'Use of Nemesis';
+        if ('MK' in dialogs) {
+            return;
+        }
+        $('#mk_tabs').tabs();
+        for (name in ki_abilities) {
+            if (ki_abilities.hasOwnProperty(name)) {
+                ability = ki_abilities[name];
+                link = ['<a href="#" class="add_ki_ability"><span class="name">',
+                        name, '</span></a> (', ability.MK, ')<br />'].join('');
+                if (name === uon || ('Requirements' in ability && $.inArray(uon, ability.Requirements) !== -1)) {
+                    $('#Nemesis_Abilities_' + nemesis_column).append(link);
+                    nemesis_count++;
+                    if (nemesis_count > 7) {
+                        nemesis_column += 1;
+                        nemesis_count = 1;
+                    }
+                }
+                else {
+                    $('#Ki_Abilities_' + ki_column).append(link);
+                    ki_count++;
+                    if (ki_count > 18) {
+                        ki_column += 1;
+                        ki_count = 1;
+                    }
+                }
+            }
+        }
+        dialogs.MK = $('#mk_dialog').dialog({
+            autoOpen: false,
+            modal: true,
+            title: 'Select a Ki Ability or Dominion Technique',
+            width: '1000px',
+            position: 'top',
+            buttons: {
+                'Cancel': function () {
+                    dialogs.MK.dialog('close');
                 }
             }
         });
@@ -1402,6 +1573,67 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         dialogs.DP.dialog('open');
         return false;
     };
+
+    spend_mk = function () {
+        var ability,
+            count,
+            data = characters.current(),
+            level = $(this).data('level'),
+            i = level === 0 ? 0 : level - 1,
+            j,
+            links,
+            link,
+            name,
+            options,
+            option_count,
+            remaining = data.mk_remaining()[i],
+            requirements;
+        for (name in ki_abilities) {
+            if (ki_abilities.hasOwnProperty(name)) {
+                ability = ki_abilities[name];
+                links = $('#mk_tabs a:contains("' + name + '")');
+                // Check for false matches like "Magnitude" & "Arcane Magnitude"
+                count = links.size();
+                for (i = 0; i < count; i++) {
+                    link = links.eq(i);
+                    if (link.text() === name) {
+                        link.removeClass('disabled');
+                        link.data('level', level);
+                        if (ability.MK > remaining) {
+                            link.addClass('disabled');
+                        }
+                        else if (data.has_ki_ability(name)) {
+                            if ('Options' in ability) {
+                                options = ability.Options;
+                                option_count = options.length;
+                                link.addClass('disabled');
+                                for (j = 0; j < option_count; j++) {
+                                    if (!data.has_ki_ability(name, options[j])) {
+                                        link.removeClass('disabled');
+                                    }
+                                }
+                            }
+                            else {
+                                link.addClass('disabled');
+                            }
+                        }
+                        else if ('Requirements' in ability) {
+                            requirements = ability.Requirements;
+                            option_count = requirements.length;
+                            for (j = 0; j < option_count; j++) {
+                                if (!data.has_ki_ability(requirements[j], null, level)) {
+                                    link.addClass('disabled');
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        dialogs.MK.dialog('open');
+        return false;
+    };
     
     update_cultural_roots = function () {
         $('#cultural_roots').html('');
@@ -1477,6 +1709,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         cultural_roots_init();
         delete_advantage_init();
         delete_disadvantage_init();
+        delete_ki_ability_init();
         disadvantages_init();
         disadvantage_benefit_init();
         disadvantage_option_init();
@@ -1484,7 +1717,9 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         ea_advantages_init();
         ea_disadvantages_init();
         ea_option_init();
+        ki_ability_options_init();
         load_character_init();
+        mk_init();
         module_options_init();
         natural_bonus_init();
         save_character_init();
@@ -1500,9 +1735,12 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         $('a.edit_class').live('click', edit_class);
         $('a.essential_ability').live('click', configure_essential_ability);
         $('a.characteristic_bonus').live('click', edit_characteristic_bonus);
+        $('a.add_ki_ability').live('click', add_ki_ability);
+        $('a.delete_ki_ability').live('click', delete_ki_ability);
         $('a.natural_bonus').live('click', edit_natural_bonus);
         $('a.set_natural_bonus').live('click', set_natural_bonus);
         $('a.spend_dp').live('click', spend_dp);
+        $('a.spend_mk').live('click', spend_mk);
         $('#Advantages a').live('click', delete_advantage);
         $('#Disadvantages a').live('click', delete_disadvantage);
         $('#ea_advantages a').live('click', delete_essential_ability);

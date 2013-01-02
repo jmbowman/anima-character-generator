@@ -50,7 +50,7 @@ define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines',
         'Increased Psychic Modifiers': {Category: 'Psychic', Cost: 1},
         'Increase One Characteristic to Nine': {Cost: 2, Options: tables.characteristics, Option_Title: 'Select the characteristic to increase'},
         'Jack of All Trades': {Cost: 2},
-        'Ki Perception': {Cost: 1},  // +10 per level to key detection
+        'Ki Perception': {Cost: 1},  // +10 per level to Ki Detection
         'Ki Recovery': {Cost: [1, 2, 3]},
         'Light Sleeper': {Cost: 1},
         Learning: {Cost: [1, 2, 3]}, // Additional +3 xp, +6 xp, +9 xp per session

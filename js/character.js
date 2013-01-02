@@ -30,9 +30,7 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             cr,
             each_level = 0,
             i,
-            imperceptible_ki = 'Imperceptible Ki' in myAdvantages && name === 'Ki Concealment',
             info,
-            ki_perception = 'Ki Perception' in myAdvantages && name === 'Ki Detection',
             length,
             level = this.level(),
             nb_multiplier = 1,
@@ -105,12 +103,6 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             }
             if (combat_senses === name) {
                 bonuses += 5;
-            }
-            else if (imperceptible_ki) {
-                bonuses += 10;
-            }
-            else if (ki_perception) {
-                bonuses += 10;
             }
             else if (use_of_armor) {
                 bonuses += use_of_armor * 5;
@@ -561,14 +553,6 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         var type = this.Type;
         return type && type.indexOf('Spirit') > -1;
     };
-
-    Character.prototype.ki_concealment = function () {
-        var total = 0;
-        if (this.Race === "D'Anjayni Nephilim") {
-            total += 30;
-        }
-        return total;
-    };
   
     Character.prototype.level = function () {
         var chart = tables.xp_chart,
@@ -925,46 +909,6 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             result += ' ' + gnosis;
         }
         return result;
-    };
-
-    Character.prototype.mk_total = function () {
-        var i,
-            level_info,
-            levels = this.levels,
-            length = levels.length,
-            martial_mastery = this.Advantages['Martial Mastery'],
-            total = 0;
-        for (i = 0; i < length; i++) {
-            level_info = levels[i];
-            total += classes[level_info.Class].MK;
-            if ('Martial Knowledge' in level_info.DP) {
-                total += level_info.DP['Martial Knowledge'] * 5;
-            }
-        }
-        if (martial_mastery) {
-            total += martial_mastery * 40;
-        }
-        return total;
-    };
-
-    Character.prototype.mk_used = function () {
-        var i,
-            item,
-            levels = this.levels,
-            length = levels.length,
-            mk,
-            used = 0;
-        for (i = 0; i < length; i++) {
-            mk = levels[i].MK;
-            if (mk) {
-                for (item in mk) {
-                    if (mk.hasOwnProperty(item)) {
-                        used += mk[item];
-                    }
-                }
-            }
-        }
-        return used;
     };
 
     Character.prototype.has_gift = function () {

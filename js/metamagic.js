@@ -1,3 +1,4 @@
+/*global define: false */
 define({
     A: {Name: 'Avatar', Cost: 20, Level: 9, Neighbors: ['AZR3', 'DMP7', 'UZ']},
     AZR1: {Name: 'Advanced Zeon Regeneration', Cost: 5, Neighbors: ['CM', 'DMP1', 'DMP2']},
@@ -66,5 +67,5 @@ define({
     SS6: {Name: 'Spell Specialist Level 70', Cost: 5, Level: 5, Neighbors: ['DMP3', 'PR2']},
     SS7: {Name: 'Spell Specialist Level 80', Cost: 5, Level: 8, Neighbors: ['MS']},
     TM: {Name: 'Transfer Magic', Cost: 10, Level: 3, Neighbors: ['CS', 'EC', 'FM', 'LM2', 'SD']},
-    UZ: {Name: 'Unlimited Zeon', Cost: 20, Level: 10, Neighbors: ['A']},
+    UZ: {Name: 'Unlimited Zeon', Cost: 20, Level: 10, Neighbors: ['A']}
 });
