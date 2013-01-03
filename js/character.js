@@ -158,21 +158,6 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         return total;
     };
   
-    Character.prototype.armor_type = function (type) {
-        var myAdvantages = this.Advantages,
-            total = 0;
-        if (this['Damage Resistance']) {
-            total = this.damage_reduction_armor_type();
-        }
-        if ('Natural Armor' in myAdvantages && type !== 'Energy') {
-            total += 2;
-        }
-        if ('Mystical Armor' in myAdvantages && type === 'Energy') {
-            total += 2;
-        }
-        return total;
-    };
-  
     Character.prototype.change_class = function (level, class_name) {
         var i = (level > 0) ? level - 1 : 0,
             levels = this.levels;
@@ -392,29 +377,6 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         return 1;
     };
 
-    Character.prototype.damage_resistance_armor_type = function () {
-        var size = this.size();
-        if (size < 4) {
-            return 1;
-        }
-        if (size < 9) {
-            return 2;
-        }
-        if (size < 23) {
-            return 3;
-        }
-        if (size < 25) {
-            return 4;
-        }
-        if (size < 29) {
-            return 6;
-        }
-        if (size < 34) {
-            return 8;
-        }
-        return 10;
-    };
-
     Character.prototype.damage_resistance_multiple = function () {
         var size = this.size();
         if (size < 4) {
@@ -490,58 +452,6 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
     Character.prototype.gnosis = function () {
         var gnosis = this.Gnosis;
         return gnosis ? gnosis : 0;
-    };
-  
-    Character.prototype.initiative = function () {
-        var i,
-            levels = this.levels,
-            length = levels.length,
-            qr = this.Advantages['Quick Reflexes'],
-            size,
-            sr = this.Disadvantages['Slow Reactions'],
-            total = this.modifier('AGI') + this.modifier('DEX');
-        if (this.Type === 'Human') {
-            total += 20;
-        }
-        else {
-            size = this.size();
-            if (size < 4) {
-                total += 40;
-            }
-            else if (size < 9) {
-                total += 30;
-            }
-            else if (size < 23) {
-                total += 20;
-            }
-            else if (size < 25) {
-                total += 10;
-            }
-            else if (size > 33) {
-                total -= 20;
-            }
-            else if (size > 28) {
-                total -= 10;
-            }
-        }
-        if (qr) {
-            if (qr === 1) {
-                total += 25;
-            }
-            else if (qr === 2) {
-                total += 45;
-            }
-            else {
-                total += 60;
-            }
-        }
-        if (sr) {
-            total -= sr * 30;
-        }
-        for (i = 0; i < length; i++) {
-            total += classes[levels[i].Class].Initiative;
-        }
-        return total;
     };
 
     Character.prototype.is_corporeal_undead = function () {
@@ -629,36 +539,6 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
     Character.prototype.modifier = function (characteristic, at_level) {
         return tables.modifiers[this.characteristic(characteristic, at_level)];
     };
-  
-    Character.prototype.movement_value = function () {
-        var result = this.characteristic('AGI'),
-            size;
-        if (this.Type !== 'Human') {
-            size = this.size();
-            if (size < 4) {
-                result -= 4;
-            }
-            else if (size < 9) {
-                result -= 2;
-            }
-            else if (size > 33) {
-                result += 3;
-            }
-            else if (size > 28) {
-                result += 2;
-            }
-            else if (size > 24) {
-                result += 1;
-            }
-        }
-        if (this.levels[0].DP['Atrophied Members'] === 'Legs') {
-            result -= 6;
-        }
-        if (result > 10) {
-            result = 10;
-        }
-        return result;
-    };
 
     Character.prototype.presence = function () {
         return this.level() * 5 + 25;
@@ -725,95 +605,6 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             total = 20;
         }
         return total;
-    };
-  
-    Character.prototype.resistance = function (name) {
-        var gender,
-            myAdvantages = this.Advantages,
-            myDisadvantages = this.Disadvantages,
-            points,
-            total = this.presence() + this.modifier(tables.resistances[name]);
-        switch (this.Race) {
-        case "Duk'zarist Nephilim":
-            gender = this.gender();
-            if (name === 'PhR' && gender === 'Male') {
-                total += 20;
-            }
-            else if (name === 'MR' && gender === 'Female') {
-                total += 20;
-            }
-            else {
-                total += 15;
-            }
-            break;
-        case 'Jayan Nephilim':
-            if (name === 'PhR') {
-                total += 15;
-            }
-            else if (name === 'MR') {
-                total -= 10;
-            }
-            break;
-        case 'Sylvain Nephilim':
-            if (name === 'MR' || name === 'PsR') {
-                total += 10;
-            }
-            else if (name === 'DR') {
-                total += 20;
-            }
-            else {
-                total += 5;
-            }
-        }
-        if (name === 'MR') {
-            points = myAdvantages['Exceptional Magic Resistance'];
-            if (points) {
-                total += points * 25;
-            }
-            if ('The Gift' in this.Advantages) {
-                total += 10;
-            }
-        }
-        else if (name === 'PsR' && (points = myAdvantages['Exceptional Psychic Resistance'])) {
-            total += points * 25;
-        }
-        else if ($.inArray(name, ['DR', 'PhR', 'VR']) !== -1 &&
-                 (points = myAdvantages['Exceptional Physical Resistance'])) {
-            total += points * 25;
-        }
-        if ((name === 'DR' && 'Sickly' in myDisadvantages) ||
-            (name === 'MR' && 'Susceptible to Magic' in myDisadvantages) ||
-            (name === 'PhR' && 'Physical Weakness' in myDisadvantages) ||
-            (name === 'VR' && 'Susceptible to Poisons' in myDisadvantages)) {
-            total = Math.floor(total / 2);
-        }
-        return total;
-    };
-
-    Character.prototype.resistance_modifiers = function () {
-        // summary:
-        //         Get the character's situation modifiers to his resistance
-        //         checks (elemental affinity, etc.)
-        // returns:
-        //         An object whose keys are situation descriptions and values
-        //         are bonus or penalty magnitudes.
-        var element = this.Element,
-            first_level_dp = this.levels[0].DP,
-            attuned = first_level_dp.Attuned,
-            result = {};
-        if (element) {
-            result[element] = 20;
-            result[tables.opposite_elements[element]] = -20;
-        }
-        if (attuned && $.inArray(attuned, tables.elements) > -1) {
-            if (attuned in result) {
-                result[attuned] += 20;
-            }
-            else {
-                result[attuned] = 20;
-            }
-        }
-        return result;
     };
 
     Character.prototype.second_hand_penalty = function () {

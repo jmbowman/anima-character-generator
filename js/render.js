@@ -1,9 +1,9 @@
 /*global define: false */
 define(['jquery', 'abilities', 'characters', 'essential_abilities',
-'ki_abilities', 'martial_knowledge', 'modules', 'primaries', 'tables',
-'creation_points', 'development_points'],
+'ki_abilities', 'modules', 'primaries', 'tables', 'armor', 'creation_points',
+'development_points', 'martial_knowledge', 'movement', 'resistances'],
 function ($, abilities, characters, essential_abilities, ki_abilities,
-          martial_knowledge, modules, primaries, tables) {
+          modules, primaries, tables) {
     
     var load_value,
         next_step,
@@ -188,6 +188,20 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             $('.resistance_modifiers', root).hide();
         }
         $('.Initiative', root).text(data.initiative());
+        score = data.damage_barrier();
+        if (score > 0) {
+            $('.Damage_Barrier', root).text(score).parent().show();
+        }
+        else {
+            $('.Damage_Barrier', root).parent().hide();
+        }
+        score = data.base_damage_reduction();
+        if (score !== 0) {
+            $('.Base_Damage_reduction', root).text(score).parent().show();
+        }
+        else {
+            $('.Base_Damage_reduction', root).parent().hide();
+        }
         i = total_mk.length - 1;
         $('.MK', root).text(total_mk[i]);
         $('.unallocated_mk').text(remaining_mk[i]);
@@ -231,6 +245,12 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                     }
                 }
             }
+        }
+        if (data.has_ki_ability('Ki Concealment')) {
+            abilities_block.append('Ki Concealment: ' + data.ki_concealment() + '<br />');
+        }
+        if (data.has_ki_ability('Ki Detection')) {
+            abilities_block.append('Ki Detection: ' + data.ki_detection() + '<br />');
         }
     };
 
