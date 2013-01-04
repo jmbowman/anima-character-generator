@@ -141,7 +141,7 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         total += bonuses + this.modifier(characteristic);
         return total;
     };
-  
+
     Character.prototype.appearance = function () {
         var total = ('Appearance' in this) ? this.Appearance : 5;
         if (this.Race === "D'Anjayni Nephilim") {

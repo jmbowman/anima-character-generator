@@ -679,9 +679,10 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             ea_disadvantages = essential_abilities.disadvantages,
             hr,
             i,
+            imk,
             level,
-            levels = data.levels,
-            level_count = levels.length,
+            levels,
+            level_count,
             level_number,
             line,
             mk,
@@ -694,16 +695,12 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             times_five = ['Magic Level', 'Martial Knowledge', 'Zeon'],
             remaining_mk = data.mk_remaining();
         update_int('XP');
-        // remove any extra levels if revising XP down
-        while (level_count > current_level && level_count > 1) {
-            levels.pop();
-            level_count--;
+        data.update_level();
+        if ('Insufficient Martial Knowledge' in data) {
+            imk = data['Insufficient Martial Knowledge'].Name;
         }
-        // add new levels, continuing last class
-        while (level_count < current_level) {
-            levels.push({Class: levels[level_count - 1].Class, DP: {}});
-            level_count++;
-        }
+        levels = data.levels;
+        level_count = levels.length;
         $('.level').remove();
         remaining_dp = data.dp_remaining();
         for (i = 0; i < level_count; i++) {
@@ -807,6 +804,14 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                         if (ki_abilities[name].Option_Title) {
                             line += ' (<span class="options">' + mk[name].Options.join(', ') + '</span>)';
                         }
+                        if (imk === name) {
+                            line += '(POW';
+                            amount = data['Insufficient Martial Knowledge'].Penalty;
+                            if (amount < 0) {
+                                line += ' ' + amount;
+                            }
+                            line += ' check to use)';
+                        }
                         parts.push('<a href="#" class="delete_ki_ability" data-level="' + level_number + '">' + line + '</a>');
                     }
                     else {
@@ -815,7 +820,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                 }
             }
             content = parts.join(', ');
-            if (available > 0) {
+            if (available >= 0) {
                 content += ' <a href="#" class="spend_mk" data-level="' + level_number + '">+</a>';
             }
             line = '<div class="span-12 last level">' + content + '</div>';

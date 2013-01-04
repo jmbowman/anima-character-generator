@@ -1586,7 +1586,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             name,
             options,
             option_count,
-            remaining = data.mk_remaining()[i],
+            remaining = data.mk_remaining()[i] + 50, // Insufficient Martial Knowledge rule
             requirements;
         for (name in ki_abilities) {
             if (ki_abilities.hasOwnProperty(name)) {

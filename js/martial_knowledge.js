@@ -21,7 +21,7 @@ define(['jquery', 'character', 'classes', 'ki_abilities'],
             // already have it, do nothing
             return;
         }
-        if (cost > remaining) {
+        if (cost > remaining + 50 || 'Insufficient Martial Knowledge' in this) {
             // can't afford it, do nothing
             return;
         }
@@ -40,6 +40,12 @@ define(['jquery', 'character', 'classes', 'ki_abilities'],
             }
             else {
                 mk[name] = ki_ability.MK;
+            }
+        }
+        if (cost > remaining) {
+            this['Insufficient Martial Knowledge'] = {Name: name, Penalty: -Math.floor((cost - remaining) / 10)};
+            if (ki_ability.Option_Title) {
+                this['Insufficient Martial Knowledge'].Option = option;
             }
         }
     };
@@ -219,6 +225,59 @@ define(['jquery', 'character', 'classes', 'ki_abilities'],
             }
         }
         return used;
+    };
+
+    Character.prototype.remove_ki_ability = function (name, level, options) {
+        var array,
+            index = level === 0 ? 0 : level - 1,
+            ki_ability = ki_abilities[name],
+            mk = this.levels[index].MK;
+        if (!ki_ability.Option_Title || mk[name].Options.length === 1) {
+            delete mk[name];
+        }
+        else {
+            array = mk[name].Options;
+            array.splice($.inArray(options, array), 1);
+        }
+        // If something was purchased past the MK limit, need to update
+        if ('Insufficient Martial Knowledge' in this) {
+            this.update_level();
+        }
+    };
+
+    Character.prototype.update_level = function () {
+        // summary:
+        //         Update the character data (especially the levels array and
+        //         any pre-purchased Ki Ability or Dominion Technique) to be
+        //         appropriate for the character's current XP total.
+        var ability,
+            current_level = this.level(),
+            levels = this.levels,
+            level_count = levels.length,
+            mk_remaining;
+        // remove any extra levels if revising XP down
+        while (level_count > current_level && level_count > 1) {
+            levels.pop();
+            level_count--;
+        }
+        // add new levels, continuing last class
+        while (level_count < current_level) {
+            levels.push({Class: levels[level_count - 1].Class, DP: {}});
+            level_count++;
+        }
+        mk_remaining = this.mk_remaining()[level_count - 1];
+        if (mk_remaining >= 0 && 'Insufficient Martial Knowledge' in this) {
+            delete this['Insufficient Martial Knowledge'];
+        }
+        else if (mk_remaining < 0) {
+            if ('Insufficient Martial Knowledge' in this) {
+                ability = this['Insufficient Martial Knowledge'];
+                if (this.has_ki_ability(ability.Name, ability.Option)) {
+                    ability.Penalty = Math.floor(mk_remaining / 10);
+                }
+                // TODO: select another ability or technique otherwise
+            }
+        }
     };
     
 });
