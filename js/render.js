@@ -556,7 +556,8 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         data.Created = (value === 'Yes');
         select.hide().nextAll('span.display').text(value).show();
         select = $('#Damage_Resistance');
-        if (select.val() === 'Yes') {
+        value = select.val();
+        if (value === 'Yes') {
             data['Damage Resistance'] = true;
         }
         select.hide().nextAll('span.display').text(value).show();
@@ -617,7 +618,6 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         $('.characteristic, #Appearance').val(5);
         $('#XP').val(0);
         $('#Gender, #Race, #Name').val('');
-        $('#first_class').val('Freelancer');
         if (data.Type !== 'Human') {
             $('#Race').val('Other');
             racial_level = data['Racial Level'];
@@ -693,9 +693,10 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             remaining_dp,
             remaining_dp_for_level,
             times_five = ['Magic Level', 'Martial Knowledge', 'Zeon'],
-            remaining_mk = data.mk_remaining();
+            remaining_mk;
         update_int('XP');
         data.update_level();
+        remaining_mk = data.mk_remaining();
         if ('Insufficient Martial Knowledge' in data) {
             imk = data['Insufficient Martial Knowledge'].Name;
         }
