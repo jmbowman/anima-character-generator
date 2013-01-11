@@ -225,10 +225,10 @@ define(function () {
         c.Supernatural = 60;
         c.Zeon = 1;
         c['MA Multiple'] = 60;
-        c.Summon = 2;
-        c.Control = 2;
-        c.Bind = 2;
-        c.Banish = 2;
+        c.Summon = 1;
+        c.Control = 1;
+        c.Bind = 1;
+        c.Banish = 1;
         c.Vigor = 3;
         c.reduced.Occult = 1;
         c.bonuses = {Zeon: 50,  Summon: 10, Control: 10, Bind: 10, Banish: 10, 'Magic Appraisal': 5, Occult: 5};
