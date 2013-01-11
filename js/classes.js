@@ -273,6 +273,24 @@ define(function () {
         c.bonuses = {Dodge: 5, 'Ki Concealment': 5, Notice: 5, Search: 5, Hide: 5, Stealth: 5, 'Trap Lore': 5, 'Sleight of Hand': 5, Theft: 10};
     }(classes.Thief));
 
+    // Assassin
+    (function (c) {
+        c.Archetypes = ['Prowler'];
+        c.Initiative = 10;
+        c.Block = 3;
+        c['Wear Armor'] = 3;
+        c['Accumulation Multiple'] = 25;
+        c.Athletics = 2;
+        c.Perceptive = 1;
+        c.Intellectual = 3;
+        c.Vigor = 3;
+        c.Subterfuge = 2;
+        c.reduced.Stealth = 1;
+        c.reduced.Composure = 2;
+        c.reduced.Memorize = 2;
+        c.bonuses = {Attack: 5, Notice: 10, Search: 10, Hide: 10, Stealth: 10, Poisons: 10, Composure: 10, 'Trap Lore': 10};
+    }(classes.Assassin));
+
     // Warlock
     (function (c) {
         c.Archetypes = ['Fighter', 'Mystic'];
