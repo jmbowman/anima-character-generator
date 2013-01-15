@@ -66,7 +66,7 @@ define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines',
         'Natural Learner': {Cost: [1, 2, 3], Options: $.map(Object.keys(abilities), function (val) {
             return ('Field' in abilities[val]) ? val : null;
         }), Option_Title: 'Select an ability'},   //+10, +20, +30 per level additional to specific secondary
-        'Natural Learner, Field': {Cost: [2, 3], Options: Object.keys(tables.fields), Option_Title: 'Select a field'},   //+5 +10, per level additional to specific field
+        'Natural Learner, Field': {Cost: [2, 3], Options: tables.fields, Option_Title: 'Select a field'},   //+5 +10, per level additional to specific field
         'Natural Power': {Category: 'Magic', Cost: 1}, // maximum spell potential uses POW
         'Night Vision': {Cost: 1},
         'No Gestures': {Cost: 1},  // no reduction to ki accumulation
