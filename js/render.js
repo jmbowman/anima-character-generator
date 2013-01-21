@@ -552,7 +552,8 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         //         choosing essential abilites.
         var data = characters.current(),
             select = $('#Created'),
-            value = select.val();
+            value = select.val(),
+            xp;
         data.Created = (value === 'Yes');
         select.hide().nextAll('span.display').text(value).show();
         select = $('#Damage_Resistance');
@@ -579,7 +580,10 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         select = $('#creature_level');
         value = parseInt(select.val(), 10);
         data['Racial Level'] = value;
-        data.XP = value === 0 ? -100 : tables.xp_chart[value - 1];
+        xp = value === 0 ? -100 : tables.xp_chart[value - 1];
+        if (xp > data.XP) {
+            data.XP = xp;
+        }
         select.hide().next('span').hide().nextAll('span.display').text(value).show();
         $('#choose_essential_abilities').hide();
         render.update_essential_abilities();
