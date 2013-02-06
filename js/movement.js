@@ -1,8 +1,27 @@
 /*global define: false */
+/**
+ * Additional methods for {@link module:character} dealing with movement and
+ * initiative.
+ * @module movement
+ * @requires character
+ * @requires classes
+ * @requires martial_knowledge
+ * @see module:character#initiative
+ * @see module:character@movement_value
+ */
 define(['character', 'classes', 'martial_knowledge'],
 function (Character, classes) {
-  
-    Character.prototype.initiative = function () {
+
+    /**
+     * Get the character's base initiative.  This is further modified by the
+     * character's choice of action, weapon, martial arts, and so forth.
+     * @method module:character#initiative
+     * @param {Number} [at_level] Get the score as of this level.  If omitted,
+     *     get the character's current initiative.
+     * @returns {Number}
+     * @see module:character#unarmed_ability
+     */
+    Character.prototype.initiative = function (at_level) {
         var i,
             levels = this.levels,
             length = levels.length,
@@ -10,6 +29,9 @@ function (Character, classes) {
             size,
             sr = this.Disadvantages['Slow Reactions'],
             total = this.modifier('AGI') + this.modifier('DEX');
+        if (typeof at_level !== 'undefined') {
+            length = at_level === 0 ? 1 : at_level;
+        }
         if (this.Type === 'Human') {
             total += 20;
         }
@@ -51,12 +73,17 @@ function (Character, classes) {
         for (i = 0; i < length; i++) {
             total += classes[levels[i].Class].Initiative;
         }
-        if (this.has_ki_ability('Increased Speed')) {
+        if (this.has_ki_ability('Increased Speed', at_level)) {
             total += 10;
         }
         return total;
     };
-  
+
+    /**
+     * Get the character's normal MV (Movement Value).
+     * @method module:character#movement_value
+     * @return {Number}
+     */
     Character.prototype.movement_value = function () {
         var result = this.characteristic('AGI'),
             size;

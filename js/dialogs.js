@@ -1,11 +1,35 @@
 /*global define: false, document: false */
+/**
+ * Dialog widgets for choosing various aspects of a character: advantages,
+ * DP expenditure, martial knowledge allocation, etc.
+ * @module dialogs
+ * @requires jquery
+ * @requires jqueryui/dialog
+ * @requires jqueryui/tabs
+ * @requires abilities
+ * @requires advantages
+ * @requires characters
+ * @requires combat
+ * @requires creation_points
+ * @requires cultural_roots
+ * @requires development_points
+ * @requires disadvantages
+ * @requires essential_abilities
+ * @requires ki_abilities
+ * @requires martial_arts
+ * @requires modules
+ * @requires powers
+ * @requires primaries
+ * @requires pubsub
+ * @requires tables
+ */
 define(['jquery', 'abilities', 'advantages', 'characters', 'cultural_roots',
-'disadvantages', 'essential_abilities', 'ki_abilities', 'modules', 'powers',
-'primaries', 'tables', 'creation_points', 'development_points',
-'jqueryui/dialog', 'jqueryui/tabs', 'pubsub'],
+'disadvantages', 'essential_abilities', 'ki_abilities', 'martial_arts',
+'modules', 'powers', 'primaries', 'tables', 'combat', 'creation_points',
+'development_points', 'jqueryui/dialog', 'jqueryui/tabs', 'pubsub'],
 function ($, abilities, advantages, characters, cultural_roots, disadvantages,
-          essential_abilities, ki_abilities, modules, powers, primaries,
-          tables) {
+          essential_abilities, ki_abilities, martial_arts, modules, powers,
+          primaries, tables) {
 
     var ability_dp_init,
         add_advantage,
@@ -14,6 +38,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         add_ea_advantage,
         add_ea_disadvantage,
         add_ki_ability,
+        add_martial_art,
         add_xp,
         advantage_cost_init,
         advantage_options_init,
@@ -34,6 +59,8 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         delete_essential_ability,
         delete_ki_ability,
         delete_ki_ability_init,
+        delete_martial_art,
+        delete_martial_art_init,
         dialogs = {},
         disadvantage_benefit_init,
         disadvantage_option_init,
@@ -247,6 +274,18 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             return configure_ki_ability(name, level);
         }
         data.add_ki_ability(name, level);
+        $.publish('level_data_changed');
+        return false;
+    };
+
+    add_martial_art = function () {
+        var data = characters.current()
+            link = $(this),
+            degree = link.find('.degree').text(),
+            level = parseInt(link.data('level'), 10),
+            name = link.find('.name').text();
+        dialogs.DP.dialog('close');
+        data.add_martial_art(name, degree, level);
         $.publish('level_data_changed');
         return false;
     };
@@ -738,6 +777,41 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         }
         $('#delete_ki_ability_options').val(option);
         dialogs.Delete_Ki_Ability.dialog('open');
+        return false;
+    };
+  
+    delete_martial_art_init = function () {
+        if ('Delete_Martial_Art' in dialogs) {
+            return;
+        }
+        dialogs.Delete_Martial_Art = $('#delete_martial_art_dialog').dialog({
+            autoOpen: false,
+            modal: true,
+            buttons: {
+                Yes: function () {
+                    var data = characters.current(),
+                        level = $('#delete_martial_art_level').val(),
+                        name = $('#delete_martial_art_name').val(),
+                        degree = $('#delete_martial_art_degree').val();
+                    data.remove_martial_art(name, degree, level);
+                    $.publish('level_data_changed');
+                    dialogs.Delete_Martial_Art.dialog('close');
+                },
+                No: function () {
+                    dialogs.Delete_Martial_Art.dialog('close');
+                }
+            }
+        });
+    };
+
+    delete_martial_art = function (name, level) {
+        var data = characters.current(),
+            degrees = data.level_info(level).DP[name],
+            degree = degrees[degrees.length - 1];
+        $('#delete_martial_art_level').val(level);
+        $('#delete_martial_art_name').val(name);
+        $('#delete_martial_art_degree').val(degree);
+        dialogs.Delete_Martial_Art.dialog('open');
         return false;
     };
   
@@ -1455,6 +1529,9 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             purchased = level_info.DP[name],
             start = max;
         dialogs.DP.dialog('close');
+        if (name in martial_arts) {
+            return delete_martial_art(name, level);
+        }
         if (name in modules) {
             return configure_module(name, level);
         }
@@ -1495,11 +1572,14 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
 
     spend_dp = function () {
         var ability,
+            art,
+            arts,
             available,
             cap,
             cost,
             count,
             data = characters.current(),
+            degree,
             dr = data['Damage Resistance'],
             i,
             j,
@@ -1512,7 +1592,10 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             link_count,
             link,
             name,
-            primary;
+            names,
+            parts,
+            primary,
+            type;
         $('#Other a:contains("Life Point") .name').text(dr ? 'Life Points' : 'Life Point Multiple');
         for (name in primaries) {
             if (primaries.hasOwnProperty(name)) {
@@ -1545,6 +1628,50 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                     }
                 }
             }
+        }
+        arts = data.martial_arts();
+        names = Object.keys(martial_arts).sort();
+        count = names.length;
+        available = limits.Combat;
+        $('#Basic_Martial_Arts').html('');
+        $('#Advanced_Martial_Arts').html('');
+        for (i = 0; i < count; i++) {
+            name = names[i];
+            art = martial_arts[name];
+            type = ('Supreme' in art ? 'Basic' : 'Advanced');
+            if (!(name in arts)) {
+                // Haven't started it yet
+                degree = 'Base';
+            }
+            else {
+                degree = arts[name];
+                if (degree === 'Supreme' || degree === 'Arcane') {
+                    // Already done with it
+                    $('#' + type + '_Martial_Arts').append(name + '<br />');
+                    continue;
+                }
+                if (type === 'Advanced') {
+                    // This is the only one left in this case
+                    degree = 'Arcane';
+                }
+                else if (degree === 'Advanced') {
+                    degree = 'Supreme';
+                }
+                else {
+                    degree = 'Advanced';
+                }
+            }
+            cost = data.dp_cost(name, cls, degree);
+            if (cost <= available && data.martial_art_allowed(name, degree, level)) {
+                parts = ['<a href="#" class="add_martial_art" data-level="',
+                         level, '"><span class="name">', name,
+                         '</span> [<span class="degree">', degree,
+                         '</span>]</a> (', cost, ')<br />'];
+            }
+            else {
+                parts = [name, ' [', degree, '] (', cost, ')<br />'];
+            }
+            $('#' + type + '_Martial_Arts').append(parts.join(''));
         }
         for (name in modules) {
             if (modules.hasOwnProperty(name)) {
@@ -1710,6 +1837,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         delete_advantage_init();
         delete_disadvantage_init();
         delete_ki_ability_init();
+        delete_martial_art_init();
         disadvantages_init();
         disadvantage_benefit_init();
         disadvantage_option_init();
@@ -1732,6 +1860,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         $('#add_ea_advantage').click(add_ea_advantage);
         $('#add_ea_disadvantage').click(add_ea_disadvantage);
         $('a.ability').live('click', set_ability_dp);
+        $('a.add_martial_art').live('click', add_martial_art);
         $('a.edit_class').live('click', edit_class);
         $('a.essential_ability').live('click', configure_essential_ability);
         $('a.characteristic_bonus').live('click', edit_characteristic_bonus);

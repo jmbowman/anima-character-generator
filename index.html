@@ -60,6 +60,16 @@
 
   <div class="span-24 last abilities-block"> </div>
 
+  <div class="span-24 last">Unarmed Combat:&nbsp;&nbsp;&nbsp;
+    Attack: <span class="Unarmed_Attack"> </span>&nbsp;&nbsp;&nbsp;
+    Damage: <span class="Unarmed_Damage"> </span>&nbsp;&nbsp;&nbsp;
+    Block: <span class="Unarmed_Block"> </span>&nbsp;&nbsp;&nbsp;
+    Dodge: <span class="Unarmed_Dodge"> </span>&nbsp;&nbsp;&nbsp;
+    Initiative: <span class="Unarmed_Initiative"> </span>&nbsp;&nbsp;&nbsp;
+  </div>
+
+  <div class="span-24 last unarmed-advantages-block"> </div>
+
   <hr />
 
   <div class="span-11">
@@ -347,6 +357,12 @@
   <input type="hidden" id="delete_ki_ability_option" value="" />
 </div>
 
+<div id="delete_martial_art_dialog" style="display: none;" title="Remove this martial art degree?">
+  <input type="hidden" id="delete_martial_art_name" value="" />
+  <input type="hidden" id="delete_martial_art_level" value="" />
+  <input type="hidden" id="delete_martial_art_degree" value="" />
+</div>
+
 <div id="disadvantages_dialog" style="display: none;">
   <div id="disadvantages_tabs">
     <ul>
@@ -384,6 +400,7 @@
   <div id="dp_tabs">
     <ul>
       <li><a href="#Combat">Combat</a></li>
+      <li><a href="#Martial_Arts">Martial Arts</a></li>
       <li><a href="#Psychic">Psychic</a></li>
       <li><a href="#Supernatural">Supernatural</a></li>
       <li><a href="#Secondary">Secondary Abilities</a></li>
@@ -393,6 +410,16 @@
       <div id="Combat_Abilities" class="span-8"> </div>
       <div id="Combat_Modules_1" class="span-8"> </div>
       <div id="Combat_Modules_2" class="span-8 last"> </div>
+    </div>
+    <div id="Martial_Arts" class="container">
+      <div class="span-12">
+        <span class="field">Basic</span><br />
+        <div id="Basic_Martial_Arts"> </div>
+      </div>
+      <div class="span-12 last">
+        <span class="field">Advanced</span><br />
+        <div id="Advanced_Martial_Arts"> </div>
+      </div>
     </div>
     <div id="Psychic"> </div>
     <div id="Supernatural"> </div>

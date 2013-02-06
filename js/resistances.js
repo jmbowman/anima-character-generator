@@ -1,7 +1,23 @@
 /*global define: false */
+/**
+ * Adds methods to {@link module:character} related to Resistances.
+ * @module resistances
+ * @requires jquery
+ * @requires character
+ * @requires tables
+ * @requires martial_knowledge
+ * @see module:character#resistance
+ * @see module:character#resistance_modifiers
+ */
 define(['jquery', 'character', 'tables', 'martial_knowledge'],
 function ($, Character, tables) {
-  
+
+    /**
+     * Get one of the character's Resistance values.
+     * @method module:character#resistance
+     * @param {String} name PhR, MR, PsR, VR, or DR
+     * @returns {Number}
+     */
     Character.prototype.resistance = function (name) {
         var gender,
             myAdvantages = this.Advantages,
@@ -71,13 +87,14 @@ function ($, Character, tables) {
         return total;
     };
 
+    /**
+     * Get the character's situation modifiers to his resistance checks
+     * (elemental affinity, etc.)
+     * @method module:character#resistance_modifiers
+     * @returns {Object} An object whose keys are situation descriptions and
+     *     values are bonus or penalty magnitudes.
+     */
     Character.prototype.resistance_modifiers = function () {
-        // summary:
-        //         Get the character's situation modifiers to his resistance
-        //         checks (elemental affinity, etc.)
-        // returns:
-        //         An object whose keys are situation descriptions and values
-        //         are bonus or penalty magnitudes.
         var element = this.Element,
             first_level_dp = this.levels[0].DP,
             attuned = first_level_dp.Attuned,

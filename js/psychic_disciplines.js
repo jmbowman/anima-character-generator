@@ -1,4 +1,8 @@
 /*global define: false */
+/**
+ * Data on the Psychic Disciplines and Powers.
+ * @module psychic_disciplines
+ */
 define({
     disciplines: {
         Cryokinesis: {

@@ -1,4 +1,9 @@
 /*global define: false */
+/**
+ * Data on Disadvantages that can be chosen to gain more Creation Points.
+ * @module disadvantages
+ * @requires tables
+ */
 define(['tables'], function (tables) {
     return {
         'Action Requirement':  {Category: 'Magic', Benefit: 1, Options: [], Option_Title: 'Enter the type of action required'},

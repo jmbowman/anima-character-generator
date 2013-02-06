@@ -1,4 +1,13 @@
 /*global define: false */
+/**
+ * Data on Advantages that can be chosen with Creation Points.
+ * @module advantages
+ * @requires jquery
+ * @requires abilities
+ * @requires magic_paths
+ * @requires psychic_disciplines
+ * @requires tables
+ */
 define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines',
         'tables'], function ($, abilities, paths, disciplines, tables) {
     return {

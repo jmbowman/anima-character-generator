@@ -1,4 +1,8 @@
 /*global define: false */
+/**
+ * Data for character classes.
+ * @module classes
+ */
 define(function () {
 
     var Class, classes;

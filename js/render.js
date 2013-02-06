@@ -1,9 +1,29 @@
 /*global define: false */
+/**
+ * Code for manipulating the page DOM in order to display and edit character
+ * data.
+ * @module render
+ * @requires jquery
+ * @requires abilities
+ * @requires characters
+ * @requires essential_abilities
+ * @requires ki_abilities
+ * @requires modules
+ * @requires primaries
+ * @requires tables
+ * @requires armor
+ * @requires creation_points
+ * @requires development_points
+ * @requires martial_knowledge
+ * @requires movement
+ * @requires resistances
+ */
 define(['jquery', 'abilities', 'characters', 'essential_abilities',
-'ki_abilities', 'modules', 'primaries', 'tables', 'armor', 'creation_points',
-'development_points', 'martial_knowledge', 'movement', 'resistances'],
+'ki_abilities', 'martial_arts', 'modules', 'primaries', 'tables', 'armor',
+'creation_points', 'development_points', 'martial_knowledge', 'movement',
+'resistances'],
 function ($, abilities, characters, essential_abilities, ki_abilities,
-          modules, primaries, tables) {
+          martial_arts, modules, primaries, tables) {
     
     var load_value,
         next_step,
@@ -11,18 +31,23 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         set_characteristics_limits,
         update_int,
         update_text;
-    
+
+    /**
+     * Set the value of an input field to match the corresponding property of
+     * the current Character object. Used when loading or switching characters.
+     * @param {String} name The name of the property (which is also the ID of
+     *     the corresponding input field)
+     */
     load_value = function (name) {
-        // summary:
-        //         Set the value of an input field to match the corresponding
-        //         property of the current Character object. Used when loading
-        //         or switching characters.
-        // name: String
-        //         The name of the property (which is also the ID of the
-        //         corresponding input field)
         $('#' + name).val('' + characters.current()[name]);
     };
-  
+
+    /**
+     * Get a one-line text description of the next action which needs to be
+     * performed in the character creation process.  Displayed for the user's
+     * reference.
+     * @returns {String}
+     */
     next_step = function () {
         var characteristic,
             characteristics = tables.characteristics,
@@ -70,15 +95,14 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         }
         return 'Done!';
     };
-    
+
+    /**
+     * Set appropriate limits on physical or spiritual characteristics for
+     * creatures.
+     * @param {Character} data The character data object being edited
+     * @param {String} type 'Physical' or 'Spiritual'
+     */
     set_characteristics_limits = function (data, type) {
-        // summary:
-        //         Set appropriate limits on physical or spiritual
-        //         characteristics for creatures.
-        // data: Character
-        //         The character data object being edited
-        // type: String
-        //         'Physical' or 'Spiritual'
         var first_level_dp = data.levels[0].DP,
             limit = 10;
         if (('Superhuman ' + type + ' Characteristics') in first_level_dp) {
@@ -93,13 +117,13 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         $('#characteristics .' + type.toLowerCase()).spinner('option', 'max', limit);
     };
 
+    /**
+     * Update an integer property of the current Character object using the
+     * current value of the corresponding input field.
+     * @param {String} name The name of the property (which is also the ID of
+     *     the corresponding input field)
+     */
     update_int = function (name) {
-        // summary:
-        //         Update an integer property of the current Character object
-        //         using the current value of the corresponding input field.
-        // name: String
-        //         The name of the property (which is also the ID of the
-        //         corresponding input field)
         var input = $('#' + name),
             value;
         if (input.valid()) {
@@ -109,29 +133,31 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         }
     };
 
+    /**
+     * Update a text property of the current Character object using the current
+     * value of the corresponding input field.
+     * @param {String} name The name of the property (which is also the ID of
+     *     the corresponding input field)
+     */
     update_text = function (name) {
-        // summary:
-        //         Update a text property of the current Character object
-        //         using the current value of the corresponding input field.
-        // name: String
-        //         The name of the property (which is also the ID of the
-        //         corresponding input field)
         var field = $('#' + name);
         if (field.valid()) {
             characters.current()[name] = field.val();
         }
     };
 
+    /**
+     * Refresh the character's statistics display block.
+     * @method module:render#render
+     * @param {Node} root The root DOM node for the stat block
+     */
     render.render = function (root) {
-        // summary:
-        //         Refresh the character's statistics display block.
-        // root: Node
-        //         The root DOM node for the stat block
         var abilities_block,
             ability,
             ability_list,
             count,
             data = characters.current(),
+            arts = data.martial_arts(),
             element = data.Element,
             first_level_dp = data.levels[0].DP,
             acute = first_level_dp['Acute Sense'],
@@ -195,7 +221,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         else {
             $('.Damage_Barrier', root).parent().hide();
         }
-        score = data.base_damage_reduction();
+        score = data.damage_reduction();
         if (score !== 0) {
             $('.Base_Damage_reduction', root).text(score).parent().show();
         }
@@ -252,15 +278,23 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         if (data.has_ki_ability('Ki Detection')) {
             abilities_block.append('Ki Detection: ' + data.ki_detection() + '<br />');
         }
+        $('.Unarmed_Attack', root).text(data.unarmed_ability('Attack', arts));
+        $('.Unarmed_Damage', root).text(data.unarmed_damage());
+        $('.Unarmed_Block', root).text(data.unarmed_ability('Block', arts));
+        $('.Unarmed_Dodge', root).text(data.unarmed_ability('Dodge', arts));
+        $('.Unarmed_Initiative', root).text(data.unarmed_ability('Initiative', arts));
+        $('.unarmed-advantages-block', root).text(data.martial_arts_advantages(arts).join(', '));
     };
 
+    /**
+     * Update the section of the page where the character's advantages and
+     * disadvantages are chosen.
+     * @method module:render#update_cp
+     * @param {Boolean} read_only True if the display of advantages and
+     *     disadvantages should be read-only (because we've moved on to
+     *     choosing abilities)
+     */
     render.update_cp = function (read_only) {
-        // summary:
-        //         Update the section of the page where the character's
-        //         advantages and disadvantages are chosen.
-        // read_only: Boolean
-        //         True if the display of advantages and disadvantages should
-        //         be read-only (because we've moved on to choosing abilities)
         var categories = ['Common', 'Background', 'Magic', 'Psychic'],
             categories_added = 0,
             category,
@@ -345,13 +379,14 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         render.render($('.container'));
     };
 
+    /**
+     * Update the section of the page where the creature's essential abilities
+     * are chosen.
+     * @method module:render#update_essential_abilities
+     * @param {Boolean} read_only True if the display of essential abilities
+     *     should be read-only (because we've moved on to choosing powers)
+     */
     render.update_essential_abilities = function (read_only) {
-        // summary:
-        //         Update the section of the page where the creature's
-        //         essential abilities are chosen.
-        // read_only: Boolean
-        //         True if the display of essential abilities should
-        //         be read-only (because we've moved on to choosing powers)
         var advantages = essential_abilities.advantages,
             a_content = '',
             d_content = '',
@@ -409,11 +444,13 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         $('#add_ea_disadvantage').toggle(!read_only);
         render.render($('.container'));
     };
-    
+
+    /**
+     * Update the character data entry area based on the current character
+     * data.  Used when loading or switching characters.
+     * @method module:render#load_data
+     */
     render.load_data = function () {
-        // summary:
-        //         Update the character data entry area based on the current
-        //         character data.  Used when loading or switching characters.
         var data = characters.current(),
             first_class = data.levels[0].Class,
             stage = data.creation_stage();
@@ -469,11 +506,12 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         }
     };
 
+    /**
+     * Update the basic data for the current character using the values
+     * currently in the appropriate input fields and refresh the stat block.
+     * @method module:render#update_basics
+     */
     render.update_basics = function () {
-        // summary:
-        //         Update the basic data for the current character using the
-        //         values currently in the appropriate input fields and refresh
-        //         the stat block.
         var data = characters.current(),
             first_class = $('#first_class').val();
         update_int('STR');
@@ -497,16 +535,24 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             $('#choose_advantages').removeAttr('disabled');
         }
     };
-    
+
+    /**
+     * Update the Name property of the current Character object using the
+     * current value of the Name input field, and update the displayed summary
+     * accordingly.
+     * @method module:render#update_name
+     */
     render.update_name = function () {
         update_text('Name');
         $('.container .summary').text(characters.current().summary());
     };
-    
+
+    /**
+     * Conclude specification of creature type and start entering Gnosis,
+     * optional elemental type, and creature origin.
+     * @method module:render#start_attributes
+     */
     render.start_attributes = function () {
-        // summary:
-        //         Conclude specification of creature type and start entering
-        //         Gnosis, optional elemental type, and creature origin.
         var data = characters.current(),
             select = $('#Type'),
             type = select.val();
@@ -545,11 +591,13 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         $('#Gnosis').val(10);
         render.render($('.container'));
     };
-    
+
+    /**
+     * Conclude specification of creature attributes and start choosing
+     * essential abilites.
+     * @method module:render#start_essential_abilities
+     */
     render.start_essential_abilities = function () {
-        // summary:
-        //         Conclude specification of creature attributes and start
-        //         choosing essential abilites.
         var data = characters.current(),
             select = $('#Created'),
             value = select.val(),
@@ -590,11 +638,13 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         $('#essential_abilities, #ea_dp, #choose_characteristics').show();
         render.render($('.container'));
     };
-    
+
+    /**
+     * Conclude specification of limits on characteristics and start entering
+     * the actual values.
+     * @method module:render#start_characteristics
+     */
     render.start_characteristics = function () {
-        // summary:
-        //         Conclude specification of limits on characteristics and
-        //         start entering the actual values.
         var data = characters.current(),
             racial_level,
             xp;
@@ -636,11 +686,13 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         }
         $('#race_and_class').toggle(data.Type === 'Human');
     };
-    
+
+    /**
+     * Conclude entry of basic statistics and start choosing advantages and
+     * disadvantages.
+     * @method module:render#start_advantages
+     */
     render.start_advantages = function () {
-        // summary:
-        //         Conclude entry of basic statistics and start choosing
-        //         advantages and disadvantages.
         render.update_basics();
         if ($('#main_form').valid()) {
             $('#Gender, #Race, #first_class').each(function () {
@@ -657,11 +709,13 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             $('#choose_advantages').hide();
         }
     };
-    
+
+    /**
+     * Conclude selection of advantages and disadvantages, and start choosing
+     * abilities acquired at each level.
+     * @method module:render#start_abilities
+     */
     render.start_abilities = function () {
-        // summary:
-        //         Conclude selection of advantages and disadvantages, and start
-        //         choosing abilities acquired at each level.
         render.update_cp(true);
         $('#choose_advantages, #choose_abilities').hide();
         $('#levels').show();
@@ -669,10 +723,12 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         $('#add_xp').show();
     };
 
+    /**
+     * Update the per-level character data entry area based on the current
+     * character data.
+     * @method module:render#update_level
+     */
     render.update_level = function () {
-        // summary:
-        //         Update the per-level character data entry area based on the
-        //         current character data.
         var amount,
             available,
             content,
@@ -753,6 +809,10 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                     primary = primaries.for_ability(name);
                     if (name.indexOf('Save ') === 0) {
                         line = dp[name] + ' ' + primary + ' DP saved for later <span class="name" style="display: none;">' + name + '</span>';
+                    }
+                    else if (name in martial_arts) {
+                        line = '<span class="name">' + name + '</span> (';
+                        line += dp[name].join(', ') + ')';
                     }
                     else if (name in modules) {
                         line = '<span class="name">' + name + '</span>';

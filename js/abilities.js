@@ -1,4 +1,8 @@
 /*global define: false */
+/**
+ * Data for Primary and Secondary Abilities.
+ * @module abilities
+ */
 define({
     Attack: {Characteristic: 'DEX'},
     Block: {Characteristic: 'DEX'},
@@ -23,7 +27,7 @@ define({
     Forging: {Field: 'Creative', Characteristic: 'DEX', knowledge: true},
     'Jewelry Making': {Field: 'Creative', Characteristic: 'DEX'},
     Music: {Field: 'Creative', Characteristic: 'POW', knowledge: true},
-    'Ritual Calligraphy': {Field: 'Creative', Characteristic: 'DEX', knowledge: true},
+    'Ritual Calligraphy': {Field: 'Creative', Characteristic: 'DEX'},
     Runecrafting: {Field: 'Creative', Characteristic: 'DEX'},
     'Sleight of Hand': {Field: 'Creative', Characteristic: 'DEX'},
     Tailoring: {Field: 'Creative', Characteristic: 'DEX'},

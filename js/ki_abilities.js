@@ -1,4 +1,9 @@
 /*global define: false */
+/**
+ * Data on the available Ki and Nemesis Abilities.
+ * @module ki_abilities
+ * @requires tables
+ */
 define(['tables'], function (tables) {
     return {
         'Absorption of Energy': {MK: 30, Requirements: ['Use of Ki', 'Presence Extrusion']},

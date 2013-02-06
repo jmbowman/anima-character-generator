@@ -1,4 +1,9 @@
 /*global define: false */
+/**
+ * Data on Powers for non-human creatures.  Used for the rules in Chapter 26:
+ * "Creation of Beings" from the core rulebook.
+ * @module powers
+ */
 define([], function () {
     return {
         'Natural Weapons': {

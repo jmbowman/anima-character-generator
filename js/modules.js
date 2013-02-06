@@ -1,4 +1,8 @@
 /*global define: false */
+/**
+ * Data on Combat Modules (weapons, fighting styles, etc.)
+ * @module modules
+ */
 define({
     'Similar Weapon': {Primary: 'Combat', DP: 10, Options: [], Option_Title: 'Select a Weapon'},
     'Mixed-Class Weapon': {Primary: 'Combat', DP: 15, Options: [], Option_Title: 'Select a Weapon'},

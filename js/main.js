@@ -1,4 +1,14 @@
 /*global document: false, require: false */
+/**
+ * Main script loaded by RequireJS to start the application.
+ * @module main
+ * @requires jquery
+ * @requires render
+ * @requires dialogs
+ * @requires pubsub
+ * @requires spinner
+ * @requires validate
+ */
 require({
     paths: {
         jqueryui: 'libs/jqueryui',

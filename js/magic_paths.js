@@ -1,4 +1,8 @@
 /*global define: false */
+/**
+ * Data on the Paths of Magic.
+ * @module magic_paths
+ */
 define({
     Air: {},
     Creation: {},

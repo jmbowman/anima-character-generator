@@ -1,4 +1,9 @@
 /*global define: false */
+/**
+ * Data on Essential Abilities for non-human creatures.  Used for the rules in
+ * Chapter 26: "Creation of Beings" from the core rulebook.
+ * @module essential_abilities
+ */
 define(['magic_paths', 'psychic_disciplines', 'tables'],
 function (paths, disciplines, tables) {
     return {

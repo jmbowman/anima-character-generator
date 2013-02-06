@@ -1,4 +1,9 @@
 /*global define: false */
+/**
+ * Data for the "Cultural Roots" advantage described in Chapter 7 of Gaia:
+ * Beyond the Dreams.
+ * @module cultural_roots
+ */
 define({
     'Abel (Middle Class / Lower Class)': {Athleticism: 15, Ride: 10, Swim: 10, Notice: 15, 'Slight of Hand': 10, Persuasion: 10, History: {local: 10}},
     'Abel (Bourgeois)': {Ride: 10, Swim: 10, Persuasion: 15, Style: 10, History: {local: 10}, Appraisal: 15, Dance: 10},

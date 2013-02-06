@@ -1,8 +1,30 @@
 /*global define: false */
+/**
+ * Module which exports a class for an Anima: Beyond Fantasy character. May be
+ * a PC, NPC, or even a creature with Essential Abilities and/or Powers.  Pass
+ * an instance to JSON.stringify() to get a savable representation of the
+ * character.  Some of this class's methods are defined in other modules; be
+ * sure to require the appropriate module before attempting to use the methods
+ * defined in it.
+ * @module character
+ * @requires jquery
+ * @requires abilities
+ * @requires classes
+ * @requires cultural_roots
+ * @requires psychic_disciplines
+ * @requires essential_abilities
+ * @requires tables
+ * @requires lib/utils
+ * @see module:combat
+ */
 define(['jquery', 'abilities', 'classes', 'cultural_roots', 'psychic_disciplines',
 'essential_abilities', 'tables', 'libs/utils'], function ($, abilities, classes,
 cultural_roots, disciplines, essential_abilities, tables, utils) {
 
+    /**
+     * @constructor
+     * @alias module:character
+     */
     var Character = function () {
         if (!(this instanceof Character)) {
             return new Character();
@@ -13,8 +35,18 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         this.XP = 0;
         this.levels = [{Class: 'Freelancer', DP: {}}];
     };
-  
-    Character.prototype.ability = function (name, specialty) {
+
+    /**
+     * Calculate the character's score in a Primary or Secondary Ability.
+     * This base amount can be further modified by martial arts, weapons,
+     * armor, etc. (see {@link character.Character#unarmed_ability}).
+     * @param {String} name The name of an ability
+     * @param {String} [specialty] A specialty within a Secondary Ability
+     * @param {Number} [level] Get the score as of this level.  If omitted,
+     *     get the character's current score.
+     * @returns {Number}
+     */
+    Character.prototype.ability = function (name, specialty, level) {
         var myAdvantages = this.Advantages,
             myDisadvantages = this.Disadvantages,
             ability = abilities[name],
@@ -32,13 +64,16 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             i,
             info,
             length,
-            level = this.level(),
             nb_multiplier = 1,
             option,
             params,
             spec,
+            tot_level = this.level(),
             total = 0,
             use_of_armor = name === 'Wear Armor' && myAdvantages['Use of Armor'];
+        if (typeof level !== 'undefined') {
+            count = level === 0 ? 1 : level;
+        }
         params = myAdvantages['Natural Learner'];
         if (params && params.Ability === name) {
             each_level += params.Points * 10;
@@ -99,7 +134,7 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             }
             amount = cls.bonuses[name];
             if (amount) {
-                bonuses += (level === 0) ? Math.floor(amount / 2) : amount;
+                bonuses += (tot_level === 0) ? Math.floor(amount / 2) : amount;
             }
             if (combat_senses === name) {
                 bonuses += 5;
@@ -138,10 +173,16 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         if ('Talented' in myAdvantages && name === 'Sleight of Hand') {
             bonuses += 30;
         }
-        total += bonuses + this.modifier(characteristic);
+        total += bonuses + this.modifier(characteristic, level);
         return total;
     };
 
+    /**
+     * Get the character's Appearance score.  Applies appropriate Nephilim and
+     * disadvantage modifiers.  Returns 5 if an Appearance hasn't yet been set
+     * for the character.
+     * @returns {Number}
+     */
     Character.prototype.appearance = function () {
         var total = ('Appearance' in this) ? this.Appearance : 5;
         if (this.Race === "D'Anjayni Nephilim") {
@@ -157,7 +198,16 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         }
         return total;
     };
-  
+
+    /**
+     * Perform a class change for the character.  If this is being done for a
+     * level other than the character's latest, also changes the minimum number
+     * of levels afterwards that the character would had to have stayed in the
+     * new class before changing back.
+     * @param {Number} level The first character level at which the character
+     *     will advance as the new class
+     * @param {String} class_name The name of the new class
+     */
     Character.prototype.change_class = function (level, class_name) {
         var i = (level > 0) ? level - 1 : 0,
             levels = this.levels;
@@ -167,6 +217,13 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         }
     };
 
+    /**
+     * Get one of the character's Characteristic values at the specified level.
+     * @param {String} name The abbreviated name of a characteristic (STR, DEX,
+     *     AGI, CON, INT, POW, WP, or PER)
+     * @param {Number} [at_level] If omitted, gets the current value
+     * @returns {Number}
+     */
     Character.prototype.characteristic = function (name, at_level) {
         var count,
             first_level_dp = this.levels[0].DP,
@@ -257,7 +314,13 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         }
         return total;
     };
-  
+
+    /**
+     * Get the number of DP spent at the specified level to change classes.  If
+     * the character didn't perform a class change at that level, returns 0.
+     * @param {Number} level
+     * @returns {Number}
+     */
     Character.prototype.class_change_dp = function (level) {
         var cost = 60,
             last_class,
@@ -290,7 +353,13 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         }
         return cost;
     };
-  
+
+    /**
+     * Determine if it would be possible for the character to perform a class
+     * change at the current level (without considering the DP cost).
+     * @param {Number} level
+     * @returns {Boolean}
+     */
     Character.prototype.class_change_possible = function (level) {
         var levels = this.levels,
             racial_level = this['Racial Level'];
@@ -319,17 +388,17 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         }
         return true;
     };
-    
+
+    /**
+     * Returns the current stage in creating the character.  Not every
+     * character goes through all stages; humans and Nephilim can't choose
+     * elemental affinity or essential abilities, other creatures don't choose
+     * advantages or disadvantages.
+     * @returns {Number} 1 for creature type, 2 for Gnosis and elemental tie,
+     *     3 for essential abilities, 4 for basic stats, 5 for (dis)advantages,
+     *     6 if beyond that
+     */
     Character.prototype.creation_stage = function () {
-        // summary:
-        //         Returns the current stage in creating the character.  Not
-        //         every character goes through all stages; humans and Nephilim
-        //         can't choose elemental affinity or essential abilities,
-        //         other creatures don't choose advantages or disadvantages.
-        // returns:
-        //         1 for creature type, 2 for Gnosis and elemental tie,
-        //         3 for essential abilities, 4 for basic stats,
-        //         5 for (dis)advantages, 6 if beyond that
         var dp,
             ea = 0,
             i,
@@ -377,6 +446,12 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         return 1;
     };
 
+    /**
+     * Get the Damage Resistance Multiple which corresponds to this character's
+     * size.  Generally only relevant for non-human creatures which use the
+     * Damage Resistance rule for defense and Life Points.
+     * @returns {Number}
+     */
     Character.prototype.damage_resistance_multiple = function () {
         var size = this.size();
         if (size < 4) {
@@ -397,6 +472,12 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         return 20;
     };
 
+    /**
+     * Get an array of the names of the Psychic Disciplines which the character
+     * has or can potentially gain access to.  This includes ones which the
+     * character has not yet spent Psychic Points to gain affinity with.
+     * @return {Array}
+     */
     Character.prototype.discipline_access = function () {
         var first_level_dp = this.levels[0].DP,
             myAdvantages = this.Advantages,
@@ -416,11 +497,20 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         return [];
     };
 
+    /**
+     * Determine if this character is allowed to have an elemental type.
+     * Basically, yes iff it is a Being Between Worlds or a Spirit.
+     * @returns {Boolean}
+     */
     Character.prototype.element_allowed = function () {
         var type = this.Type;
         return (type === 'Between Worlds' || type === 'Spirit');
     };
 
+    /**
+     * Get the character's total number of Fatigue Points.
+     * @returns {Number}
+     */
     Character.prototype.fatigue = function () {
         var first_level_dp = this.levels[0].DP,
             fatigue_resistance = first_level_dp['Fatigue Resistance'],
@@ -443,27 +533,48 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         }
         return total;
     };
-  
+
+    /**
+     * Get the character's gender.  Defaults to "Male" if not set yet.
+     * @returns {String}
+     */
     Character.prototype.gender = function () {
         var gender = this.Gender;
         return gender ? gender : 'Male';
     };
-  
+
+    /**
+     * Get the character's Gnosis.  Defaults to 0 if not set yet.
+     * @returns {Number}
+     */
     Character.prototype.gnosis = function () {
         var gnosis = this.Gnosis;
         return gnosis ? gnosis : 0;
     };
 
+    /**
+     * Return true if the character is a corporeal undead creature,
+     * false otherwise.
+     * @returns {Boolean}
+     */
     Character.prototype.is_corporeal_undead = function () {
         var type = this.Type;
         return type && type.indexOf('Between Worlds, Undead') > -1;
     };
 
+    /**
+     * Return true if the character is a Spirit, false otherwise.
+     * @returns {Boolean}
+     */
     Character.prototype.is_spirit = function () {
         var type = this.Type;
         return type && type.indexOf('Spirit') > -1;
     };
-  
+
+    /**
+     * Get the character's current level.  Derived from his/her current XP.
+     * @returns {Number}
+     */
     Character.prototype.level = function () {
         var chart = tables.xp_chart,
             i,
@@ -477,11 +588,22 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             }
         }
     };
-    
+
+    /**
+     * Get the data on the choices the character made at the specified level.
+     * The returned object always has Class and DP properties, and may also
+     * have ones for Characteristic, MK, and Natural Bonus.
+     * @param {Number} level
+     * @returns {Object}
+     */
     Character.prototype.level_info = function (level) {
         return this.levels[level === 0 ? 0 : level - 1];
     };
 
+    /**
+     * Get the character's current total Life Points.
+     * @returns {Number}
+     */
     Character.prototype.life_points = function () {
         var cls,
             con_mod = this.modifier('CON'),
@@ -518,6 +640,11 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         return result;
     };
 
+    /**
+     * Gets the character's current Magic Accumulation (regardless of whether
+     * or not they have the ability to utilize it).
+     * @return {Number}
+     */
     Character.prototype.ma = function () {
         var base = tables.base_ma[this.characteristic('POW')],
             i,
@@ -536,14 +663,32 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         return total;
     };
 
+    /**
+     * Get the character's modifier for the specified characteristic at the
+     * specified level
+     * @param {String} characteristic The abbreviated name of a characteristic
+     *     (STR, DEX, AGI, CON, INT, POW, WP, or PER)
+     * @param {Number} [at_level] If omitted, the current value is returned
+     */
     Character.prototype.modifier = function (characteristic, at_level) {
         return tables.modifiers[this.characteristic(characteristic, at_level)];
     };
 
+    /**
+     * Get the character's current Presence (determined purely by level).
+     * @returns {Number}
+     */
     Character.prototype.presence = function () {
         return this.level() * 5 + 25;
     };
-  
+
+    /**
+     * Get a listing of the character's known psychic  powers.  Returns an
+     * object whose attribute names are the Power names and values are the
+     * character's Psychic Potential with those powers.
+     * @returns {Object}
+     * @todo Finish implementing this
+     */
     Character.prototype.psychic_powers = function () {
         var info = this.Advantages['Access to Natural Psychic Powers'],
             points,
@@ -562,7 +707,12 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         }
         return powers;
     };
-  
+
+    /**
+     * Get a text listing of the character's racial abilities.  Currently only
+     * has information for the Nephilim races.
+     * @returns {String}
+     */
     Character.prototype.racial_abilities = function () {
         switch (this.Race) {
         case "D'Anjayni Nephilim":
@@ -581,7 +731,11 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             return '';
         }
     };
-  
+
+    /**
+     * Get the character's Regeneration score.
+     * @returns {Number}
+     */
     Character.prototype.regeneration = function () {
         var gnosis = this.gnosis(),
             advantage = this.Advantages.Regeneration,
@@ -607,6 +761,11 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         return total;
     };
 
+    /**
+     * Get the magnitude of the character's penalty with their second weapon
+     * when using one.  Usually 40, but reduced to 10 by Ambidextrous.
+     * @returns {Number}
+     */
     Character.prototype.second_hand_penalty = function () {
         if ('Ambidextrous' in this.Advantages) {
             return 10;
@@ -618,7 +777,12 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             return 40;
         }
     };
-  
+
+    /**
+     * Set the character's Natural Bonus at the specified level.
+     * @param {Number} level
+     * @param {Object} name The name of the Secondary Ability to increase
+     */
     Character.prototype.set_natural_bonus = function (level, name) {
         var levels = this.levels;
         if (level < 1 || level > levels.length) {
@@ -626,7 +790,11 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         }
         levels[level - 1]['Natural Bonus'] = name;
     };
-  
+
+    /**
+     * Get the character's Size Characteristic.
+     * @returns {Number}
+     */
     Character.prototype.size = function () {
         var total = this.characteristic('STR') + this.characteristic('CON'),
             uncommon_size = this.Advantages['Uncommon Size'],
@@ -646,7 +814,12 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         }
         return total;
     };
-  
+
+    /**
+     * Get a text summary of the character, something like
+     * "Fred (Wizard 2, Mentalist 3)".
+     * @returns {String}
+     */
     Character.prototype.summary = function () {
         var my_classes = [],
             class_levels = {},
@@ -683,7 +856,13 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         result += ')';
         return result;
     };
-    
+
+    /**
+     * Get a text listing of the character's Gnosis, creature type, and
+     * element (if any).  Empty for humans and Nephilim, this is intended for
+     * creature stat blocks.
+     * @returns {String}
+     */
     Character.prototype.type_and_gnosis = function () {
         var element = this.Element,
             gnosis = this.Gnosis,
@@ -702,13 +881,13 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         return result;
     };
 
+    /**
+     * Determine if the character is capable of developing the ability to cast
+     * spells.
+     * @returns {Boolean} True if the character has some form of The Gift,
+     *     false otherwise
+     */
     Character.prototype.has_gift = function () {
-        // summary:
-        //         Determine if the character is capable of developing the
-        //         ability to cast spells.
-        // returns:
-        //         True if the character has some form of The Gift, false
-        //         otherwise.
         var myAdvantages = this.Advantages;
         if ('The Gift' in myAdvantages) {
             return true;
@@ -722,6 +901,11 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         return false;
     };
 
+    /**
+     * Get the character's total Zeon count (even if he can't normally utilize
+     * it).
+     * @returns {Number}
+     */
     Character.prototype.zeon = function () {
         var i,
             level,
@@ -746,7 +930,12 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         }
         return total;
     };
-    
+
+    /**
+     * Get the character's total Magic Level (some of which may not have been
+     * allocated yet to learning spells and such).
+     * @returns {Number}
+     */
     Character.prototype.magic_level = function () {
         var i,
             level,
@@ -772,25 +961,15 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
     return Character;
 });
 
-// Level object: Class, DP, Natural Bonus, MK, Characteristic
 // Duk'zarist first psychic discipline must be Pyrokinesis
 
 // Ki points, accumulations
-// Attack + Block + Dodge cap (50% of total DP)
-// Max 50 gap between Attack and Defense
-// Magic, Psychic Projection caps (half of Supernatural, Psychic caps)
 // Weapon modules
 // Martial arts
 
 // Psychic Points
-// Psychic Projection
 // Psychic Modules
-
-// Zeon
-// MA
-// Magic Projection
-// Summon, Control, Banish, Bind
+// Magic Paths
 // Mystical Modules
 
 // Height, weight, age, eye and hair colors
-// Secondary Abilities

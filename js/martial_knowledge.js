@@ -1,16 +1,35 @@
 /*global define: false */
-define(['jquery', 'character', 'classes', 'ki_abilities'],
-       function ($, Character, classes, ki_abilities) {
+/**
+ * Adds new methods to the {@link module:character} class in order to handle
+ * the allocation of Martial Knowledge.  To use any of the added methods,
+ * require this module first.
+ * @module martial_knowledge
+ * @requires jquery
+ * @requires character
+ * @requires classes
+ * @requires ki_abilities
+ * @requires martial_arts
+ * @see module:character#add_ki_ability
+ * @see module:character#has_ki_ability
+ * @see module:character#ki_concealment
+ * @see module:character#ki_detection
+ * @see module:character#mk_remaining
+ * @see module:character#mk_totals
+ * @see module:character#mk_used
+ * @see module:character#remove_ki_ability
+ * @see module:character#update_level
+ */
+define(['jquery', 'character', 'classes', 'ki_abilities', 'martial_arts'],
+       function ($, Character, classes, ki_abilities, martial_arts) {
 
+    /**
+     * Give the character a Ki Ability at the specified level.
+     * @method module:character#add_ki_ability
+     * @param {String} name The name of the Ki Ability obtained
+     * @param {Number} level The level at which the Ki Ability was purchased
+     * @param {String} [option] ny relevant parameter, such as an element type
+     */
     Character.prototype.add_ki_ability = function (name, level, option) {
-        // summary:
-        //         Give the character a Ki Ability at the specified level.
-        // name: String
-        //         The name of the Ki Ability obtained
-        // level: Integer
-        //         The level at which the Ki Ability was purchased
-        // option: String?
-        //         Any relevant parameter, such as an element type
         var index = (level === 0) ? 0 : level - 1,
             ki_ability = ki_abilities[name],
             cost = ki_ability.MK,
@@ -50,19 +69,17 @@ define(['jquery', 'character', 'classes', 'ki_abilities'],
         }
     };
 
+    /**
+     * Does the character already have a certain Ki Ability?
+     * @method module:character#has_ki_ability
+     * @param {String} name The name of the Ki Ability
+     * @param {String} [option] The name of the option, in the case of Ki
+     *     Abilities that can be taken for multiple elements, etc.
+     * @param {Number} [level] If specified, the level by which the character
+     *     must have the Ki Ability for the return value to be true.
+     * @returns {Boolean}
+     */
     Character.prototype.has_ki_ability = function (name, option, level) {
-        // summary:
-        //         Does the character already have a certain Ki Ability?
-        // name: String
-        //         The name of the Ki Ability
-        // option: String?
-        //         The name of the option, in the case of Ki Abilities that can
-        //         be taken for multiple elements, etc.
-        // level: Integer?
-        //         If specified, the level by which the character must have the
-        //         Ki Ability for the return value to be true.
-        // returns:
-        //         True if the character already has it, false otherwise
         var mk,
             i,
             levels = this.levels,
@@ -84,13 +101,13 @@ define(['jquery', 'character', 'classes', 'ki_abilities'],
         return false;
     };
 
+    /**
+     * Calculates the character's Ki Concealment score.  Doesn't  verify that
+     * he actually has the Ki Concealment ability.
+     * @method module:character#ki_concealment
+     * @returns {Number}
+     */
     Character.prototype.ki_concealment = function () {
-        // summary:
-        //         Calculates the character's Ki Concealment score.  Doesn't
-        //         verify that he actually has the Ki Concealment ability.
-        // returns:
-        //         The character's Ki Concealment score (or what it would be,
-        //         if the character doesn't yet have the ability).
         var bonus,
             cls,
             hide = this.ability('Hide'),
@@ -117,13 +134,13 @@ define(['jquery', 'character', 'classes', 'ki_abilities'],
         return total;
     };
 
+    /**
+     * Calculates the character's Ki Detection score.  Doesn't verify that he
+     * actually has the Ki Detection ability.
+     * @method module:character#ki_detection
+     * @returns {Number}
+     */
     Character.prototype.ki_detection = function () {
-        // summary:
-        //         Calculates the character's Ki Detection score.  Doesn't
-        //         verify that he actually has the Ki Detection ability.
-        // returns:
-        //         The character's Ki Detection score (or what it would be,
-        //         if the character doesn't yet have the ability).
         var ki_perception = 'Ki Perception' in this.Advantages,
             level_count = this.levels.length,
             mk = this.mk_totals()[level_count - 1],
@@ -135,13 +152,14 @@ define(['jquery', 'character', 'classes', 'ki_abilities'],
         return total;
     };
 
+    /**
+     * Calculates the character's total remaining MK at each level.
+     * @method module:character#mk_remaining
+     * @returns {Object} An array of the character's remaining MK at each
+     *     level.  Note that these are cumulative totals, not just the amounts
+     *     remaining from the MK gained at each level.
+     */
     Character.prototype.mk_remaining = function () {
-        // summary:
-        //         Calculates the character's total remaining MK at each level.
-        // returns:
-        //         An array of the character's remaining MK at each level.
-        //         Note that these are cumulative totals, not just the amounts
-        //         remaining from the MK gained at each level.
         var i,
             result = [],
             totals = this.mk_totals(),
@@ -153,22 +171,28 @@ define(['jquery', 'character', 'classes', 'ki_abilities'],
         return result;
     };
 
+    /**
+     * Calculates the character's total MK (from levels, advantages, martial
+     * arts, etc.) at each level.
+     * @method module:character#mk_totals
+     * @param {Number} [level] The level at which to stop calculating the
+     *     character's total MK.  If not specified, the totals for all levels
+     *     are returned.
+     * @returns {Array} An array of the character's total MK at each level up
+     *     to and including the one specified.
+     */
     Character.prototype.mk_totals = function (level) {
-        // summary:
-        //         Calculates the character's total MK (from levels,
-        //         advantages, martial arts, etc.) at each level.
-        // level?:
-        //         The level at which to stop calculating the character's total
-        //         MK.  If not specified, the totals for all levels are
-        //         returned.
-        // returns:
-        //         An array of the character's total MK at each level up to and
-        //         including the one specified.
-        var i,
+        var degree_count,
+            degrees,
+            dp,
+            i,
+            item,
+            j,
             level_info,
             levels = this.levels,
             count = levels.length,
             martial_mastery = this.Advantages['Martial Mastery'],
+            mk,
             result = [],
             total = 0;
         if (typeof level !== 'undefined') {
@@ -180,22 +204,37 @@ define(['jquery', 'character', 'classes', 'ki_abilities'],
         for (i = 0; i < count; i++) {
             level_info = levels[i];
             total += classes[level_info.Class].MK;
-            if ('Martial Knowledge' in level_info.DP) {
-                total += level_info.DP['Martial Knowledge'] * 5;
+            dp = level_info.DP;
+            for (item in dp) {
+                if (dp.hasOwnProperty(item)) {
+                    if (item === 'Martial Knowledge') {
+                        total += level_info.DP['Martial Knowledge'] * 5;
+                    }
+                    else if (item in martial_arts) {
+                        degrees = dp[item];
+                        degree_count = degrees.length;
+                        for (j = 0; j < degree_count; j++) {
+                            mk = martial_arts[item][degrees[j]].MK;
+                            if (mk) {
+                                total += mk;
+                            }
+                        }
+                    }
+                }
             }
             result.push(total);
         }
         return result;
     };
 
+    /**
+     * Calculate how much MK the character has allocated so far.
+     * @method module:character#mk_used
+     * @param {Number} [level] The level at which to stop calculating the
+     *     character's spent MK.  If not specified, all levels are calculated.
+     * @returns {Number} The amount of MK allocated by the specified level.
+     */
     Character.prototype.mk_used = function (level) {
-        // summary:
-        //         Calculates how much MK the character has allocated so far.
-        // level?:
-        //         The level at which to stop calculating the character's spent
-        //         MK.  If not specified, all levels are calculated.
-        // returns:
-        //         The total amount of MK allocated by the specified level.
         var i,
             item,
             levels = this.levels,
@@ -227,6 +266,15 @@ define(['jquery', 'character', 'classes', 'ki_abilities'],
         return used;
     };
 
+    /**
+     * Remove the Ki Ability of the given name from the abilities chosen
+     * at the specified level.
+     * @method module:character#remove_ki_ability
+     * @param {String} name
+     * @param {Number} level
+     * @param {String} [options] Any option needed to uniquely identify the
+     *     ability to be removed (for example, an element name)
+     */
     Character.prototype.remove_ki_ability = function (name, level, options) {
         var array,
             index = level === 0 ? 0 : level - 1,
@@ -245,11 +293,13 @@ define(['jquery', 'character', 'classes', 'ki_abilities'],
         }
     };
 
+    /**
+     * Update the character data (especially the levels array and any
+     * pre-purchased Ki Ability or Dominion Technique) to be appropriate for
+     * the character's current XP total.
+     * @method module:character#update_level
+     */
     Character.prototype.update_level = function () {
-        // summary:
-        //         Update the character data (especially the levels array and
-        //         any pre-purchased Ki Ability or Dominion Technique) to be
-        //         appropriate for the character's current XP total.
         var ability,
             current_level = this.level(),
             levels = this.levels,

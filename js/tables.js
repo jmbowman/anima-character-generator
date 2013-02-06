@@ -1,4 +1,8 @@
 /*global define: false */
+/**
+ * Assorted data lists and tables too short to merit their own files.
+ * @module tables
+ */
 define({
     characteristics: ['STR', 'DEX', 'AGI', 'CON', 'INT', 'POW', 'WP', 'PER'],
     primary_combat_abilities: ['Attack', 'Block', 'Dodge'],

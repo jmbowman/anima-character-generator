@@ -1,4 +1,8 @@
 /*global define: false */
+/**
+ * Data on the Metamagic spheres from Arcana Exxet.
+ * @module metamagic
+ */
 define({
     A: {Name: 'Avatar', Cost: 20, Level: 9, Neighbors: ['AZR3', 'DMP7', 'UZ']},
     AZR1: {Name: 'Advanced Zeon Regeneration', Cost: 5, Neighbors: ['CM', 'DMP1', 'DMP2']},
