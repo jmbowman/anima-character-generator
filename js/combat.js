@@ -297,7 +297,7 @@ function (Character, classes, martial_arts) {
             }
         }
         if (name === 'Initiative') {
-            result = this.initiative(at_level);
+            result = this.initiative(at_level) + 20;
         }
         else {
             result = this.ability(name, at_level);

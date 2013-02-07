@@ -348,6 +348,7 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
             result,
             results = [],
             saved = {Combat: 0, Psychic: 0, Supernatural: 0, Powers: 0, Other: 0},
+            saved_this_level,
             scores = {Attack: 0, Block: 0, Dodge: 0},
             spent,
             totals = {Attack: 0, Block: 0, Dodge: 0, DP: 0,
@@ -355,6 +356,7 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
                       'Psychic Projection': 0, Supernatural: 0,
                       'Martial Knowledge': 0, 'Magic Level': 0};
         for (i = 0; i < level_count; i++) {
+            saved_this_level = {Combat: 0, Psychic: 0, Supernatural: 0, Powers: 0, Other: 0},
             results.push({});
             result = results[i];
             level_info = levels[i];
@@ -432,6 +434,7 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
                     result[primary] -= spent;
                     if (item.indexOf('Save ') === 0) {
                         saved[primary] += spent;
+                        saved_this_level[primary] = spent;
                     }
                     if (item in result) {
                         result[item] -= spent;
@@ -480,7 +483,7 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
                     item = (primary === 'Other') ? 'generic' : primary;
                     item = 'Save ' + item + ' DP for later';
                     // make the saved DP just used unavailable earlier
-                    for (k = i - 1; k > 0; k--) {
+                    for (k = i - 1; k >= 0; k--) {
                         level_dp = levels[k].DP;
                         if (item in level_dp) {
                             remaining += level_dp[item];
@@ -496,7 +499,7 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
                     result[primary] = 0;
                 }
                 // now add in the remaining saved amount
-                result[primary] += saved[primary];
+                result[primary] += saved[primary] - saved_this_level[primary];
                 if (result[primary] > result.Total) {
                     // Ran out of total DP before exhausting this primary
                     result[primary] = result.Total;
@@ -844,7 +847,7 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
                         }
                     }
                 }
-                if (req === 'Ki Abilities') {
+                else if (req === 'Ki Abilities') {
                     count = data.length;
                     for (i = 0; i < count; i++) {
                         if (!this.has_ki_ability(data[i], undefined, level)) {

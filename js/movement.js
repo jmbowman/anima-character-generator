@@ -85,9 +85,11 @@ function (Character, classes) {
      * @return {Number}
      */
     Character.prototype.movement_value = function () {
-        var result = this.characteristic('AGI'),
+        var dp,
+            has_moe = this.has_ki_ability('Movement of Emptiness'),
+            result = this.characteristic('AGI'),
             size;
-        if (this.has_ki_ability('Movement of Emptiness')) {
+        if (has_moe) {
             result = Math.max(result, this.characteristic('POW'));
         }
         if (this.Type !== 'Human') {
@@ -111,8 +113,13 @@ function (Character, classes) {
         if (this.levels[0].DP['Atrophied Members'] === 'Legs') {
             result -= 6;
         }
-        if (result > 10) {
-            result = 10;
+        if (result > 10 && !has_moe && !this.has_ki_ability('Inhumanity')) {
+            if (!this.has_ki_ability('Inhuman (Nemesis)')) {
+                dp = this.levels[0].DP;
+                if (!('Inhumanity' in dp) && !('Zen' in dp)) {
+                    result = 10;
+                }
+            }
         }
         return result;
     };

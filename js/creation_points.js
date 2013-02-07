@@ -247,6 +247,9 @@ disadvantages, tables, utils) {
                     result += params;
                 }
             }
+            else if (name === 'Natural Learner') {
+                result += params.Ability;
+            }
             else if (name === 'Natural Learner, Field') {
                 result += params.Field;
             }
