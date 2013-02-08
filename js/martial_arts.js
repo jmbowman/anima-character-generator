@@ -587,6 +587,10 @@ define({
         },
         Supreme: {
             Advantages: ['Defense penalties don\'t start until fourth attack'],
+            Bonus: {
+                Block: 10,
+                Dodge: 10
+            },
             MK: 10,
             Requirements: {
                 Defense: 200,
@@ -1065,7 +1069,7 @@ define({
             Damage: 10
         },
         Advanced: {
-            Advantages: ['Can make one additional attck with legs at -20'],
+            Advantages: ['Can make one additional attack with legs at -20'],
             Replace: true,
             Damage: 20,
             MK: 10,
@@ -1085,19 +1089,29 @@ define({
     },
     'Tai Chi': {
         Base: {
-            Damage: 20,
-            Characteristic: 'POW',
+            Damage: {
+                Base: 20,
+                Characteristic: 'POW'
+            },
             MK: 10
         },
         Advanced: {
-            Multiplier: 2,
+            Damage: {
+                Base: 20,
+                Characteristic: 'POW',
+                Multiplier: 2
+            },
             MK: 20,
             Requirements: {
                 'Ki Abilities': ['Use of Ki']
             }
         },
         Supreme: {
-            Multiplier: 3,
+            Damage: {
+                Base: 20,
+                Characteristic: 'POW',
+                Multiplier: 3
+            },
             Requirements: {
                 'Ki Abilities': ['Use of Necessary Energy'],
                 Attack: 180,

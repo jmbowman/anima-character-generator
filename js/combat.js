@@ -49,6 +49,7 @@ function (Character, classes, martial_arts) {
     Character.prototype.martial_art_damage = function (martial_art, degree, arts) {
         var art,
             formula,
+            has_tcs = false,
             style = martial_arts[martial_art],
             data = style[degree],
             multiplier = 1,
@@ -71,11 +72,14 @@ function (Character, classes, martial_arts) {
             }
             data = style[degree];
         }
+        if (!arts) {
+            arts = this.martial_arts();
+        }
+        if ('Tai Chi' in arts && arts['Tai Chi'].Degree === 'Supreme') {
+            has_tcs = true;
+        }
         if ('Arcane' in style) {
             // Need to get the best base damage among the Basic martial arts
-            if (!arts) {
-                arts = this.martial_arts();
-            }
             for (name in arts) {
                 if (arts.hasOwnProperty(name)) {
                     art = arts[name];
@@ -84,6 +88,9 @@ function (Character, classes, martial_arts) {
                     }
                     value = this.martial_art_damage(name, art.Degree, arts);
                     result = Math.max(result, value);
+                    if (has_tcs && name !== 'Tai Chi') {
+                        result += this.modifier('POW');
+                    }
                 }
             }
             if ('Damage' in data) {
@@ -101,18 +108,24 @@ function (Character, classes, martial_arts) {
         formula = data.Damage;
         if (typeof formula === 'number') {
             // Fixed amount plus STR modifier
-            return formula + this.modifier('STR');
-        }
-        if ('Characteristic' in formula) {
-            value = this.modifier(formula.Characteristic);
+            result = formula + this.modifier('STR');
         }
         else {
-            value = this.modifier('STR');
+            if ('Characteristic' in formula) {
+                value = this.modifier(formula.Characteristic);
+            }
+            else {
+                value = this.modifier('STR');
+            }
+            if ('Multiplier' in formula) {
+                multiplier = formula.Multiplier;
+            }
+            result = formula.Base + (value * multiplier);
         }
-        if ('Multiplier' in formula) {
-            multiplier = formula.multiplier;
+        if (has_tcs && martial_art !== 'Tai Chi') {
+            result += this.modifier('POW');
         }
-        return formula.Base + (value * multiplier);
+        return result;
     };
 
     /**

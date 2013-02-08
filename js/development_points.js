@@ -14,6 +14,7 @@
  * @requires primaries
  * @requires tables
  * @requires combat
+ * @requires libs/utils
  * @see module:character#add_essential_ability
  * @see module:character#add_martial_art
  * @see module:character#add_module
@@ -33,7 +34,8 @@
  * @see module:character#remove_martial_art
  */
 define(['jquery', 'abilities', 'character', 'classes', 'essential_abilities',
-'martial_arts', 'modules', 'powers', 'primaries', 'tables', 'combat'],
+'martial_arts', 'modules', 'powers', 'primaries', 'tables', 'combat',
+'libs/utils'],
 function ($, abilities, Character, classes, essential_abilities, martial_arts,
           modules, powers, primaries, tables) {
 
@@ -887,6 +889,35 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
                     }
                 }
             }
+        }
+        return true;
+    };
+
+    /**
+     * Determine if the character is allowed to learn a new martial art at the
+     * specified level based on the number he already knows and his total
+     * attack and defense score.  Takes into account martial arts learned later
+     * in his progression as well.
+     * @method module:character#new_martial_art_allowed
+     * @param {Number} level The character level in question
+     * @returns {Boolean}
+     */
+    Character.prototype.new_martial_art_allowed = function (level) {
+        var arts,
+            ability,
+            block,
+            dodge,
+            total_level = this.level();
+        while (level <= total_level) {
+            arts = this.martial_arts(level);
+            block = this.ability('Block', undefined, level);
+            dodge = this.ability('Dodge', undefined, level);
+            ability = Math.max(block, dodge);
+            ability += this.ability('Attack', undefined, level);
+            if (ability - 40 * Object.keys(arts).length < 40) {
+                return false;
+            }
+            level++;
         }
         return true;
     };

@@ -1287,6 +1287,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             }
         }
         dialogs.Natural_Bonus.dialog('open');
+        return false;
     };
 
     ki_ability_options_init = function () {
@@ -1593,6 +1594,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             link,
             name,
             names,
+            new_ma_allowed = data.new_martial_art_allowed(level),
             parts,
             primary,
             type;
@@ -1662,7 +1664,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 }
             }
             cost = data.dp_cost(name, cls, degree);
-            if (cost <= available && data.martial_art_allowed(name, degree, level)) {
+            if (cost <= available && data.martial_art_allowed(name, degree, level) && (new_ma_allowed || degree !== 'Base')) {
                 parts = ['<a href="#" class="add_martial_art" data-level="',
                          level, '"><span class="name">', name,
                          '</span> [<span class="degree">', degree,
