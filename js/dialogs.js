@@ -76,7 +76,9 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         edit_disadvantage_benefit,
         edit_disadvantage_option,
         edit_ea_option,
+        edit_freelancer_bonus,
         edit_natural_bonus,
+        freelancer_init,
         ki_ability_options_init,
         load,
         load_character_init,
@@ -87,6 +89,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         save,
         save_character_init,
         set_ability_dp,
+        set_freelancer_bonus,
         set_natural_bonus,
         spend_dp,
         spend_mk,
@@ -1259,6 +1262,31 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         return false;
     };
 
+    edit_freelancer_bonus = function () {
+        var data = characters.current(),
+            link = $(this),
+            level = parseInt(link.data('level'), 10),
+            level_info = data.level_info(level),
+            bonuses = level_info.Freelancer,
+            name = link.text();
+        if (name === '+') {
+            name = '';
+        }
+        $('#freelancer_name').val(name);
+        $('#freelancer_level').val(level);
+        $('#Freelancer a').each(function () {
+            name = $(this).text();
+            if (bonuses && $.inArray(name, bonuses) >= 0) {
+                link.addClass('disabled');
+            }
+            else {
+                link.removeClass('disabled');
+            }
+        });
+        dialogs.Freelancer.dialog('open');
+        return false;
+    };
+
     edit_natural_bonus = function () {
         var level = $(this).data('level'),
             modifier,
@@ -1290,11 +1318,42 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         return false;
     };
 
+    freelancer_init = function () {
+        var ability,
+            i,
+            name,
+            other = primaries.Other,
+            count = other.length,
+            parts;
+        if ('Freelancer' in dialogs) {
+            return;
+        }
+        for (i = 0; i < count; i++) {
+            ability = other[i];
+            parts = ['<a href="#" class="freelancer">', ability, '</a><br />'];
+            if (ability in abilities && 'Field' in abilities[ability]) {
+                $('#Freelancer_' + abilities[ability].Field).append(parts.join(''));
+            }
+        }
+        dialogs.Freelancer = $('#freelancer_dialog').dialog({
+            autoOpen: false,
+            modal: true,
+            width: '1010px',
+            position: 'top',
+            buttons: {
+                Cancel: function () {
+                    dialogs.Freelancer.dialog('close');
+                }
+            }
+        });
+        
+    };
+
     ki_ability_options_init = function () {
         if ('Ki_Ability_Options' in dialogs) {
             return;
         }
-        dialogs.Module_Options = $('#ki_ability_options_dialog').dialog({
+        dialogs.Ki_Ability_Options = $('#ki_ability_options_dialog').dialog({
             autoOpen: false,
             modal: true,
             width: '400px',
@@ -1558,6 +1617,17 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         parent.append($('<input>', {id: 'ability_dp', type: 'text', value: '' + start}));
         dialogs.Ability_DP.dialog('open');
         parent.find('input').spinner({min: 0, max: max, step: cost});
+        return false;
+    };
+
+    set_freelancer_bonus = function () {
+        var data = characters.current(),
+            level = parseInt($('#freelancer_level').val(), 10),
+            name = $(this).text(),
+            previous = $('freelancer_name').val();
+        data.set_freelancer_bonus(level, name, previous);
+        dialogs.Freelancer.dialog('close');
+        $.publish('level_data_changed');
         return false;
     };
 
@@ -1847,6 +1917,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         ea_advantages_init();
         ea_disadvantages_init();
         ea_option_init();
+        freelancer_init();
         ki_ability_options_init();
         load_character_init();
         mk_init();
@@ -1864,6 +1935,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         $('a.ability').live('click', set_ability_dp);
         $('a.add_martial_art').live('click', add_martial_art);
         $('a.edit_class').live('click', edit_class);
+        $('a.freelancer_bonus').live('click', edit_freelancer_bonus);
         $('a.essential_ability').live('click', configure_essential_ability);
         $('a.characteristic_bonus').live('click', edit_characteristic_bonus);
         $('a.add_ki_ability').live('click', add_ki_ability);
@@ -1876,6 +1948,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         $('#Disadvantages a').live('click', delete_disadvantage);
         $('#ea_advantages a').live('click', delete_essential_ability);
         $('#ea_disadvantages a').live('click', delete_essential_ability);
+        $('#Freelancer a').live('click', set_freelancer_bonus);
         $('#save_button').click(save);
         $('#load_button').click(load);
     });

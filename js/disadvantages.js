@@ -47,7 +47,7 @@ define(['tables'], function (tables) {
         Sickly: {Benefit: 1},
         'Slow Healer': {Benefit: 1},  // heals received are 1/2 strength regardless of supernatural/natural
         'Slow Learner': {Benefit: [1, 2]}, // -4 or -8 penalty to xp per session
-        'Slow Reaction': {Benefit: [1, 2]},  // -30/-60 to initiative
+        'Slow Reactions': {Benefit: [1, 2]},  // -30/-60 to initiative
         'Slow Recovery of Magic':  {Category: 'Magic', Benefit: 1},   // zeon regen cut by 1/2
         'Susceptible to Magic': {Benefit: 1},  // MR reduced by 1/2
         'Susceptible to Poisons': {Benefit: 1},  //VR reduced by 1/2

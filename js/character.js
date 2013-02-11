@@ -61,6 +61,7 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             count = this.levels.length,
             cr,
             each_level = 0,
+            freelancer,
             i,
             info,
             length,
@@ -131,6 +132,10 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             amount = info.DP[name];
             if (amount) {
                 total += amount;
+            }
+            freelancer = info.Freelancer;
+            if (freelancer && $.inArray(name, freelancer) >= 0) {
+                total += 10;
             }
             amount = cls.bonuses[name];
             if (amount) {
@@ -781,7 +786,7 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
     /**
      * Set the character's Natural Bonus at the specified level.
      * @param {Number} level
-     * @param {Object} name The name of the Secondary Ability to increase
+     * @param {String} name The name of the Secondary Ability to increase
      */
     Character.prototype.set_natural_bonus = function (level, name) {
         var levels = this.levels;
@@ -789,6 +794,35 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             return;
         }
         levels[level - 1]['Natural Bonus'] = name;
+    };
+
+    /**
+     * Set one of the character's five bonuses to Secondary Abilities at the
+     * specified level.
+     * @param {Number} level
+     * @param {String} name The name of the Secondary Ability to increase
+     * @param {String} previous The previously selected bonus to replace, if any
+     */
+    Character.prototype.set_freelancer_bonus = function (level, name, previous) {
+        var freelancer_bonuses,
+            levels = this.levels;
+        if (level < 1 || level > levels.length) {
+            return;
+        }
+        freelancer_bonuses = levels[level - 1].Freelancer;
+        if (!freelancer_bonuses) {
+            freelancer_bonuses = [];
+            levels[level - 1].Freelancer = freelancer_bonuses;
+        }
+        if (freelancer_bonuses.length >= 5) {
+            return;
+        }
+        if (previous) {
+            freelancer_bonuses[$.inArray(previous, freelancer_bonuses)] = name;
+        }
+        else {
+            freelancer_bonuses.push(name);
+        }
     };
 
     /**

@@ -342,6 +342,8 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
             level_count = levels.length,
             level_dp,
             level_info,
+            mk = 0,
+            ml = 0,
             new_dp = 600,
             pinch_points,
             primary,
@@ -388,8 +390,10 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
                     result.Total -= 100;
                 }
             }
-            result['Martial Knowledge'] = new_dp / 10;
-            result['Magic Level'] = new_dp / 10;
+            mk += new_dp / 10;
+            ml += new_dp / 10;
+            result['Martial Knowledge'] = mk;
+            result['Magic Level'] = ml;
             result.Other = new_dp + saved.Other;
             result['Magic Projection'] = (totals.Supernatural / 2) - totals['Magic Projection'];
             result['Psychic Projection'] = (totals.Psychic / 2) - totals['Psychic Projection'];
@@ -440,6 +444,12 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
                     }
                     if (item in result) {
                         result[item] -= spent;
+                        if (item === 'Magic Level') {
+                            ml -= spent;
+                        }
+                        else if (item === 'Martial Knowledge') {
+                            mk -= spent;
+                        }
                     }
                     if (item in scores) {
                         costs[item] = cost;

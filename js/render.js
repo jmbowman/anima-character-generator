@@ -732,13 +732,16 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         var amount,
             available,
             content,
+            count,
             data = characters.current(),
             current_level = data.level(),
             dp,
             ea_advantages = essential_abilities.advantages,
             ea_disadvantages = essential_abilities.disadvantages,
+            freelancer,
             hr,
             i,
+            j,
             imk,
             level,
             levels,
@@ -792,6 +795,21 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             }
             line = $('<div>').addClass('span-13 last level').html(content);
             $('#levels').append(line);
+            if (level.Class === 'Freelancer') {
+                freelancer = level.Freelancer || [];
+                content = 'Freelancer Bonuses:';
+                count = freelancer.length;
+                parts = [];
+                for (j = 0; j < count; j++) {
+                    parts.push(' <a href="#" class="freelancer_bonus" data-level="' + level_number + '">' + freelancer[j] + '</a>');
+                }
+                content += parts.join(',');
+                if (count < 5) {
+                    content += ' <a href="#" class="freelancer_bonus" data-level="' + level_number + '">+</a>';
+                }
+                line = $('<div>').addClass('span-13 last level').html(content);
+                $('#levels').append(line);
+            }
             if (remaining_dp_for_level.Total > 0) {
                 content = remaining_dp_for_level.Total + ' DP remaining (Limits: ' + remaining_dp_for_level.Combat + ' Combat, ' + remaining_dp_for_level.Psychic + ' Psychic, ' + remaining_dp_for_level.Supernatural + ' Supernatural';
                 if (data.Type !== 'Human') {
