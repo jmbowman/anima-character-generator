@@ -282,7 +282,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
     };
 
     add_martial_art = function () {
-        var data = characters.current()
+        var data = characters.current(),
             link = $(this),
             degree = link.find('.degree').text(),
             level = parseInt(link.data('level'), 10),
@@ -1321,7 +1321,6 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
     freelancer_init = function () {
         var ability,
             i,
-            name,
             other = primaries.Other,
             count = other.length,
             parts;
@@ -1395,6 +1394,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                         character = characters.current(),
                         data = JSON.parse($('#load_text').val());
                     if (data) {
+                        character.clear();
                         for (attr in data) {
                             if (data.hasOwnProperty(attr)) {
                                 character[attr] = data[attr];

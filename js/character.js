@@ -223,10 +223,21 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
     };
 
     /**
-     * 
+     * Reset the character data to the default values used when starting to
+     * build a character.  Used when loading new character data.
      */
     Character.prototype.clear = function () {
-        
+        this.Advantages = {};
+        this.Disadvantages = {};
+        this.Race = '';
+        this.XP = 0;
+        this.levels = [{Class: 'Freelancer', DP: {}}];
+        if ('First Martial Art' in this) {
+            delete this['First Martial Art'];
+        }
+        if ('Insufficient Martial Knowledge' in this) {
+            delete this['Insufficient Martial Knowledge'];
+        }
     };
 
     /**
@@ -721,7 +732,7 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
                 result += 1;
             }
             if ('Psychic Points' in dp) {
-                result += dp['Psychic Points']
+                result += dp['Psychic Points'];
             }
         }
         return result;
