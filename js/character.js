@@ -223,6 +223,13 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
     };
 
     /**
+     * 
+     */
+    Character.prototype.clear = function () {
+        
+    };
+
+    /**
      * Get one of the character's Characteristic values at the specified level.
      * @param {String} name The abbreviated name of a characteristic (STR, DEX,
      *     AGI, CON, INT, POW, WP, or PER)
@@ -685,6 +692,39 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
      */
     Character.prototype.presence = function () {
         return this.level() * 5 + 25;
+    };
+
+    /**
+     * Get the character's total number of psychic points.
+     * @returns {Number}
+     */
+    Character.prototype.psychic_points = function () {
+        var class_levels = {},
+            cls,
+            dp,
+            i,
+            level,
+            levels = this.levels,
+            count = levels.length,
+            result = 1;
+        for (i = 0; i < count; i++) {
+            level = levels[i];
+            cls = level.Class;
+            dp = level.DP;
+            if (cls in class_levels) {
+                class_levels[cls] += 1;
+            }
+            else {
+                class_levels[cls] = 1;
+            }
+            if (class_levels[cls] % classes[cls]['Innate Psychic Points'] === 0) {
+                result += 1;
+            }
+            if ('Psychic Points' in dp) {
+                result += dp['Psychic Points']
+            }
+        }
+        return result;
     };
 
     /**

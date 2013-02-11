@@ -241,6 +241,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         }
         $('.Zeon', root).text(data.zeon());
         $('.Magic_Level', root).text(data.magic_level());
+        $('.Psychic_Points', root).text(data.psychic_points());
         text = data.racial_abilities();
         if (text) {
             $('.Racial-Abilities').text(text);
