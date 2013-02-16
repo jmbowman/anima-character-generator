@@ -732,6 +732,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
     render.update_level = function () {
         var amount,
             available,
+            characteristic,
             content,
             count,
             data = characters.current(),
@@ -838,6 +839,17 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                         if (modules[name].Option_Title) {
                             line += ' (' + dp[name].join(', ') + ')';
                         }
+                    }
+                    else if (name === 'Accumulation Multiple' || name === 'Ki') {
+                        available = remaining_dp_for_level.Combat;
+                        for (characteristic in dp[name]) {
+                            if (dp[name].hasOwnProperty(characteristic)) {
+                                line = '<span class="name">' + name + '</span> (';
+                                line += characteristic + '): ' + dp[name][characteristic];
+                                parts.push('<a href="#" class="ability" data-available="' + available + '" data-level="' + level_number + '" data-characteristic="' + characteristic + '">' + line + '</a>');
+                            }
+                        }
+                        continue;
                     }
                     else {
                         amount = dp[name];

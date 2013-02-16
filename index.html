@@ -5,6 +5,7 @@
   <title>Anima: Beyond Fantasy Character Generator</title>
   <meta name="keywords" content="anima, character generator" />
   <meta name="description" content="Generate or update a character for the Anima: Beyond Fantasy role-playing game" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <!--<link href="images/favicon.png" rel="icon" type="image/png" />
   <link href="images/favicon.ico" rel="icon" type="image/x-icon" />
   <link href="images/favicon.ico" rel="shortcut icon" type="image/x-icon" />-->
@@ -256,7 +257,8 @@
 </form>
 
 <div id="ability_dp_dialog" style="display: none;" title="Amount of DP to Spend">
-    <div id="ability_spend">Spend how many DP on <span id="ability_name"> </span> this level?</div>
+    <div id="ability_spend">Spend how many DP on <span id="ability_name"> </span>
+        <span id="ability_details"> (<span id="ability_characteristic"> </span>)</span> this level?</div>
     <div id="ability_save" style="display: none;">Save how many <span id="ability_primary"> </span> DP this level?</div>
     <input type="hidden" id="ability_level" name="ability_level" value="" />
     <input type="hidden" id="ability_cost" name="ability_cost" value="" />
@@ -528,6 +530,20 @@
   <input type="hidden" id="ki_ability_options_name" name="module_options_name" value="" />
   <input type="hidden" id="ki_ability_options_level" name="module_options_level" value="" />
   <div id="ki_ability_options"> </div>
+</div>
+
+<div id="ki_characteristic_dialog" style="display: none;">
+  <input type="hidden" id="ki_characteristic_available" name="ki_characteristic_available" value="" />
+  <input type="hidden" id="ki_characteristic_level" name="ki_characteristic_level" value="" />
+  <input type="hidden" id="ki_characteristic_name" name="ki_characteristic_name" value="" />
+  <select id="Ki_Characteristic" name="Ki_Characteristic">
+    <option value="STR">STR</option>
+    <option value="DEX">DEX</option>
+    <option value="AGI">AGI</option>
+    <option value="CON">CON</option>
+    <option value="POW">POW</option>
+    <option value="WP">WP</option>
+  </select>
 </div>
 
 <div id="load_dialog" style="display:none;" title="Load Character">

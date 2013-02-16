@@ -45,6 +45,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         advantages_init,
         characteristic_bonus_init,
         class_init,
+        configure_ability,
         configure_advantage,
         configure_disadvantage,
         configure_essential_ability,
@@ -80,6 +81,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         edit_natural_bonus,
         freelancer_init,
         ki_ability_options_init,
+        ki_characteristic_init,
         load,
         load_character_init,
         mk_init,
@@ -107,17 +109,36 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             buttons: {
                 OK: function () {
                     var data = characters.current(),
+                        characteristic = $('#ability_characteristic').text(),
                         cost = parseInt($('#ability_cost').val(), 10),
                         dp = $('#ability_dp').spinner('value'),
                         level = parseInt($('#ability_level').val(), 10),
                         level_info = data.level_info(level),
                         name = $('#ability_name').text();
                     if (dp) {
-                        level_info.DP[name] = dp / cost;
+                        if (characteristic) {
+                            // Accumulation Multiple or Ki
+                            if (!(name in level_info.DP)) {
+                                level_info.DP[name] = {};
+                            }
+                            level_info.DP[name][characteristic] = dp / cost;
+                        }
+                        else {
+                            level_info.DP[name] = dp / cost;
+                        }
                         $.publish('level_data_changed');
                     }
                     else if (name in level_info.DP) {
-                        delete level_info.DP[name];
+                        if (characteristic) {
+                            // Accumulation Multiple or Ki
+                            delete level_info.DP[name][characteristic];
+                            if (Object.keys(level_info.DP[name]).length === 0) {
+                                delete level_info.DP[name];
+                            }
+                        }
+                        else {
+                            delete level_info.DP[name];
+                        }
                         $.publish('level_data_changed');
                     }
                     dialogs.Ability_DP.dialog('close');
@@ -443,7 +464,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             }
         });
     };
-  
+
     class_init = function () {
         if ('Class' in dialogs) {
             return;
@@ -465,6 +486,38 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 }
             }
         });
+    };
+
+    /**
+     * Process a click on a link representing an ability, from either the DP
+     * spending options dialog or the list of abilities the character has
+     * already chosen.
+     * @method module:character#configure_ability
+     * @returns {Boolean} Always false, to stop URL change from link click
+     */
+    configure_ability = function () {
+        var link = $(this),
+            available = parseInt(link.data('available'), 10),
+            characteristic = link.data('characteristic'),
+            level = parseInt(link.data('level'), 10),
+            name = link.find('.name').text();
+        dialogs.DP.dialog('close');
+        if (name in martial_arts) {
+            return delete_martial_art(name, level);
+        }
+        if (name in modules) {
+            return configure_module(name, level);
+        }
+        if (!characteristic) {
+            if (name === 'Accumulation Multiple' || name === 'Ki') {
+                $('#ki_characteristic_available').val(available);
+                $('#ki_characteristic_level').val(level);
+                $('#ki_characteristic_name').val(name);
+                dialogs.Ki_Characteristic.dialog('open');
+                return false;
+            }
+        }
+        return set_ability_dp(name, level, available, characteristic);
     };
 
     configure_advantage = function () {
@@ -1373,6 +1426,31 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             }
         });
     };
+
+    ki_characteristic_init = function () {
+        if ('Ki_Characteristic' in dialogs) {
+            return;
+        }
+        dialogs.Ki_Characteristic = $('#ki_characteristic_dialog').dialog({
+            autoOpen: false,
+            modal: true,
+            title: 'For which characteristic?',
+            width: '350px',
+            buttons: {
+                OK: function () {
+                    var available = parseInt($('#ki_characteristic_available').val(), 10),
+                        characteristic = $('#Ki_Characteristic').val(),
+                        level = parseInt($('#ki_characteristic_level').val(), 10),
+                        name = $('#ki_characteristic_name').val();
+                    dialogs.Ki_Characteristic.dialog('close');
+                    return set_ability_dp(name, level, available, characteristic);
+                },
+                Cancel: function () {
+                    dialogs.Ki_Characteristic.dialog('close');
+                }
+            }
+        });
+    };
     
     load = function () {
         $('#load_text').val('');
@@ -1574,26 +1652,29 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             }
         });
     };
-    
-    set_ability_dp = function () {
-        var link = $(this),
-            available = parseInt(link.data('available'), 10),
-            data = characters.current(),
-            level = parseInt(link.data('level'), 10),
+
+    /**
+     * Prompt the user for the number of DP to spend on an ability.
+     * @method module:character#set_ability_dp
+     * @param {String} name The name of the ability
+     * @param {Number} level The character level being edited
+     * @param {Number} available The number of unallocated DP which could be
+     *     spent on this ability
+     * @param {String} [characteristic] The name of the characteristic for Ki
+     *     Points and Accumulation Multiples
+     */
+    set_ability_dp = function (name, level, available, characteristic) {
+        var data = characters.current(),
             level_info = data.level_info(level),
             cls = level_info.Class,
-            name = link.find('.name').text(),
             cost = data.dp_cost(name, cls),
             max = Math.floor(available / cost) * cost,
             parent = $('#ability_dp_parent'),
             purchased = level_info.DP[name],
             start = max;
-        dialogs.DP.dialog('close');
-        if (name in martial_arts) {
-            return delete_martial_art(name, level);
-        }
-        if (name in modules) {
-            return configure_module(name, level);
+        if (characteristic && purchased) {
+            // Accumulation Multiples and Ki Points are by characteristic
+            purchased = purchased[characteristic];
         }
         if (purchased) {
             // Add in any amount already spent this level; show the total
@@ -1601,6 +1682,9 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             max += start;
         }
         $('#ability_name').text(name);
+        // Specifically convert to Boolean; toggle takes many types of args
+        $('#ability_details').toggle(characteristic ? true : false);
+        $('#ability_characteristic').text(characteristic ? characteristic : '');
         $('#ability_cost').val(cost);
         $('#ability_level').val(level);
         $('#ability_limit').text('' + max);
@@ -1919,6 +2003,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         ea_option_init();
         freelancer_init();
         ki_ability_options_init();
+        ki_characteristic_init();
         load_character_init();
         mk_init();
         module_options_init();
@@ -1932,7 +2017,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         $('#disadvantages_tabs a.disadvantage').live('click', configure_disadvantage);
         $('#add_ea_advantage').click(add_ea_advantage);
         $('#add_ea_disadvantage').click(add_ea_disadvantage);
-        $('a.ability').live('click', set_ability_dp);
+        $('a.ability').live('click', configure_ability);
         $('a.add_martial_art').live('click', add_martial_art);
         $('a.edit_class').live('click', edit_class);
         $('a.freelancer_bonus').live('click', edit_freelancer_bonus);

@@ -102,6 +102,43 @@ define(['jquery', 'character', 'classes', 'ki_abilities', 'martial_arts'],
     };
 
     /**
+     * Calculate the character's Ki Accumulation rate for the specified
+     * characteristic.
+     * @method module:character#ki_accumulation
+     * @param {String} characteristic STR, DEX, AGI, CON, POW, or WP
+     * @returns {Number}
+     */
+    Character.prototype.ki_accumulation = function (characteristic) {
+        var dp,
+            i,
+            levels = this.levels,
+            count = levels.length,
+            multiples,
+            score = this.characteristic(characteristic),
+            total = 1;
+        if (score >= 16) {
+            total = 4;
+        }
+        else if (score >= 13) {
+            total = 3;
+        }
+        else if (score >= 10) {
+            total = 2;
+        }
+        for (i = 0; i < count; i++) {
+            dp = levels[i].DP;
+            multiples = dp['Accumulation Multiple'];
+            if (multiples) {
+                multiples = multiples[characteristic];
+                if (multiples) {
+                    total += multiples;
+                }
+            }
+        }
+        return total;
+    };
+
+    /**
      * Calculates the character's Ki Concealment score.  Doesn't  verify that
      * he actually has the Ki Concealment ability.
      * @method module:character#ki_concealment
@@ -153,6 +190,37 @@ define(['jquery', 'character', 'classes', 'ki_abilities', 'martial_arts'],
     };
 
     /**
+     * Calculate the character's total Ki Points for the specified
+     * characteristic.
+     * @method module:character#ki_points
+     * @param {String} characteristic STR, DEX, AGI, CON, POW, or WP
+     * @returns {Number}
+     */
+    Character.prototype.ki_points = function (characteristic) {
+        var dp,
+            i,
+            levels = this.levels,
+            count = levels.length,
+            points,
+            total = this.characteristic(characteristic);
+        if (total > 10) {
+            // Each Characteristic point over 10 yields 2 Ki Points
+            total += (total - 10);
+        }
+        for (i = 0; i < count; i++) {
+            dp = levels[i].DP;
+            points = dp.Ki;
+            if (points) {
+                points = points[characteristic];
+                if (points) {
+                    total += points;
+                }
+            }
+        }
+        return total;
+    };
+
+    /**
      * Calculates the character's total remaining MK at each level.
      * @method module:character#mk_remaining
      * @returns {Object} An array of the character's remaining MK at each
@@ -160,13 +228,27 @@ define(['jquery', 'character', 'classes', 'ki_abilities', 'martial_arts'],
      *     remaining from the MK gained at each level.
      */
     Character.prototype.mk_remaining = function () {
-        var i,
+        var adjustment,
+            amount,
+            i,
+            j,
+            is_level_zero = this.level() === 0,
             result = [],
+            sub_count,
             totals = this.mk_totals(),
-            used = this.mk_used(),
             count = totals.length;
         for (i = count - 1; i >= 0; i--) {
-            result[i] = Math.max(totals[i] - used, 0);
+            amount = totals[i] - this.mk_used(is_level_zero ? 0 : i + 1);
+            result[i] = Math.max(amount, 0);
+            if (amount < 0) {
+                // Pull shortfall from earlier levels, if available
+                sub_count = i + 1;
+                for (j = 0; j < sub_count; j++) {
+                    adjustment = Math.min(-amount, result[j]);
+                    result[j] -= adjustment;
+                    amount += adjustment;
+                }
+            }
         }
         return result;
     };

@@ -326,6 +326,7 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
     Character.prototype.dp_remaining = function () {
         var attack,
             categories = Object.keys(primaries),
+            characteristic,
             class_info,
             class_name,
             cost,
@@ -333,6 +334,7 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
             count,
             defense,
             degrees,
+            entry,
             i,
             item,
             j,
@@ -417,6 +419,15 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
                             }
                             else {
                                 spent = cost;
+                            }
+                        }
+                        else if (item === 'Accumulation Multiple' || item === 'Ki') {
+                            spent = 0;
+                            entry = level_dp[item];
+                            for (characteristic in entry) {
+                                if (entry.hasOwnProperty(characteristic)) {
+                                    spent += entry[characteristic] * cost;
+                                }
                             }
                         }
                         else if (item.indexOf('Attribute Increased') > -1) {
