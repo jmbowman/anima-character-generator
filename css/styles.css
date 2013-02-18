@@ -1,28 +1,14 @@
-body {
-  /*background: black;
-  color: white;*/
+.container label {
+  line-height: 30px;
 }
 
-#creature_level, input.characteristic, #Appearance, #Gnosis {
-  width: 40px;
+span.display {
+  line-height: 30px;
 }
 
-#XP {
-  width: 50px;
-}
-
-div.label-parent
-{
-  line-height: 26px;
-}
-
-span.display
-{
-  line-height: 26px;
-}
-
-.error {
-  padding: 0.1em;
+ul.inline > li {
+  padding-left: 0px;
+  padding-right: 10px;
 }
 
 a.disabled {
@@ -38,4 +24,12 @@ a.maybe {
 .field {
   font-weight: bold;
   border-bottom: 1px solid white;
+}
+
+.modal-body {
+  max-height: none;
+}
+
+#Element, #creature_class {
+  width: 160px;
 }

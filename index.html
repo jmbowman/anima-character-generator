@@ -9,76 +9,82 @@
   <!--<link href="images/favicon.png" rel="icon" type="image/png" />
   <link href="images/favicon.ico" rel="icon" type="image/x-icon" />
   <link href="images/favicon.ico" rel="shortcut icon" type="image/x-icon" />-->
-  <link rel="stylesheet" href="css/dark-hive/jquery-ui-1.8.15.custom.css" />
-  <link rel="stylesheet" href="css/ui.spinner.css" />
-  <link rel="stylesheet" href="css/blueprint/screen.css" media="screen, projection" />
-  <link rel="stylesheet" href="css/blueprint/print.css" media="print" />
-  <!--[if lt IE 8]><link rel="stylesheet" href="css/blueprint/ie.css" type="text/css" media="screen, projection" /><![endif]-->
+  <link rel="stylesheet" href="css/bootstrap.min.css" media="screen" />
+  <link rel="stylesheet" href="css/spinner.css" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-<form id="main_form" action="#">
+<form id="main_form" action="javascript:void(0);">
 <div class="container">
-  <div class="span-24 last"><span class="summary"> </span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="Gnosis"> </span></div>
-  
-  <div class="span-2">LP <span class="lp"> </span></div>
-  <div class="span-2">Fatigue <span class="fatigue"> </span></div>
-  <div class="span-2">MV <span class="MV"> </span></div>
-  <div class="span-3">Regeneration <span class="Regeneration"> </span></div>
-  <div class="span-15 last">&nbsp;</div>
-  
-  <div class="span-2">STR <span class="STR"> </span></div>
-  <div class="span-2">DEX <span class="DEX"> </span></div>
-  <div class="span-2">AGI <span class="AGI"> </span></div>
-  <div class="span-2">CON <span class="CON"> </span></div>
-  <div class="span-2">INT <span class="INT"> </span></div>
-  <div class="span-2">POW <span class="POW"> </span></div>
-  <div class="span-2">WP <span class="WP"> </span></div>
-  <div class="span-2">PER <span class="PER"> </span></div>
-  <div class="span-3">Appearance <span class="Appearance"> </span></div>
-  <div class="span-3">Size <span class="Size"> </span></div>
-  <div class="span-2 last">&nbsp;</div>
+  <div><span class="summary"> </span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="Gnosis"> </span></div>
 
-
-  <div class="span-2">PhR <span class="PhR"> </span></div>
-  <div class="span-2">MR <span class="MR"> </span></div>
-  <div class="span-2">PsR <span class="PsR"> </span></div>
-  <div class="span-2">VR <span class="VR"> </span></div>
-  <div class="span-2">DR <span class="DR"> </span></div>
-  <div class="span-14 last"><span class="resistance_modifiers"> </span>&nbsp;</div>
-
-  <div class="span-24 last">Initiative: <span class="Initiative"> </span></div>
-  <div class="span-24 last">Damage Barrier: <span class="Damage_Barrier"> </span></div>
-  <div class="span-24 last">Base Damage adjustment to incoming attacks: <span class="Base_Damage_reduction"> </span></div>
-  <div class="span-24 last">MK: <span class="MK"> </span> (<span class="unallocated_mk"> </span> unallocated)</div>
-  <div class="span-24 last">Zeon: <span class="Zeon"> </span></div>
-  <div class="span-24 last magic">MA: <span class="MA"> </span>&nbsp;&nbsp;&nbsp; Magic Level: <span class="Magic_Level"> </span></div>
-  <div class="span-24 last">Psychic Points: <span class="Psychic_Points"> </span></div>
-
-  <div class="span-24 last racial-row" style="display: none;">Racial Abilities: <span class="Racial-Abilities"> </span></div>
-
-  <div class="span-24 last ki-abilities-row" style="display: none;">Ki Abilities: <span class="Ki-Abilities"> </span></div>
-
-  <div class="span-24 last dominion-techniques-row" style="display: none;">Dominion Techniques: <span class="Dominion-Techniques"> </span></div>
-
-  <div class="span-24 last abilities-block"> </div>
-
-  <div class="span-24 last">Unarmed Combat:&nbsp;&nbsp;&nbsp;
-    Attack: <span class="Unarmed_Attack"> </span>&nbsp;&nbsp;&nbsp;
-    Damage: <span class="Unarmed_Damage"> </span>&nbsp;&nbsp;&nbsp;
-    Block: <span class="Unarmed_Block"> </span>&nbsp;&nbsp;&nbsp;
-    Dodge: <span class="Unarmed_Dodge"> </span>&nbsp;&nbsp;&nbsp;
-    Initiative: <span class="Unarmed_Initiative"> </span>&nbsp;&nbsp;&nbsp;
+  <div class="row">
+  <div class="span1">LP <span class="lp"> </span>&thinsp;&thinsp;</div>
+  <div class="span2">Fatigue <span class="fatigue"> </span>&thinsp;&thinsp;</div>
+  <div class="span1">MV <span class="MV"> </span>&thinsp;&thinsp;</div>
+  <div class="span2">Regeneration <span class="Regeneration"> </span></div>
+  <div class="span6">&nbsp;</div>
   </div>
 
-  <div class="span-24 last unarmed-advantages-block"> </div>
+  <div class="row">
+  <div class="span1">STR <span class="STR"> </span>&thinsp;&thinsp;</div>
+  <div class="span1">DEX <span class="DEX"> </span>&thinsp;&thinsp;</div>
+  <div class="span1">AGI <span class="AGI"> </span>&thinsp;&thinsp;</div>
+  <div class="span1">CON <span class="CON"> </span>&thinsp;&thinsp;</div>
+  <div class="span1">INT <span class="INT"> </span>&thinsp;&thinsp;</div>
+  <div class="span1">POW <span class="POW"> </span>&thinsp;&thinsp;</div>
+  <div class="span1">WP <span class="WP"> </span>&thinsp;&thinsp;</div>
+  <div class="span1">PER <span class="PER"> </span>&thinsp;&thinsp;</div>
+  <div class="span2">Appearance <span class="Appearance"> </span>&thinsp;&thinsp;</div>
+  <div class="span2">Size <span class="Size"> </span></div>
+  </div>
+
+  <div class="row">
+  <div class="span1">PhR <span class="PhR"> </span>&thinsp;&thinsp;</div>
+  <div class="span1">MR <span class="MR"> </span>&thinsp;&thinsp;</div>
+  <div class="span1">PsR <span class="PsR"> </span>&thinsp;&thinsp;</div>
+  <div class="span1">VR <span class="VR"> </span>&thinsp;&thinsp;</div>
+  <div class="span1">DR <span class="DR"> </span>&thinsp;&thinsp;</div>
+  <div class="span7"><span class="resistance_modifiers"> </span>&nbsp;</div>
+  </div>
+
+  <div>Initiative: <span class="Initiative"> </span></div>
+  <div>Damage Barrier: <span class="Damage_Barrier"> </span></div>
+  <div>Base Damage adjustment to incoming attacks: <span class="Base_Damage_reduction"> </span></div>
+  <div>MK: <span class="MK"> </span> (<span class="unallocated_mk"> </span> unallocated)</div>
+  <div>Zeon: <span class="Zeon"> </span></div>
+  <div class="magic">MA: <span class="MA"> </span>&nbsp;&nbsp;&nbsp; Magic Level: <span class="Magic_Level"> </span></div>
+  <div class="psychic">Psychic Points: <span class="Psychic_Points"> </span></div>
+
+  <div class="racial-row" style="display: none;">Racial Abilities: <span class="Racial-Abilities"> </span></div>
+
+  <div class="ki-abilities-row" style="display: none;">Ki Abilities: <span class="Ki-Abilities"> </span></div>
+
+  <div class="dominion-techniques-row" style="display: none;">Dominion Techniques: <span class="Dominion-Techniques"> </span></div>
+
+  <div class="abilities-block"> </div>
+
+  <div class="secondary-abilities"> </div>
+
+  <div class="row">
+    <div class="span2">Unarmed Combat:&nbsp;&nbsp;</div>
+    <div class="span2">Attack: <span class="Unarmed_Attack"> </span>&nbsp;&nbsp;</div>
+    <div class="span2">Damage: <span class="Unarmed_Damage"> </span>&nbsp;&nbsp;</div>
+    <div class="span2">Block: <span class="Unarmed_Block"> </span>&nbsp;&nbsp;</div>
+    <div class="span2">Dodge: <span class="Unarmed_Dodge"> </span>&nbsp;&nbsp;</div>
+    <div class="span2">Initiative: <span class="Unarmed_Initiative"> </span></div>
+  </div>
+
+  <div class="unarmed-advantages-block"> </div>
 
   <hr />
 
-  <div class="span-11">
-    <div id="creature_type" class="span-11 last">
-      <div class="span-2"><label for="Type">Type</label></div>
-      <div class="span-9 last"><select id="Type" name="Type">
+  <div class="row">
+  <div class="span5">
+    <div id="creature_type">
+      <div class="row">
+      <div class="span1"><label for="Type">Type</label></div>
+      <div class="span4"><select id="Type" name="Type" class="input-xlarge">
         <option value="Human">Human or Nephilim</option>
         <option value="Natural">Natural</option>
         <option value="Between Worlds">Between Worlds</option>
@@ -88,27 +94,35 @@
         <option value="Spirit">Spirit</option>
         <option value="Spirit, Undead">Spirit, Undead</option>
       </select><span class="display"> </span></div>
+      </div>
     
-      <div class="span-11 last">
-        <button id="proceed" type="button">Proceed</button>
-        <button id="save_button" type="button">Save</button>
-        <button id="load_button" type="button">Load</button>
+      <div>
+        <button id="proceed" type="button" class="btn">Proceed</button>
+        <button id="save_button" type="button" class="btn">Save</button>
+        <button id="load_button" type="button" class="btn">Load</button>
       </div>
     </div>
     
-    <div id="attributes" class="span-11 last" style="display: none;">
-        <div class="span-4"><label for="Created">Created by a spell?</label></div>
-        <div class="span-7 last"><select id="Created" name="Created">
+    <div id="attributes" style="display: none;">
+        <div class="row">
+        <div class="span2"><label for="Created">Created by a spell?</label></div>
+        <div class="span3"><select id="Created" name="Created" class="input-mini">
           <option value="No">No</option>
           <option value="Yes">Yes</option>
         </select><span class="display"> </span></div>
-        <div class="span-4"><label for="Damage_Resistance">Damage Resistance?</label></div>
-        <div class="span-7 last"><select id="Damage_Resistance" name="Damage_Resistance">
+        </div>
+
+        <div class="row">
+        <div class="span2"><label for="Damage_Resistance">Damage Resistance?</label></div>
+        <div class="span3"><select id="Damage_Resistance" name="Damage_Resistance" class="input-mini">
           <option value="No">No</option>
           <option value="Yes">Yes</option>
         </select><span class="display"> </span></div>
-        <div class="span-4"><label id="Element_label" for="Element">Element</label></div>
-        <div class="span-7 last"><select id="Element" name="Element">
+        </div>
+
+        <div class="row">
+        <div class="span2"><label id="Element_label" for="Element">Element</label></div>
+        <div class="span3"><select id="Element" name="Element">
           <option value="">None</option>
           <option value="Air">Air</option>
           <option value="Darkness">Darkness</option>
@@ -117,11 +131,16 @@
           <option value="Light">Light</option>
           <option value="Water">Water</option>
         </select><span class="display"> </span></div>
-        <div class="span-4"><label for="Gnosis">Gnosis</label></div>
-        <div class="span-7 last"><input type="text" id="Gnosis" name="Gnosis" value="10" /><span class="display"> </span></div>
+        </div>
 
-        <div class="span-4"><label for="creature_class">Class</label></div>
-        <div class="span-7 last"><select id="creature_class" name="creature_class">
+        <div class="row">
+        <div class="span2"><label for="Gnosis">Gnosis</label></div>
+        <div class="span3"><div id="Gnosis" class="spinner"> </div><span class="display"> </span></div>
+        </div>
+
+        <div class="row">
+        <div class="span2"><label for="creature_class">Class</label></div>
+        <div class="span3"><select id="creature_class" name="creature_class">
           <option value="Acrobatic Warrior">Acrobatic Warrior</option>
           <option value="Assassin">Assassin</option>
           <option value="Dark Paladin">Dark Paladin</option>
@@ -143,54 +162,92 @@
           <option value="Weaponsmaster">Weaponsmaster</option>
           <option value="Wizard">Wizard</option>
         </select><span class="display"> </span></div>
+        </div>
 
-        <div class="span-4"><label for="creature_level">Level</label></div>
-        <div class="span-7 last"><input type="text" id="creature_level" name="creature_level" value="0" /><span class="display"> </span></div>
+        <div class="row">
+        <div class="span2"><label for="creature_level">Level</label></div>
+        <div class="span3"><div id="creature_level" class="spinner"> </div><span class="display"> </span></div>
+        </div>
         
-        <div class="span-11 last"><button id="choose_essential_abilities" type="button">Choose Essential Abilities</button></div>
+        <div><button id="choose_essential_abilities" type="button" class="btn">Choose Essential Abilities</button></div>
     </div>
     
-    <div id="essential_abilities" class="span-11 last" style="display: none;">
-      <div class="span-11 last"><strong>Essential Abilities</strong></div>
-      <div class="span-11 last" id="ea_dp"><span id="dp_left_for_ea"> </span> DP remaining out of <span id="dp_total_for_ea"> </span></div>
-      <div class="span-3"><strong>Advantages</strong></div>
-      <div class="span-8 last"><span id="ea_advantages"> </span>&nbsp;<a id="add_ea_advantage" href="#">+</a></div>
-      <div class="span-3"><strong>Disadvantages</strong></div>
-      <div class="span-8 last"><span id="ea_disadvantages"> </span>&nbsp;<a id="add_ea_disadvantage" href="#">+</a></div>
+    <div id="essential_abilities" style="display: none;">
+      <div><strong>Essential Abilities</strong></div>
+      <div id="ea_dp"><span id="dp_left_for_ea"> </span> DP remaining out of <span id="dp_total_for_ea"> </span></div>
 
-      <div class="span-11 last"><button id="choose_characteristics" type="button">Choose Characteristics</button></div>
+      <div class="row">
+      <div class="span2"><strong>Advantages</strong></div>
+      <div class="span3"><span id="ea_advantages"> </span>&nbsp;<a id="add_ea_advantage" class="btn-mini" href="#"><i class="icon-plus"> </i></a></div>
+      </div>
+
+      <div class="row">
+      <div class="span2"><strong>Disadvantages</strong></div>
+      <div class="span3"><span id="ea_disadvantages"> </span>&nbsp;<a id="add_ea_disadvantage" class="btn-mini" href="#"><i class="icon-plus"> </i></a></div>
+      </div>
+
+      <div><button id="choose_characteristics" type="button" class="btn">Choose Characteristics</button></div>
     </div>
     
-    <div id="characteristics" class="span-11 last" style="display: none;">
-    <div class="span-2"><label for="STR">STR</label></div>
-    <div class="span-9 last"><input type="text" id="STR" name="STR" class="physical characteristic" value="5" /><span class="display"> </span></div>
-    <div class="span-2"><label for="DEX">DEX</label></div>
-    <div class="span-9 last"><input type="text" id="DEX" name="DEX" class="physical characteristic" value="5" /><span class="display"> </span></div>
-    <div class="span-2"><label for="AGI">AGI</label></div>
-    <div class="span-9 last"><input type="text" id="AGI" name="AGI" class="physical characteristic" value="5" /><span class="display"> </span></div>
-    <div class="span-2"><label for="CON">CON</label></div>
-    <div class="span-9 last"><input type="text" id="CON" name="CON" class="physical characteristic" value="5" /><span class="display"> </span></div>
-    <div class="span-2"><label for="INT">INT</label></div>
-    <div class="span-9 last"><input type="text" id="INT" name="INT" class="spiritual characteristic" value="5" /><span class="display"> </span></div>
-    <div class="span-2"><label for="POW">POW</label></div>
-    <div class="span-9 last"><input type="text" id="POW" name="POW" class="spiritual characteristic" value="5" /><span class="display"> </span></div>
-    <div class="span-2"><label for="WP">WP</label></div>
-    <div class="span-9 last"><input type="text" id="WP" name="WP" class="spiritual characteristic" value="5" /><span class="display"> </span></div>
-    <div class="span-2"><label for="PER">PER</label></div>
-    <div class="span-9 last"><input type="text" id="PER" name="PER" class="spiritual characteristic" value="5" /><span class="display"> </span></div>
-    <div class="span-2"><label for="Appearance">Appearance</label></div>
-    <div class="span-9 last"><input type="text" id="Appearance" name="Appearance" value="5" /><span class="display"> </span></div>
+    <div id="characteristics" style="display: none;">
+    <div class="row">
+    <div class="span1"><label for="STR">STR</label></div>
+    <div class="span4"><div id="STR" class="physical characteristic spinner"> </div><span class="display"> </span></div>
+    </div>
+
+    <div class="row">
+    <div class="span1"><label for="DEX">DEX</label></div>
+    <div class="span4"><div id="DEX" class="physical characteristic spinner"> </div><span class="display"> </span></div>
+    </div>
+
+    <div class="row">
+    <div class="span1"><label for="AGI">AGI</label></div>
+    <div class="span4"><div id="AGI" class="physical characteristic spinner"> </div><span class="display"> </span></div>
+    </div>
+
+    <div class="row">
+    <div class="span1"><label for="CON">CON</label></div>
+    <div class="span4"><div id="CON" class="physical characteristic spinner"> </div><span class="display"> </span></div>
+    </div>
+
+    <div class="row">
+    <div class="span1"><label for="INT">INT</label></div>
+    <div class="span4"><div id="INT" class="spiritual characteristic spinner"> </div><span class="display"> </span></div>
+    </div>
+
+    <div class="row">
+    <div class="span1"><label for="POW">POW</label></div>
+    <div class="span4"><div id="POW" class="spiritual characteristic spinner"> </div><span class="display"> </span></div>
+    </div>
+
+    <div class="row">
+    <div class="span1"><label for="WP">WP</label></div>
+    <div class="span4"><div id="WP" class="spiritual characteristic spinner"> </div><span class="display"> </span></div>
+    </div>
+
+    <div class="row">
+    <div class="span1"><label for="PER">PER</label></div>
+    <div class="span4"><div id="PER" class="spiritual characteristic spinner"> </div><span class="display"> </span></div>
+    </div>
+
+    <div class="row">
+    <div class="span1"><label for="Appearance">Appearance</label></div>
+    <div class="span4"><div id="Appearance" class="spinner"> </div><span class="display"> </span></div>
+    </div>
     
-    <div class="span-2"><label for="Gender">Gender</label></div>
-    <div class="span-9 last"><select id="Gender" name="Gender" class="required">
+    <div class="row">
+    <div class="span1"><label for="Gender">Gender</label></div>
+    <div class="span4"><select id="Gender" name="Gender" class="required">
       <option value="">----</option>
       <option value="Female">Female</option>
       <option value="Male">Male</option>
     </select><span class="display"> </span></div>
+    </div>
     
-    <div id="race_and_class" class="span-11 last">
-      <div class="span-2"><label for="Race">Race</label></div>
-      <div class="span-9 last"><select id="Race" name="Race" class="required">
+    <div id="race_and_class">
+      <div class="row">
+      <div class="span1"><label for="Race">Race</label></div>
+      <div class="span4"><select id="Race" name="Race" class="required">
         <option value="">----</option>
         <option value="Human">Human</option>
         <option value="D'Anjayni Nephilim">D'Anjayni Nephilim</option>
@@ -201,9 +258,11 @@
         <option value="Sylvain Nephilim">Sylvain Nephilim</option>
         <option value="Other">Other</option>
       </select><span class="display"> </span></div>
+      </div>
 
-      <div class="span-2"><label for="first_class">Class</label></div>
-      <div class="span-9 last"><select id="first_class" name="first_class" class="required">
+      <div class="row">
+      <div class="span1"><label for="first_class">Class</label></div>
+      <div class="span4"><select id="first_class" name="first_class" class="required">
         <option value="Acrobatic Warrior">Acrobatic Warrior</option>
         <option value="Assassin">Assassin</option>
         <option value="Dark Paladin">Dark Paladin</option>
@@ -225,38 +284,56 @@
         <option value="Weaponsmaster">Weaponsmaster</option>
         <option value="Wizard">Wizard</option>
       </select><span class="display"> </span></div>
+      </div>
     </div>
 
-    <div class="span-2"><label for="level">XP</label></div>
-    <div class="span-9 last"><input type="text" id="XP" name="XP" class="required number" value="0" /><span class="display"> </span>&nbsp;<a id="add_xp" href="#">+</a></div>
+    <div class="row">
+    <div class="span1"><label for="level">XP</label></div>
+    <div class="span4"><div id="XP" class="spinner"> </div><span class="display"> </span>&nbsp;<a id="add_xp" class="btn-mini" href="#"><i class="icon-plus"> </i></a></div>
+    </div>
 
-    <div class="span-2"><label for="name">Name</label></div>
-    <div class="span-9 last"><input type="text" id="Name" name="Name" /></div>
+    <div class="row">
+    <div class="span1"><label for="name">Name</label></div>
+    <div class="span4"><input type="text" id="Name" name="Name" /></div>
+    </div>
 
-    <div class="span-11 last">
-      <button id="choose_advantages" type="button">Choose Advantages</button>
+    <div>
+      <button id="choose_advantages" type="button" class="btn">Choose Advantages</button>
     </div>
     </div>
   </div>
 
-  <div id="advantages" class="span-13 last" style="display: none;">
-    <div class="span-3"><strong>Creation Points</strong></div>
-    <div class="span-10 last"><span id="cp_remaining"> </span> remaining out of <span id="cp_total"> </span></div>
-    <div class="span-3"><strong>Advantages</strong></div>
-    <div class="span-10 last"><span id="Advantages"> </span> <a id="add_advantage" href="#">+</a></div>
-    <div class="span-3"><strong>Disadvantages</strong></div>
-    <div class="span-10 last"><span id="Disadvantages"> </span> <a id="add_disadvantage" href="#">+</a></div>
+  <div class="span7">
+  <div id="advantages" style="display: none;">
+    <div class="row">
+    <div class="span2"><strong>Creation Points</strong></div>
+    <div class="span5"><span id="cp_remaining"> </span> remaining out of <span id="cp_total"> </span></div>
+    </div>
 
-    <div class="span-13 last"><button id="choose_abilities" type="button">Choose Abilities</button>
+    <div class="row">
+    <div class="span2"><strong>Advantages</strong></div>
+    <div class="span5"><span id="Advantages"> </span> <a id="add_advantage" class="btn-mini" href="#"><i class="icon-plus"> </i></a></div>
+    </div>
+
+    <div class="row">
+    <div class="span2"><strong>Disadvantages</strong></div>
+    <div class="span5"><span id="Disadvantages"> </span> <a id="add_disadvantage" class="btn-mini" href="#"><i class="icon-plus"> </i></a></div>
+    </div>
+
+    <div><button id="choose_abilities" type="button" class="btn">Choose Abilities</button>
       <input type="hidden" id="dialog_level" name="dialog_level" value="" />
     </div>
   </div>
   
-  <div id="levels" class="span-13 last" style="display: none;"> </div>
+  <div id="levels" style="display: none;"> </div>
+  </div>
+
+  </div>
 </div>
 </form>
 
-<div id="ability_dp_dialog" style="display: none;" title="Amount of DP to Spend">
+<div id="ability_dp_dialog" class="modal hide">
+  <div class="modal-body">
     <div id="ability_spend">Spend how many DP on <span id="ability_name"> </span>
         <span id="ability_details"> (<span id="ability_characteristic"> </span>)</span> this level?</div>
     <div id="ability_save" style="display: none;">Save how many <span id="ability_primary"> </span> DP this level?</div>
@@ -264,43 +341,53 @@
     <input type="hidden" id="ability_cost" name="ability_cost" value="" />
     <div id="ability_dp_parent"> </div>
     <div>Maximum currently allowed: <span id="ability_limit"> </span></div>
-</div>
-
-<div id="advantages_dialog" style="display: none;">
-  <div id="advantages_tabs">
-    <ul>
-      <li><a href="#Common_Advantages">Common</a></li>
-      <li><a href="#Background_Advantages">Background</a></li>
-      <li><a href="#Magic_Advantages">Magic</a></li>
-      <li><a href="#Psychic_Advantages">Psychic</a></li>
-    </ul>
-    <div id="Common_Advantages">
-      <div class="container">
-        <div id="Common_Advantages_1" class="span-8"> </div>
-        <div id="Common_Advantages_2" class="span-8"> </div>
-        <div id="Common_Advantages_3" class="span-8 last"> </div>
-      </div>
-    </div>
-    <div id="Background_Advantages"> </div>
-    <div id="Magic_Advantages"> </div>
-    <div id="Psychic_Advantages"> </div>
   </div>
 </div>
 
-<div id="advantage_cost_dialog" style="display: none;" title="Spend how many creation points on it?">
-  <input type="hidden" id="advantage_cost_name" name="advantage_cost_name" value="" />
-  <span class="advantage_cost_1"><input type="radio" id="advantage_cost_1" name="advantage_cost" value="1" /> 1</span><br class="advantage_cost_1" />
-  <span class="advantage_cost_2"><input type="radio" id="advantage_cost_2" name="advantage_cost" value="2" /> 2</span><br class="advantage_cost_2" />
-  <span class="advantage_cost_3"><input type="radio" id="advantage_cost_3" name="advantage_cost" value="3" /> 3</span>
+<div id="advantages_dialog" class="modal hide">
+  <div class="modal-body">
+  <div id="advantages_tabs">
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#Common_Advantages" data-toggle="tab">Common</a></li>
+      <li><a href="#Background_Advantages" data-toggle="tab">Background</a></li>
+      <li><a href="#Magic_Advantages" data-toggle="tab">Magic</a></li>
+      <li><a href="#Psychic_Advantages" data-toggle="tab">Psychic</a></li>
+    </ul>
+    <div class="tab-content">
+      <div id="Common_Advantages" class="tab-pane active">
+        <div class="row">
+          <div id="Common_Advantages_1" class="span4"> </div>
+          <div id="Common_Advantages_2" class="span4"> </div>
+          <div id="Common_Advantages_3" class="span4"> </div>
+        </div>
+      </div>
+      <div id="Background_Advantages" class="tab-pane"> </div>
+      <div id="Magic_Advantages" class="tab-pane"> </div>
+      <div id="Psychic_Advantages" class="tab-pane"> </div>
+    </div>
+  </div>
+  </div>
 </div>
 
-<div id="advantage_options_dialog" style="display: none;">
-  <input type="hidden" id="advantage_options_name" name="advantage_options_name" value="" />
-  <input type="hidden" id="advantage_options_cost" name="advantage_options_cost" value="" />
+<div id="advantage_cost_dialog" class="modal hide">
+  <div class="modal-body">
+    <input type="hidden" id="advantage_cost_name" name="advantage_cost_name" value="" />
+    <label class="advantage_cost_1 radio"><input type="radio" id="advantage_cost_1" name="advantage_cost" value="1" /> 1</label>
+    <label class="advantage_cost_2 radio"><input type="radio" id="advantage_cost_2" name="advantage_cost" value="2" /> 2</label>
+    <label class="advantage_cost_3 radio"><input type="radio" id="advantage_cost_3" name="advantage_cost" value="3" /> 3</label>
+  </div>
+</div>
+
+<div id="advantage_options_dialog" class="modal hide">
+  <div class="modal-body">
+    <input type="hidden" id="advantage_options_name" name="advantage_options_name" value="" />
+    <input type="hidden" id="advantage_options_cost" name="advantage_options_cost" value="" />
   <div id="advantage_options"> </div>
+  </div>
 </div>
 
-<div id="class_dialog" style="display: none;">
+<div id="class_dialog" class="modal hide">
+  <div class="modal-body">
   <select id="Class" name="Class">
     <option value="Acrobatic Warrior">Acrobatic Warrior</option>
     <option value="Assassin">Assassin</option>
@@ -323,9 +410,11 @@
     <option value="Weaponsmaster">Weaponsmaster</option>
     <option value="Wizard">Wizard</option>
   </select>
+  </div>
 </div>
 
-<div id="characteristic_bonus_dialog" style="display: none;">
+<div id="characteristic_bonus_dialog" class="modal hide">
+  <div class="modal-body">
   <select id="Characteristic" name="Characteristic">
     <option value="STR">STR</option>
     <option value="DEX">DEX</option>
@@ -336,117 +425,140 @@
     <option value="WP">WP</option>
     <option value="PER">PER</option>
   </select>
-</div>
-
-<div id="cultural_roots_dialog" style="display: none;" title="Select a background">
-  <select id="cultural_roots_background"> </select>
-  <div id="cultural_roots"> </div>
-</div>
-
-<div id="delete_advantage_dialog" style="display: none;" title="Remove this advantage?">
-  <input type="hidden" id="delete_advantage_name" value="" />
-</div>
-
-<div id="delete_disadvantage_dialog" style="display: none;" title="Remove this disadvantage?">
-  <input type="hidden" id="delete_disadvantage_name" value="" />
-</div>
-
-<div id="delete_ea_dialog" style="display: none;" title="Remove this essential ability?">
-  <input type="hidden" id="delete_ea_name" value="" />
-</div>
-
-<div id="delete_ki_ability_dialog" style="display: none;" title="Remove this ki ability?">
-  <input type="hidden" id="delete_ki_ability_name" value="" />
-  <input type="hidden" id="delete_ki_ability_level" value="" />
-  <input type="hidden" id="delete_ki_ability_option" value="" />
-</div>
-
-<div id="delete_martial_art_dialog" style="display: none;" title="Remove this martial art degree?">
-  <input type="hidden" id="delete_martial_art_name" value="" />
-  <input type="hidden" id="delete_martial_art_level" value="" />
-  <input type="hidden" id="delete_martial_art_degree" value="" />
-</div>
-
-<div id="disadvantages_dialog" style="display: none;">
-  <div id="disadvantages_tabs">
-    <ul>
-      <li><a href="#Common_Disadvantages">Common</a></li>
-      <li><a href="#Background_Disadvantages">Background</a></li>
-      <li><a href="#Magic_Disadvantages">Magic</a></li>
-      <li><a href="#Psychic_Disadvantages">Psychic</a></li>
-    </ul>
-    <div id="Common_Disadvantages">
-      <div class="container">
-        <div id="Common_Disadvantages_1" class="span-8"> </div>
-        <div id="Common_Disadvantages_2" class="span-8"> </div>
-        <div id="Common_Disadvantages_3" class="span-8 last"> </div>
-      </div>
-    </div>
-    <div id="Background_Disadvantages"> </div>
-    <div id="Magic_Disadvantages"> </div>
-    <div id="Psychic_Disadvantages"> </div>
   </div>
 </div>
 
-<div id="disadvantage_benefit_dialog" style="display: none;" title="Gain how many creation points from it?">
-  <input type="hidden" id="disadvantage_benefit_name" name="disadvantage_benefit_name" value="" />
-  <span class="disadvantage_benefit_1"><input type="radio" id="disadvantage_benefit_1" name="disadvantage_benefit" value="1" /> 1</span><br class="disadvantage_benefit_1" />
-  <span class="disadvantage_benefit_2"><input type="radio" id="disadvantage_benefit_2" name="disadvantage_benefit" value="2" /> 2</span>
+<div id="cultural_roots_dialog" class="modal hide">
+  <div class="modal-body">
+    <select id="cultural_roots_background" class="input-xxlarge"> </select>
+  <div id="cultural_roots"> </div>
+  </div>
 </div>
 
-<div id="disadvantage_option_dialog" style="display: none;">
+<div id="delete_advantage_dialog" class="modal hide">
+  <div class="modal-body">
+    <input type="hidden" id="delete_advantage_name" value="" />
+  </div>
+</div>
+
+<div id="delete_disadvantage_dialog" class="modal hide">
+  <div class="modal-body">
+  <input type="hidden" id="delete_disadvantage_name" value="" />
+  </div>
+</div>
+
+<div id="delete_ea_dialog" class="modal hide">
+  <div class="modal-body">
+    <input type="hidden" id="delete_ea_name" value="" />
+  </div>
+</div>
+
+<div id="delete_ki_ability_dialog" class="modal hide">
+  <div class="modal-body">
+    <input type="hidden" id="delete_ki_ability_name" value="" />
+    <input type="hidden" id="delete_ki_ability_level" value="" />
+    <input type="hidden" id="delete_ki_ability_option" value="" />
+  </div>
+</div>
+
+<div id="delete_martial_art_dialog" class="modal hide">
+  <div class="modal-body">
+    <input type="hidden" id="delete_martial_art_name" value="" />
+    <input type="hidden" id="delete_martial_art_level" value="" />
+    <input type="hidden" id="delete_martial_art_degree" value="" />
+  </div>
+</div>
+
+<div id="disadvantages_dialog" class="modal hide">
+  <div class="modal-body">
+  <div id="disadvantages_tabs">
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#Common_Disadvantages" data-toggle="tab">Common</a></li>
+      <li><a href="#Background_Disadvantages" data-toggle="tab">Background</a></li>
+      <li><a href="#Magic_Disadvantages" data-toggle="tab">Magic</a></li>
+      <li><a href="#Psychic_Disadvantages" data-toggle="tab">Psychic</a></li>
+    </ul>
+    <div class="tab-content">
+      <div id="Common_Disadvantages" class="tab-pane active">
+        <div class="row">
+          <div id="Common_Disadvantages_1" class="span4"> </div>
+          <div id="Common_Disadvantages_2" class="span4"> </div>
+          <div id="Common_Disadvantages_3" class="span4"> </div>
+        </div>
+      </div>
+      <div id="Background_Disadvantages" class="tab-pane"> </div>
+      <div id="Magic_Disadvantages" class="tab-pane"> </div>
+      <div id="Psychic_Disadvantages" class="tab-pane"> </div>
+    </div>
+  </div>
+  </div>
+</div>
+
+<div id="disadvantage_benefit_dialog" class="modal hide">
+  <div class="modal-body">
+  <input type="hidden" id="disadvantage_benefit_name" name="disadvantage_benefit_name" value="" />
+  <label class="disadvantage_benefit_1 radio"><input type="radio" id="disadvantage_benefit_1" name="disadvantage_benefit" value="1" /> 1</label>
+  <label class="disadvantage_benefit_2 radio"><input type="radio" id="disadvantage_benefit_2" name="disadvantage_benefit" value="2" /> 2</label>
+  </div>
+</div>
+
+<div id="disadvantage_option_dialog" class="modal hide">
+  <div class="modal-body">
   <input type="hidden" id="disadvantage_option_name" name="disadvantage_option_name" value="" />
   <input type="hidden" id="disadvantage_option_benefit" name="disadvantage_option_benefit" value="" />
   <div id="disadvantage_option"> </div>
+  </div>
 </div>
 
-<div id="dp_dialog" style="display: none;" title="Spend DP on...">
+<div id="dp_dialog" class="modal hide">
+  <div class="modal-body">
   <div id="dp_tabs">
-    <ul>
-      <li><a href="#Combat">Combat</a></li>
-      <li><a href="#Martial_Arts">Martial Arts</a></li>
-      <li><a href="#Psychic">Psychic</a></li>
-      <li><a href="#Supernatural">Supernatural</a></li>
-      <li><a href="#Secondary">Secondary Abilities</a></li>
-      <li><a href="#Other">Other</a></li>
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#Combat" data-toggle="tab">Combat</a></li>
+      <li><a href="#Martial_Arts" data-toggle="tab">Martial Arts</a></li>
+      <li><a href="#Psychic" data-toggle="tab">Psychic</a></li>
+      <li><a href="#Supernatural" data-toggle="tab">Supernatural</a></li>
+      <li><a href="#Secondary" data-toggle="tab">Secondary Abilities</a></li>
+      <li><a href="#Other" data-toggle="tab">Other</a></li>
     </ul>
-    <div id="Combat" class="container">
-      <div id="Combat_Abilities" class="span-8"> </div>
-      <div id="Combat_Modules_1" class="span-8"> </div>
-      <div id="Combat_Modules_2" class="span-8 last"> </div>
+    <div class="tab-content">
+    <div id="Combat" class="tab-pane active row">
+      <div id="Combat_Abilities" class="span4"> </div>
+      <div id="Combat_Modules_1" class="span4"> </div>
+      <div id="Combat_Modules_2" class="span4"> </div>
     </div>
-    <div id="Martial_Arts" class="container">
-      <div class="span-12">
+    <div id="Martial_Arts" class="tab-pane row">
+      <div class="span6">
         <span class="field">Basic</span><br />
         <div id="Basic_Martial_Arts"> </div>
       </div>
-      <div class="span-12 last">
+      <div class="span6">
         <span class="field">Advanced</span><br />
         <div id="Advanced_Martial_Arts"> </div>
       </div>
     </div>
-    <div id="Psychic"> </div>
-    <div id="Supernatural"> </div>
-    <div id="Secondary" class="container">
-	  <div class="span-6">
+    <div id="Psychic" class="tab-pane"> </div>
+    <div id="Supernatural" class="tab-pane"> </div>
+    <div id="Secondary" class="tab-pane row">
+	  <div class="span3">
 		<span class="field">Athletics</span><br />
 		<div id="DP_Athletics"> </div>
 		<br />
 		<span class="field">Creative</span><br />
 		<div id="DP_Creative"> </div>
 	  </div>
-	  <div class="span-6">
+	  <div class="span3">
 		<span class="field">Intellectual</span><br />
 		<div id="DP_Intellectual"> </div>
 	  </div>
-	  <div class="span-6">
+	  <div class="span3">
 		<span class="field">Perceptive</span><br />
 		<div id="DP_Perceptive"> </div>
 		<br />
 		<span class="field">Social</span><br />
 		<div id="DP_Social"> </div>
 	  </div>
-	  <div class="span-6 last">
+	  <div class="span3">
 		<span class="field">Subterfuge</span><br />
 		<div id="DP_Subterfuge"> </div>
 		<br />
@@ -454,69 +566,82 @@
 		<div id="DP_Vigor"> </div>
 	  </div>
     </div>
-    <div id="Other"> </div>
+    <div id="Other" class="tab-pane"> </div>
+    </div>
+  </div>
   </div>
 </div>
 
-<div id="ea_option_dialog" style="display: none;">
+<div id="ea_option_dialog" class="modal hide">
+  <div class="modal-body">
   <input type="hidden" id="ea_option_name" name="ea_option_name" value="" />
   <div id="ea_option"> </div>
+  </div>
 </div>
 
-<div id="ea_advantages_dialog" style="display: none;">
+<div id="ea_advantages_dialog" class="modal hide">
+  <div class="modal-body">
   <div id="ea_advantages_tabs">
-    <ul>
-      <li><a href="#EA_Common_Advantages">Common</a></li>
-      <li><a href="#EA_Magic_Advantages">Magic</a></li>
-      <li><a href="#EA_Psychic_Advantages">Psychic</a></li>
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#EA_Common_Advantages" data-toggle="tab">Common</a></li>
+      <li><a href="#EA_Magic_Advantages" data-toggle="tab">Magic</a></li>
+      <li><a href="#EA_Psychic_Advantages" data-toggle="tab">Psychic</a></li>
     </ul>
-    <div id="EA_Common_Advantages">
-      <div class="container">
-        <div id="EA_Common_Advantages_1" class="span-10"> </div>
-        <div id="EA_Common_Advantages_2" class="span-14 last"> </div>
+    <div class="tab-content">
+      <div id="EA_Common_Advantages" class="tab-pane active">
+        <div class="row">
+          <div id="EA_Common_Advantages_1" class="span5"> </div>
+          <div id="EA_Common_Advantages_2" class="span7"> </div>
+        </div>
       </div>
+      <div id="EA_Magic_Advantages" class="tab-pane"> </div>
+      <div id="EA_Psychic_Advantages" class="tab-pane"> </div>
     </div>
-    <div id="EA_Magic_Advantages"> </div>
-    <div id="EA_Psychic_Advantages"> </div>
+  </div>
   </div>
 </div>
 
-<div id="ea_disadvantages_dialog" style="display: none;">
+<div id="ea_disadvantages_dialog" class="modal hide">
+  <div class="modal-body">
   <div id="ea_disadvantages_tabs">
-    <ul>
-      <li><a href="#EA_Common_Disadvantages">Common</a></li>
-      <li><a href="#EA_Magic_Disadvantages">Magic</a></li>
-      <li><a href="#EA_Psychic_Disadvantages">Psychic</a></li>
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#EA_Common_Disadvantages" data-toggle="tab">Common</a></li>
+      <li><a href="#EA_Magic_Disadvantages" data-toggle="tab">Magic</a></li>
+      <li><a href="#EA_Psychic_Disadvantages" data-toggle="tab">Psychic</a></li>
     </ul>
-    <div id="EA_Common_Disadvantages"> </div>
-    <div id="EA_Magic_Disadvantages"> </div>
-    <div id="EA_Psychic_Disadvantages"> </div>
+    <div class="tab-content">
+      <div id="EA_Common_Disadvantages" class="tab-pane active"> </div>
+      <div id="EA_Magic_Disadvantages" class="tab-pane"> </div>
+      <div id="EA_Psychic_Disadvantages" class="tab-pane"> </div>
+    </div>
+  </div>
   </div>
 </div>
 
-<div id="freelancer_dialog" style="display: none;" title="Add Freelancer bonus to...">
+<div id="freelancer_dialog" class="modal hide">
+  <div class="modal-body">
   <input type="hidden" id="freelancer_name" name="freelancer_name" value="" />
   <input type="hidden" id="freelancer_level" name="freelancer_level" value="" />
-  <div id="Freelancer" class="container">
-    <div class="span-6">
+  <div id="Freelancer" class="row">
+    <div class="span3">
       <span class="field">Athletics</span><br />
       <div id="Freelancer_Athletics"> </div>
       <br />
       <span class="field">Creative</span><br />
       <div id="Freelancer_Creative"> </div>
     </div>
-    <div class="span-6">
+    <div class="span3">
       <span class="field">Intellectual</span><br />
       <div id="Freelancer_Intellectual"> </div>
     </div>
-    <div class="span-6">
+    <div class="span3">
       <span class="field">Perceptive</span><br />
       <div id="Freelancer_Perceptive"> </div>
       <br />
       <span class="field">Social</span><br />
       <div id="Freelancer_Social"> </div>
     </div>
-    <div class="span-6 last">
+    <div class="span3">
       <span class="field">Subterfuge</span><br />
       <div id="Freelancer_Subterfuge"> </div>
       <br />
@@ -524,15 +649,19 @@
       <div id="Freelancer_Vigor"> </div>
     </div>
   </div>
+  </div>
 </div>
 
-<div id="ki_ability_options_dialog" style="display: none;">
+<div id="ki_ability_options_dialog" class="modal hide">
+  <div class="modal-body">
   <input type="hidden" id="ki_ability_options_name" name="module_options_name" value="" />
   <input type="hidden" id="ki_ability_options_level" name="module_options_level" value="" />
   <div id="ki_ability_options"> </div>
+  </div>
 </div>
 
-<div id="ki_characteristic_dialog" style="display: none;">
+<div id="ki_characteristic_dialog" class="modal hide">
+  <div class="modal-body">
   <input type="hidden" id="ki_characteristic_available" name="ki_characteristic_available" value="" />
   <input type="hidden" id="ki_characteristic_level" name="ki_characteristic_level" value="" />
   <input type="hidden" id="ki_characteristic_name" name="ki_characteristic_name" value="" />
@@ -544,74 +673,88 @@
     <option value="POW">POW</option>
     <option value="WP">WP</option>
   </select>
-</div>
-
-<div id="load_dialog" style="display:none;" title="Load Character">
-  <p>Enter the character data to be loaded:</p>
-  <div><textarea id="load_text"> </textarea></div>
-</div>
-
-<div id="mk_dialog" style="display: none;">
-  <div id="mk_tabs">
-    <ul>
-      <li><a href="#Ki_Abilities">Ki Abilities</a></li>
-      <li><a href="#Nemesis_Abilities">Nemesis Abilities</a></li>
-      <li><a href="#Dominion_Techniques">Dominion Techniques</a></li>
-    </ul>
-    <div id="Ki_Abilities">
-      <div class="container">
-        <div id="Ki_Abilities_1" class="span-8"> </div>
-        <div id="Ki_Abilities_2" class="span-8"> </div>
-        <div id="Ki_Abilities_3" class="span-8 last"> </div>
-      </div>
-    </div>
-    <div id="Nemesis_Abilities">
-      <div class="container">
-        <div id="Nemesis_Abilities_1" class="span-8"> </div>
-        <div id="Nemesis_Abilities_2" class="span-8"> </div>
-        <div id="Nemesis_Abilities_3" class="span-8 last"> </div>
-      </div>
-    </div>
-    <div id="Dominion_Techniques"> </div>
   </div>
 </div>
 
-<div id="module_options_dialog" style="display: none;">
+<div id="load_dialog" class="modal hide">
+  <div class="modal-body">
+  <p>Enter the character data to be loaded:</p>
+  <div><textarea id="load_text" class="input-xxlarge" rows="10"> </textarea></div>
+  </div>
+</div>
+
+<div id="mk_dialog" class="modal hide">
+  <div class="modal-body">
+  <div id="mk_tabs">
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#Ki_Abilities" data-toggle="tab">Ki Abilities</a></li>
+      <li><a href="#Nemesis_Abilities" data-toggle="tab">Nemesis Abilities</a></li>
+      <li><a href="#Dominion_Techniques" data-toggle="tab">Dominion Techniques</a></li>
+    </ul>
+    <div class="tab-content">
+      <div id="Ki_Abilities" class="tab-pane active">
+        <div class="row">
+          <div id="Ki_Abilities_1" class="span4"> </div>
+          <div id="Ki_Abilities_2" class="span4"> </div>
+          <div id="Ki_Abilities_3" class="span4"> </div>
+        </div>
+      </div>
+      <div id="Nemesis_Abilities" class="tab-pane">
+        <div class="row">
+          <div id="Nemesis_Abilities_1" class="span4"> </div>
+          <div id="Nemesis_Abilities_2" class="span4"> </div>
+          <div id="Nemesis_Abilities_3" class="span4"> </div>
+        </div>
+      </div>
+      <div id="Dominion_Techniques" class="tab-pane"> </div>
+    </div>
+  </div>
+  </div>
+</div>
+
+<div id="module_options_dialog" class="modal hide">
+  <div class="modal-body">
   <input type="hidden" id="module_options_name" name="module_options_name" value="" />
   <input type="hidden" id="module_options_level" name="module_options_level" value="" />
   <div id="module_options"> </div>
+  </div>
 </div>
 
-<div id="natural_bonus_dialog" style="display: none;" title="Select an ability to improve">
+<div id="natural_bonus_dialog" class="modal hide">
+  <div class="modal-body">
   <input type="hidden" id="natural_bonus_level" value="" />
-  <div class="span-6">
+  <div class="row">
+  <div class="span3">
     <span class="field">Athletics</span><br />
     <div id="NB_Athletics"> </div>
     <br />
     <span class="field">Creative</span><br />
     <div id="NB_Creative"> </div>
   </div>
-  <div class="span-6">
+  <div class="span3">
     <span class="field">Intellectual</span><br />
     <div id="NB_Intellectual"> </div>
   </div>
-  <div class="span-6 last">
+  <div class="span3">
     <span class="field">Perceptive</span><br />
     <div id="NB_Perceptive"> </div>
     <br />
     <span class="field">Social</span><br />
     <div id="NB_Social"> </div>
   </div>
-  <div class="span-6 last">
+  <div class="span3">
     <span class="field">Subterfuge</span><br />
     <div id="NB_Subterfuge"> </div>
     <br />
     <span class="field">Vigor</span><br />
     <div id="NB_Vigor"> </div>
   </div>
+  </div>
+  </div>
 </div>
 
-<div id="power_options_dialog" style="display: none;">
+<div id="power_options_dialog" class="modal hide">
+  <div class="modal-body">
   <input type="hidden" id="power_options_type" name="power_options_type" value="" />
   <input type="hidden" id="power_options_level" name="power_options_level" value="" />
   <div>Name of power: <input id="power_options_name" name="power_options_name" value="" /></div>
@@ -619,20 +762,25 @@
   <div>Total power cost: <span id="power_options_total"> </span> DP</div>
   <div>Previously spent on this power: <span id="power_options_previous"> </span> DP</div>
   <div>Maximum spendable at this level: <span id="power_options_limit"> </span> DP</div>
+  </div>
 </div>
 
-<div id="save_dialog" style="display:none;" title="Save Character">
-  <p>Copy the following into a text file and save it for future use:</p>
-  <div><textarea id="save_text"> </textarea></div>
+<div id="save_dialog" class="modal hide">
+  <div class="modal-body">
+    <p>Copy the following into a text file and save it for future use:</p>
+    <div><textarea id="save_text" class="input-xxlarge" rows="10"> </textarea></div>
+  </div>
 </div>
 
-<div id="xp_dialog" style="display: none;" title="Add Experience Points">
+<div id="xp_dialog" class="modal hide">
+  <div class="modal-body">
   <p>Enter the number of Experience Points gained:</p>
-  <div><input type="text" name="xp_added" id="xp_added" value="0" /></div>
+  <div><div id="xp_added" class="spinner"> </div></div>
+  </div>
 </div>
 
 <script src="js/libs/json2.js"></script>
-<script data-main="js/main" src="js/require-jquery.js"></script>
+<script data-main="js/main" src="js/libs/require.js"></script>
 
 </body>
 </html>

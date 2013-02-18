@@ -21,7 +21,7 @@ define(['tables'], function (tables) {
         'Dirty Little Secret': {Category: 'Background', Benefit: 1},
         'Easily Possessed': {Benefit: 1}, // -50 to PhR/MR against domination/possession attempts
         'Exclusive Weapon': {Benefit: 1, Options: [], Option_Title: 'Which weapon?'},
-        Fatigue: {Benefit: 1},  // reduce base fatigue by 1
+        Exhausted: {Benefit: 1},  // reduce base fatigue by 1, double penalties
         Feeble: {Benefit: 1},  // -30 all action penalty when below 1/3 of total LP
         Insufferable: {Benefit: 1},
         Klutzy: {Benefit: 1},

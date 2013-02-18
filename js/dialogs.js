@@ -4,8 +4,6 @@
  * DP expenditure, martial knowledge allocation, etc.
  * @module dialogs
  * @requires jquery
- * @requires jqueryui/dialog
- * @requires jqueryui/tabs
  * @requires abilities
  * @requires advantages
  * @requires characters
@@ -22,14 +20,15 @@
  * @requires primaries
  * @requires pubsub
  * @requires tables
+ * @requires widgets
  */
 define(['jquery', 'abilities', 'advantages', 'characters', 'cultural_roots',
 'disadvantages', 'essential_abilities', 'ki_abilities', 'martial_arts',
-'modules', 'powers', 'primaries', 'tables', 'combat', 'creation_points',
-'development_points', 'jqueryui/dialog', 'jqueryui/tabs', 'pubsub'],
+'modules', 'powers', 'primaries', 'tables', 'widgets', 'combat',
+'creation_points', 'development_points', 'pubsub'],
 function ($, abilities, advantages, characters, cultural_roots, disadvantages,
           essential_abilities, ki_abilities, martial_arts, modules, powers,
-          primaries, tables) {
+          primaries, tables, widgets) {
 
     var ability_dp_init,
         add_advantage,
@@ -51,6 +50,8 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         configure_essential_ability,
         configure_ki_ability,
         configure_module,
+        create_dialog = widgets.create_dialog,
+        create_spinner = widgets.create_spinner,
         cultural_roots_init,
         delete_advantage,
         delete_advantage_init,
@@ -97,59 +98,55 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         spend_mk,
         update_cultural_roots,
         xp_dialog_init;
-    
+
+    /**
+     * Initialize the dialog for setting the amount of DP to spend on an
+     * ability at a particular level.
+     */
     ability_dp_init = function () {
-        if ('Ability_DP' in dialogs) {
-            return;
-        }
-        dialogs.Ability_DP = $('#ability_dp_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            width: '400px',
-            buttons: {
-                OK: function () {
-                    var data = characters.current(),
-                        characteristic = $('#ability_characteristic').text(),
-                        cost = parseInt($('#ability_cost').val(), 10),
-                        dp = $('#ability_dp').spinner('value'),
-                        level = parseInt($('#ability_level').val(), 10),
-                        level_info = data.level_info(level),
-                        name = $('#ability_name').text();
-                    if (dp) {
-                        if (characteristic) {
-                            // Accumulation Multiple or Ki
-                            if (!(name in level_info.DP)) {
-                                level_info.DP[name] = {};
-                            }
-                            level_info.DP[name][characteristic] = dp / cost;
-                        }
-                        else {
-                            level_info.DP[name] = dp / cost;
-                        }
-                        $.publish('level_data_changed');
+        create_dialog('ability_dp_dialog', 'Amount of DP to Spend', 400,
+                      'Cancel', 'OK', function () {
+            var data = characters.current(),
+                characteristic = $('#ability_characteristic').text(),
+                cost = parseInt($('#ability_cost').val(), 10),
+                dp = $('#ability_dp').spinner('value'),
+                level = parseInt($('#ability_level').val(), 10),
+                level_info = data.level_info(level),
+                name = $('#ability_name').text();
+            if (dp) {
+                if (characteristic) {
+                    // Accumulation Multiple or Ki
+                    if (!(name in level_info.DP)) {
+                        level_info.DP[name] = {};
                     }
-                    else if (name in level_info.DP) {
-                        if (characteristic) {
-                            // Accumulation Multiple or Ki
-                            delete level_info.DP[name][characteristic];
-                            if (Object.keys(level_info.DP[name]).length === 0) {
-                                delete level_info.DP[name];
-                            }
-                        }
-                        else {
-                            delete level_info.DP[name];
-                        }
-                        $.publish('level_data_changed');
-                    }
-                    dialogs.Ability_DP.dialog('close');
-                },
-                Cancel: function () {
-                    dialogs.Ability_DP.dialog('close');
+                    level_info.DP[name][characteristic] = dp / cost;
                 }
+                else {
+                    level_info.DP[name] = dp / cost;
+                }
+                $.publish('level_data_changed');
             }
+            else if (name in level_info.DP) {
+                if (characteristic) {
+                    // Accumulation Multiple or Ki
+                    delete level_info.DP[name][characteristic];
+                    if (Object.keys(level_info.DP[name]).length === 0) {
+                        delete level_info.DP[name];
+                    }
+                }
+                else {
+                    delete level_info.DP[name];
+                }
+                $.publish('level_data_changed');
+            }
+            $('#ability_dp_dialog').modal('hide');
+            return false;
         });
     };
 
+    /**
+     * Configure and launch the advantage selection dialog.
+     */
     add_advantage = function () {
         var count,
             data = characters.current(),
@@ -175,10 +172,16 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 }
             }
         }
-        dialogs.Advantages.dialog('open');
+        $('#advantages_dialog').modal('show');
         return false;
     };
 
+    /**
+     * Add a select widget to the cultural roots advantage configuration dialog
+     * for backgrounds where a choice between different bonuses can be made.
+     * @param {Number} i The index of this option (ignored)
+     * @param {Object} choice Mapping of Secondary Ability names to bonuses
+     */
     add_cultural_roots_choice = function (i, choice) {
         var ability,
             amount,
@@ -203,6 +206,9 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         $('#cultural_roots').append(parts.join(''));
     };
 
+    /**
+     * Configure and launch the disadvantage selection dialog.
+     */
     add_disadvantage = function () {
         var data = characters.current(),
             name,
@@ -218,10 +224,14 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 }
             }
         }
-        dialogs.Disadvantages.dialog('open');
+        $('#disadvantages_dialog').modal('show');
         return false;
     };
 
+    /**
+     * Configure and launch the dialog for selecting an Essential Ability for
+     * a creature.
+     */
     add_ea_advantage = function () {
         var advantages = essential_abilities.advantages,
             allowed,
@@ -256,10 +266,14 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 }
             }
         }
-        dialogs.Essential_Advantages.dialog('open');
+        $('#ea_advantages_dialog').modal('show');
         return false;
     };
 
+    /**
+     * Configure and launch the dialog for selecting an Essential Ability
+     * disadvantage for a creature.
+     */
     add_ea_disadvantage = function () {
         var allowed,
             data = characters.current(),
@@ -284,16 +298,20 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 }
             }
         }
-        dialogs.Essential_Disadvantages.dialog('open');
+        $('#ea_disadvantages_dialog').modal('show');
         return false;
     };
 
+    /**
+     * Process a Ki or Nemesis Ability selection from the MK spending options
+     * dialog.
+     */
     add_ki_ability = function () {
         var data = characters.current(),
             level = $(this).data('level'),
             name = $.trim($(this).find('.name').text()),
             ability = ki_abilities[name];
-        dialogs.MK.dialog('close');
+        $('#mk_dialog').modal('hide');
         if ('Options' in ability) {
             return configure_ki_ability(name, level);
         }
@@ -302,113 +320,110 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         return false;
     };
 
+    /**
+     * Process the selection of a martial art from the DP spending dialog.
+     */
     add_martial_art = function () {
         var data = characters.current(),
             link = $(this),
             degree = link.find('.degree').text(),
             level = parseInt(link.data('level'), 10),
             name = link.find('.name').text();
-        dialogs.DP.dialog('close');
+        $('#dp_dialog').modal('hide');
         data.add_martial_art(name, degree, level);
         $.publish('level_data_changed');
         return false;
     };
 
+    /**
+     * Launch the dialog for specifying an amount of XP gained.
+     */
     add_xp = function () {
-        dialogs.Add_XP.dialog('open');
+        $('#xp_dialog').modal('show');
+        if ($('#xp_dialog').find('.spinner-buttons').length) {
+            $('#xp_added').spinner('value', 0);
+        }
+        else {
+            create_spinner('#xp_added', {min: 0, max: 9999, value: 0});
+        }
         return false;
     };
-  
+
+    /**
+     * Initialize the dialog for selecting the number of creation points to
+     * spend on an advantage.
+     */
     advantage_cost_init = function () {
-        if ('Advantage_Cost' in dialogs) {
-            return;
-        }
-        dialogs.Advantage_Cost = $('#advantage_cost_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            width: '400px',
-            buttons: {
-                'OK': function () {
-                    var advantage,
-                        cost = parseInt($('input:radio[name=advantage_cost]:checked').val(), 10),
-                        data,
-                        name = $('#advantage_cost_name').val();
-                    advantage = advantages[name];
-                    if ('Options' in advantage) {
-                        dialogs.Advantage_Cost.dialog('close');
-                        edit_advantage_options(name, cost);
-                    }
-                    else {
-                        data = characters.current();
-                        data.Advantages[name] = cost;
-                        $.publish('cp_changed');
-                        dialogs.Advantage_Cost.dialog('close');
-                    }
-                },
-                'Cancel': function () {
-                    dialogs.Advantage_Cost.dialog('close');
-                }
+        create_dialog('advantage_cost_dialog',
+                      'Spend how many creation points on it?', 400, 'Cancel',
+                      'OK', function () {
+            var advantage,
+                cost = parseInt($('input:radio[name=advantage_cost]:checked').val(), 10),
+                data,
+                name = $('#advantage_cost_name').val();
+            advantage = advantages[name];
+            if ('Options' in advantage) {
+                $('#advantage_cost_dialog').modal('hide');
+                edit_advantage_options(name, cost);
             }
+            else {
+                data = characters.current();
+                data.Advantages[name] = cost;
+                $.publish('cp_changed');
+                $('#advantage_cost_dialog').modal('hide');
+            }
+            return false;
         });
     };
 
+    /**
+     * Initialize the dialog for configuring the parameters of an advantage.
+     */
     advantage_options_init = function () {
-        if ('Advantage_Options' in dialogs) {
-            return;
-        }
-        dialogs.Advantage_Options = $('#advantage_options_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            width: '400px',
-            buttons: {
-                OK: function () {
-                    var characteristic,
-                        cost = $('#advantage_options_cost').val(),
-                        data,
-                        name = $('#advantage_options_name').val(),
-                        params,
-                        roll,
-                        select;
-                    cost = cost ? parseInt(cost, 10) : null;
-                    if (name === 'Repeat a Characteristics Roll') {
-                        characteristic = $('#advantage_options select').val();
-                        roll = parseInt($('#repeat_roll').val(), 10);
-                        if (isNaN(roll)) {
-                            roll = 5;
-                        }
-                        params = {Characteristic: characteristic, Roll: roll};
-                    }
-                    else {
-                        select = $('#advantage_options select');
-                        if (select.length > 0) {
-                            params = select.val();
-                        }
-                        else {
-                            params = $('#advantage_options input').val();
-                        }
-                    }
-                    data = characters.current();
-                    data.add_advantage(name, cost, params);
-                    $.publish('cp_changed');
-                    dialogs.Advantage_Options.dialog('close');
-                },
-                Cancel: function () {
-                    dialogs.Advantage_Options.dialog('close');
+        create_dialog('advantage_options_dialog', '', // title is set later
+                      400, 'Cancel', 'OK', function () {
+            var characteristic,
+                cost = $('#advantage_options_cost').val(),
+                data,
+                name = $('#advantage_options_name').val(),
+                params,
+                roll,
+                select;
+            cost = cost ? parseInt(cost, 10) : null;
+            if (name === 'Repeat a Characteristics Roll') {
+                characteristic = $('#advantage_options select').val();
+                roll = $('#repeat_roll').spinner('value');
+                if (isNaN(roll)) {
+                    roll = 5;
+                }
+                params = {Characteristic: characteristic, Roll: roll};
+            }
+            else {
+                select = $('#advantage_options select');
+                if (select.length > 0) {
+                    params = select.val();
+                }
+                else {
+                    params = $('#advantage_options input').val();
                 }
             }
+            data = characters.current();
+            data.add_advantage(name, cost, params);
+            $.publish('cp_changed');
+            $('#advantage_options_dialog').modal('hide');
+            return false;
         });
     };
-  
+
+    /**
+     * Initialize the advantage selection dialog.
+     */
     advantages_init = function () {
         var advantage,
             column = 1,
             count = 1,
             link,
             name;
-        if ('Advantages' in dialogs) {
-            return;
-        }
-        $('#advantages_tabs').tabs();
         for (name in advantages) {
             if (advantages.hasOwnProperty(name)) {
                 advantage = advantages[name];
@@ -417,7 +432,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 if (!('Category' in advantage)) {
                     $('#Common_Advantages_' + column).append(link);
                     count++;
-                    if (count > 20) {
+                    if (count > 22) {
                         column += 1;
                         count = 1;
                     }
@@ -427,64 +442,38 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 }
             }
         }
-        dialogs.Advantages = $('#advantages_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            title: 'Select an advantage',
-            width: '1000px',
-            position: 'top',
-            buttons: {
-                'Cancel': function () {
-                    dialogs.Advantages.dialog('close');
-                }
-            }
-        });
+        create_dialog('advantages_dialog', 'Select an advantage', 1000, 'Cancel');
     };
 
+    /**
+     * Initialize the Characteristic bonus selection dialog.
+     */
     characteristic_bonus_init = function () {
-        if ('Characteristic_Bonus' in dialogs) {
-            return;
-        }
-        dialogs.Characteristic_Bonus = $('#characteristic_bonus_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            title: 'Select the characteristic to increase',
-            width: '350px',
-            buttons: {
-                OK: function () {
-                    var data = characters.current(),
-                        level = parseInt($('#dialog_level').val(), 10);
-                    data.levels[level - 1].Characteristic = $('#Characteristic').val();
-                    dialogs.Characteristic_Bonus.dialog('close');
-                    $.publish('level_data_changed');
-                },
-                Cancel: function () {
-                    dialogs.Characteristic_Bonus.dialog('close');
-                }
-            }
+        create_dialog('characteristic_bonus_dialog',
+                      'Select the characteristic to increase', 350, 'Cancel',
+                      'OK', function () {
+            var data = characters.current(),
+                level = parseInt($('#dialog_level').val(), 10);
+            data.levels[level - 1].Characteristic = $('#Characteristic').val();
+            $('#characteristic_bonus_dialog').modal('hide');
+            $.publish('level_data_changed');
+            return false;
         });
     };
 
+    /**
+     * Initialize the class change dialog.
+     */
     class_init = function () {
-        if ('Class' in dialogs) {
-            return;
-        }
-        dialogs.Class = $('#class_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            title: 'Select class for level <span id="class_dialog_level"></span>',
-            buttons: {
-                OK: function () {
-                    var data = characters.current(),
-                        level = parseInt($('#class_dialog_level').text(), 10);
-                    data.change_class(level, $('#Class').val());
-                    dialogs.Class.dialog('close');
-                    $.publish('level_data_changed');
-                },
-                Cancel: function () {
-                    dialogs.Class.dialog('close');
-                }
-            }
+        create_dialog('class_dialog',
+                      'Select class for level <span id="class_dialog_level"></span>',
+                      0, 'Cancel', 'OK', function () {
+            var data = characters.current(),
+                level = parseInt($('#class_dialog_level').text(), 10);
+            data.change_class(level, $('#Class').val());
+            $('#class_dialog').modal('hide');
+            $.publish('level_data_changed');
+            return false;
         });
     };
 
@@ -501,7 +490,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             characteristic = link.data('characteristic'),
             level = parseInt(link.data('level'), 10),
             name = link.find('.name').text();
-        dialogs.DP.dialog('close');
+        $('#dp_dialog').modal('hide');
         if (name in martial_arts) {
             return delete_martial_art(name, level);
         }
@@ -513,13 +502,17 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 $('#ki_characteristic_available').val(available);
                 $('#ki_characteristic_level').val(level);
                 $('#ki_characteristic_name').val(name);
-                dialogs.Ki_Characteristic.dialog('open');
+                $('#ki_characteristic_dialog').modal('show');
                 return false;
             }
         }
         return set_ability_dp(name, level, available, characteristic);
     };
 
+    /**
+     * Add the just-selected advantage if it has no parameters, otherwise
+     * launch the first dialog needed to configure it.
+     */
     configure_advantage = function () {
         var name = $.trim($(this).text()),
             data = characters.current(),
@@ -527,10 +520,9 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         if (!data.advantage_allowed(name, null)) {
             return false;
         }
-        dialogs.Advantages.dialog('close');
-
+        $('#advantages_dialog').modal('hide');
         if (name === 'Cultural Roots') {
-            dialogs.Cultural_Roots.dialog('open');
+            $('#cultural_roots_dialog').modal('show');
             return false;
         }
         if ($.isArray(advantage.Cost)) {
@@ -544,6 +536,10 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         return false;
     };
 
+    /**
+     * Add the just-selected disadvantage if it has no parameters, otherwise
+     * launch the first dialog needed to configure it.
+     */
     configure_disadvantage = function () {
         var name = $.trim($(this).text()),
             data = characters.current(),
@@ -552,8 +548,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         if (!data.disadvantage_allowed(name, null)) {
             return false;
         }
-        dialogs.Disadvantages.dialog('close');
-
+        $('#disadvantages_dialog').modal('hide');
         if ($.isArray(disadvantage.Benefit)) {
             return edit_disadvantage_benefit(name);
         }
@@ -565,6 +560,9 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         return false;
     };
 
+    /**
+     * Process the selection of an Essential Ability from the selection dialog.
+     */
     configure_essential_ability = function () {
         var ability,
             data = characters.current(),
@@ -574,11 +572,11 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         }
         if (name in essential_abilities.advantages) {
             ability = essential_abilities.advantages[name];
-            dialogs.Essential_Advantages.dialog('close');
+            $('#ea_advantages_dialog').modal('hide');
         }
         else {
             ability = essential_abilities.disadvantages[name];
-            dialogs.Essential_Disadvantages.dialog('close');
+            $('#ea_disadvantages_dialog').modal('hide');
         }
         if ('Options' in ability) {
             return edit_ea_option(name);
@@ -588,14 +586,13 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         return false;
     };
 
+    /**
+     * Prompt for any option required by a ki ability being purchased, then
+     * add it to the specified level.
+     * @param {String} name The name of the ki ability
+     * @param {Number} level The level at which the ki ability is being obtained
+     */
     configure_ki_ability = function (name, level) {
-        // summary:
-        //         Prompt for any option required by a ki ability being
-        //         purchased, then add it to the specified level.
-        // name: String
-        //         The name of the ki ability
-        // level: Integer
-        //         The level at which the ki ability is being obtained
         var data = characters.current(),
             ability = ki_abilities[name],
             title = ability.Option_Title,
@@ -611,19 +608,18 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             }
         });
         panel.append(select);
-        dialogs.Ki_Ability_Options.dialog('option', 'title', title);
-        dialogs.Ki_Ability_Options.dialog('open');
+        $('#ki_ability_options_dialog h4').text(title);
+        $('#ki_ability_options_dialog').modal('show');
         return false;
     };
 
+    /**
+     * Prompt for any option required by a module being purchased, otherwise
+     * just add it to the specified level.
+     * @param {String} name The name of the combat module
+     * @param {Number} level The level at which the module is being obtained
+     */
     configure_module = function (name, level) {
-        // summary:
-        //         Prompt for any option required by a module being purchased,
-        //         otherwise just add it to the specified level.
-        // name: String
-        //         The name of the combat module
-        // level: Integer
-        //         The level at which the module is being obtained
         var data = characters.current(),
             input,
             module = modules[name],
@@ -657,17 +653,17 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             });
             panel.append(select);
         }
-        dialogs.Module_Options.dialog('option', 'title', module.Option_Title);
-        dialogs.Module_Options.dialog('open');
+        $('#module_options_dialog h4').text(module.Option_Title);
+        $('#module_options_dialog').modal('show');
         return false;
     };
-  
+
+    /**
+     * Initialize the Cultural Roots advantage configuration dialog.
+     */
     cultural_roots_init = function () {
         var name,
             parts = [];
-        if ('Cultural_Roots' in dialogs) {
-            return;
-        }
         for (name in cultural_roots) {
             if (cultural_roots.hasOwnProperty(name)) {
                 parts.push('<option value="');
@@ -680,147 +676,127 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         $('#cultural_roots_background').html(parts.join(''));
         $('#cultural_roots_background').change(update_cultural_roots);
         update_cultural_roots();
-        dialogs.Cultural_Roots = $('#cultural_roots_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            width: '450px',
-            buttons: {
-                OK: function () {
-                    var background = $('#cultural_roots_background').val(),
-                        params = {Background: background, Choices: []},
-                        data = characters.current();
-                    $('#cultural_roots select').each(function (i, select) {
-                        params.Choices.push($(select).val());
-                    });
-
-                    data.add_advantage('Cultural Roots', 1, params);
-                    $.publish('cp_changed');
-                    dialogs.Cultural_Roots.dialog('close');
-                },
-                Cancel: function () {
-                    dialogs.Cultural_Roots.dialog('close');
-                }
-            }
+        create_dialog('cultural_roots_dialog', 'Select a background', 575,
+                      'Cancel', 'OK', function () {
+            var background = $('#cultural_roots_background').val(),
+                params = {Background: background, Choices: []},
+                data = characters.current();
+            $('#cultural_roots select').each(function (i, select) {
+                params.Choices.push($(select).val());
+            });
+            data.add_advantage('Cultural Roots', 1, params);
+            $.publish('cp_changed');
+            $('#cultural_roots_dialog').modal('hide');
+            return false;
         });
     };
 
+    /**
+     * Confirm that the user intended to remove an advantage by clicking on it.
+     */
     delete_advantage = function () {
         var name = $(this).data('name');
         $('#delete_advantage_name').val(name);
-        dialogs.Delete_Advantage.dialog('open');
+        $('#delete_advantage_dialog').modal('show');
         return false;
     };
-  
+
+    /**
+     * Initialize the delete advantage confirmation dialog.
+     */
     delete_advantage_init = function () {
-        if ('Delete_Advantage' in dialogs) {
-            return;
-        }
-        dialogs.Delete_Advantage = $('#delete_advantage_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            buttons: {
-                Yes: function () {
-                    var name = $('#delete_advantage_name').val(),
-                        data = characters.current();
-                    delete data.Advantages[name];
-                    $.publish('cp_changed');
-                    dialogs.Delete_Advantage.dialog('close');
-                },
-                No: function () {
-                    dialogs.Delete_Advantage.dialog('close');
-                }
-            }
+        create_dialog('delete_advantage_dialog', 'Remove this advantage?', 0,
+                      'No', 'Yes', function () {
+            var name = $('#delete_advantage_name').val(),
+                data = characters.current();
+            delete data.Advantages[name];
+            $.publish('cp_changed');
+            $('#delete_advantage_dialog').modal('hide');
+            return false;
         });
     };
 
+    /**
+     * Confirm that the user intended to remove a disadvantage by clicking on
+     * it.
+     */
     delete_disadvantage = function () {
         var name = $(this).data('name');
         $('#delete_disadvantage_name').val(name);
-        dialogs.Delete_Disadvantage.dialog('open');
+        $('#delete_disadvantage_dialog').modal('show');
         return false;
     };
-  
+
+    /**
+     * Initialize the delete disadvantage confirmation dialog.
+     */
     delete_disadvantage_init = function () {
-        if ('Delete_Disadvantage' in dialogs) {
-            return;
-        }
-        dialogs.Delete_Disadvantage = $('#delete_disadvantage_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            buttons: {
-                Yes: function () {
-                    var name = $('#delete_disadvantage_name').val(),
-                        data = characters.current();
-                    delete data.Disadvantages[name];
-                    $.publish('cp_changed');
-                    dialogs.Delete_Disadvantage.dialog('close');
-                },
-                No: function () {
-                    dialogs.Delete_Disadvantage.dialog('close');
-                }
-            }
-        });
-    };
-  
-    delete_ea_init = function () {
-        if ('Delete_Essential_Ability' in dialogs) {
-            return;
-        }
-        dialogs.Delete_Essential_Ability = $('#delete_ea_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            buttons: {
-                Yes: function () {
-                    var name = $('#delete_ea_name').val(),
-                        data = characters.current();
-                    delete data.levels[0].DP[name];
-                    $.publish('essential_abilities_changed');
-                    dialogs.Delete_Essential_Ability.dialog('close');
-                },
-                No: function () {
-                    dialogs.Delete_Essential_Ability.dialog('close');
-                }
-            }
+        create_dialog('delete_disadvantage_dialog',
+                      'Remove this disadvantage?', 0, 'No', 'Yes',
+                      function () {
+            var name = $('#delete_disadvantage_name').val(),
+                data = characters.current();
+            delete data.Disadvantages[name];
+            $.publish('cp_changed');
+            $('#delete_disadvantage_dialog').modal('hide');
+            return false;
         });
     };
 
+    /**
+     * Initialize the Essential Ability deletion confirmation dialog.
+     */
+    delete_ea_init = function () {
+        create_dialog('delete_ea_dialog', 'Remove this essential ability?', 0,
+                      'No', 'Yes', function () {
+            var name = $('#delete_ea_name').val(),
+                data = characters.current();
+            delete data.levels[0].DP[name];
+            $.publish('essential_abilities_changed');
+            $('#delete_ea_dialog').modal('hide');
+            return false;
+        });
+    };
+
+    /**
+     * Confirm that the user meant to remove an Essential Ability by clicking
+     * on it.
+     */
     delete_essential_ability = function () {
         var name = $(this).data('name');
         $('#delete_ea_name').val(name);
-        dialogs.Delete_Essential_Ability.dialog('open');
+        $('#delete_ea_dialog').modal('show');
         return false;
     };
-  
+
+    /**
+     * Confirm that the user intended to remove a Ki or Nemesis Ability by
+     * clicking on it.
+     */
     delete_ki_ability_init = function () {
-        if ('Delete_Ki_Ability' in dialogs) {
-            return;
-        }
-        dialogs.Delete_Ki_Ability = $('#delete_ki_ability_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            buttons: {
-                Yes: function () {
-                    var data = characters.current(),
-                        level = $('#delete_ki_ability_level').val(),
-                        name = $('#delete_ki_ability_name').val(),
-                        options = $('#delete_ki_ability_options').val();
-                    if (options) {
-                        options = options.split(',');
-                        $.each(options, function (i, option) {
-                            options[i] = $.trim(option);
-                        });
-                    }
-                    data.remove_ki_ability(name, level, options);
-                    $.publish('level_data_changed');
-                    dialogs.Delete_Ki_Ability.dialog('close');
-                },
-                No: function () {
-                    dialogs.Delete_Ki_Ability.dialog('close');
-                }
+        create_dialog('delete_ki_ability_dialog', 'Remove this ki ability?', 0,
+                      'No', 'Yes', function () {
+            var data = characters.current(),
+                level = $('#delete_ki_ability_level').val(),
+                name = $('#delete_ki_ability_name').val(),
+                options = $('#delete_ki_ability_options').val();
+            if (options) {
+                options = options.split(',');
+                $.each(options, function (i, option) {
+                    options[i] = $.trim(option);
+                });
             }
+            data.remove_ki_ability(name, level, options);
+            $.publish('level_data_changed');
+            $('#delete_ki_ability_dialog').modal('hide');
+            return false;
         });
     };
 
+    /**
+     * Configure and launch the Ki/Nemesis Ability deletion confirmation
+     * dialog.
+     */
     delete_ki_ability = function () {
         var self = $(this),
             level = self.data('level'),
@@ -832,34 +808,31 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             option = option.text();
         }
         $('#delete_ki_ability_options').val(option);
-        dialogs.Delete_Ki_Ability.dialog('open');
+        $('#delete_ki_ability_dialog').modal('show');
         return false;
     };
-  
+
+    /**
+     * Initialize the martial art deletion confirmation dialog.
+     */
     delete_martial_art_init = function () {
-        if ('Delete_Martial_Art' in dialogs) {
-            return;
-        }
-        dialogs.Delete_Martial_Art = $('#delete_martial_art_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            buttons: {
-                Yes: function () {
-                    var data = characters.current(),
-                        level = $('#delete_martial_art_level').val(),
-                        name = $('#delete_martial_art_name').val(),
-                        degree = $('#delete_martial_art_degree').val();
-                    data.remove_martial_art(name, degree, level);
-                    $.publish('level_data_changed');
-                    dialogs.Delete_Martial_Art.dialog('close');
-                },
-                No: function () {
-                    dialogs.Delete_Martial_Art.dialog('close');
-                }
-            }
+        create_dialog('delete_martial_art_dialog',
+                      'Remove this martial art degree?', 0, 'No', 'Yes',
+                      function () {
+            var data = characters.current(),
+                level = $('#delete_martial_art_level').val(),
+                name = $('#delete_martial_art_name').val(),
+                degree = $('#delete_martial_art_degree').val();
+            data.remove_martial_art(name, degree, level);
+            $.publish('level_data_changed');
+            $('#delete_martial_art_dialog').modal('hide');
+            return false;
         });
     };
 
+    /**
+     * Confirm that the user meant to remove a martial art by clicking on it.
+     */
     delete_martial_art = function (name, level) {
         var data = characters.current(),
             degrees = data.level_info(level).DP[name],
@@ -867,81 +840,63 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         $('#delete_martial_art_level').val(level);
         $('#delete_martial_art_name').val(name);
         $('#delete_martial_art_degree').val(degree);
-        dialogs.Delete_Martial_Art.dialog('open');
+        $('#delete_martial_art_dialog').modal('show');
         return false;
     };
-  
-    disadvantage_benefit_init = function () {
-        if ('Disadvantage_Benefit' in dialogs) {
-            return;
-        }
-        dialogs.Disadvantage_Benefit = $('#disadvantage_benefit_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            width: '400px',
-            buttons: {
-                OK: function () {
-                    var name = $('#disadvantage_benefit_name').val(),
-                        disadvantage = disadvantages[name],
-                        benefit = parseInt($('input:radio[name=disadvantage_benefit]:checked').val(), 10),
-                        data = characters.current();
-                    if ('Options' in disadvantage) {
-                        dialogs.Disadvantage_Benefit.dialog('close');
-                        edit_disadvantage_option(name, benefit);
-                    }
-                    else {
-                        data.Disadvantages[name] = benefit;
-                        $.publish('cp_changed');
-                        dialogs.Disadvantage_Benefit.dialog('close');
-                    }
-                },
-                Cancel: function () {
-                    dialogs.Disadvantage_Benefit.dialog('close');
-                }
-            }
-        });
-    };
-  
-    disadvantage_option_init = function () {
-        if ('Disadvantage_Option' in dialogs) {
-            return;
-        }
-        dialogs.Disadvantage_Option = $('#disadvantage_option_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            width: '400px',
-            buttons: {
-                OK: function () {
-                    var name = $('#disadvantage_option_name').val(),
-                        benefit = $('#disadvantage_option_benefit').val(),
-                        param,
-                        select = $('#disadvantage_option select'),
-                        data = characters.current();
-                    
-                    benefit = benefit ? parseInt(benefit, 10) : null;
 
-                    if (select.length > 0) {
-                        param = select.val();
-                    }
-                    else {
-                        param = $('#disadvantage_option input').val();
-                    }
-                    data.add_disadvantage(name, benefit, param);
-                    $.publish('cp_changed');
-                    dialogs.Disadvantage_Option.dialog('close');
-                },
-                Cancel: function () {
-                    dialogs.Disadvantage_Option.dialog('close');
-                }
+    /**
+     * Initialize the dialog for creation points gained from a disadvantage.
+     */
+    disadvantage_benefit_init = function () {
+        create_dialog('disadvantage_benefit_dialog',
+                      'Gain how many creation points from it?', 400, 'Cancel',
+                      'OK', function () {
+            var name = $('#disadvantage_benefit_name').val(),
+                disadvantage = disadvantages[name],
+                benefit = parseInt($('input:radio[name=disadvantage_benefit]:checked').val(), 10),
+                data = characters.current();
+            if ('Options' in disadvantage) {
+                $('#disadvantage_benefit_dialog').modal('hide');
+                edit_disadvantage_option(name, benefit);
             }
+            else {
+                data.Disadvantages[name] = benefit;
+                $.publish('cp_changed');
+                $('#disadvantage_benefit_dialog').modal('hide');
+            }
+            return false;
         });
     };
-  
+
+    /**
+     * Initialize the dialog for configuring the parameters of a disadvantage.
+     */
+    disadvantage_option_init = function () {
+        create_dialog('disadvantage_option_dialog', '', 400, 'Cancel', 'OK',
+                      function () {
+            var name = $('#disadvantage_option_name').val(),
+                benefit = $('#disadvantage_option_benefit').val(),
+                param,
+                select = $('#disadvantage_option select'),
+                data = characters.current();
+            benefit = benefit ? parseInt(benefit, 10) : null;
+            if (select.length > 0) {
+                param = select.val();
+            }
+            else {
+                param = $('#disadvantage_option input').val();
+            }
+            data.add_disadvantage(name, benefit, param);
+            $.publish('cp_changed');
+            $('#disadvantage_option_dialog').modal('hide');
+            return false;
+        });
+    };
+
+    /**
+     * Initialize the disadvantage selection dialog.
+     */
     disadvantages_init = function () {
-        if ('Disadvantages' in dialogs) {
-            return;
-        }
-        $('#disadvantages_tabs').tabs();
         var column = 1,
             count = 1,
             name,
@@ -965,20 +920,13 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 }
             }
         }
-        dialogs.Disadvantages = $('#disadvantages_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            title: 'Select a disadvantage',
-            width: '1000px',
-            position: 'top',
-            buttons: {
-                'Cancel': function () {
-                    dialogs.Disadvantages.dialog('close');
-                }
-            }
-        });
+        create_dialog('disadvantages_dialog', 'Select a disadvantage', 1000,
+                      'Cancel');
     };
-  
+
+    /**
+     * Initialize the DP spending options dialog.
+     */
     dp_init = function () {
         var ability,
             count,
@@ -987,10 +935,6 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             name,
             parts,
             primary;
-        if ('DP' in dialogs) {
-            return;
-        }
-        $('#dp_tabs').tabs();
         for (name in primaries) {
             if (primaries.hasOwnProperty(name)) {
                 primary = primaries[name];
@@ -1031,19 +975,12 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 i++;
             }
         }
-        dialogs.DP = $('#dp_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            width: '1010px',
-            position: 'top',
-            buttons: {
-                Cancel: function () {
-                    dialogs.DP.dialog('close');
-                }
-            }
-        });
+        create_dialog('dp_dialog', 'Spend DP on...', 1010, 'Cancel');
     };
-  
+
+    /**
+     * Initialize the dialog for selecting an Essential Ability for a creature.
+     */
     ea_advantages_init = function () {
         var advantage,
             advantages = essential_abilities.advantages,
@@ -1052,10 +989,6 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             link,
             name,
             text;
-        if ('Essential_Advantages' in dialogs) {
-            return;
-        }
-        $('#ea_advantages_tabs').tabs();
         for (name in advantages) {
             if (advantages.hasOwnProperty(name)) {
                 advantage = advantages[name];
@@ -1074,25 +1007,15 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 }
             }
         }
-        dialogs.Essential_Advantages = $('#ea_advantages_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            title: 'Select an essential ability',
-            width: '1000px',
-            position: 'top',
-            buttons: {
-                'Cancel': function () {
-                    dialogs.Essential_Advantages.dialog('close');
-                }
-            }
-        });
+        create_dialog('ea_advantages_dialog', 'Select an essential ability',
+                      1000, 'Cancel');
     };
-  
+
+    /**
+     * Initialize the dialog for selecting an Essential Ability disadvantage
+     * for a creature.
+     */
     ea_disadvantages_init = function () {
-        if ('Essential_Disadvantages' in dialogs) {
-            return;
-        }
-        $('#ea_disadvantages_tabs').tabs();
         var name,
             disadvantage,
             disadvantages = essential_abilities.disadvantages,
@@ -1111,51 +1034,37 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 }
             }
         }
-        dialogs.Essential_Disadvantages = $('#ea_disadvantages_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            title: 'Select an essential ability',
-            width: '1000px',
-            position: 'top',
-            buttons: {
-                'Cancel': function () {
-                    dialogs.Essential_Disadvantages.dialog('close');
-                }
-            }
-        });
+        create_dialog('ea_disadvantages_dialog', 'Select an essential ability',
+                      1000, 'Cancel');
     };
 
+    /**
+     * Initialize the dialog for setting the parameters for an Essential
+     * Ability.
+     */
     ea_option_init = function () {
-        if ('Essential_Ability_Option' in dialogs) {
-            return;
-        }
-        dialogs.Essential_Ability_Option = $('#ea_option_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            width: '400px',
-            buttons: {
-                OK: function () {
-                    var data = characters.current(),
-                        name = $('#ea_option_name').val(),
-                        param,
-                        select = $('#ea_option select');
-                    if (select.length > 0) {
-                        param = select.val();
-                    }
-                    else {
-                        param = $('#ea_option input').val();
-                    }
-                    data.add_essential_ability(name, param);
-                    $.publish('essential_abilities_changed');
-                    dialogs.Essential_Ability_Option.dialog('close');
-                },
-                Cancel: function () {
-                    dialogs.Essential_Ability_Option.dialog('close');
-                }
+        create_dialog('ea_option_dialog', '', 400, 'Cancel', 'OK', function () {
+            var data = characters.current(),
+                name = $('#ea_option_name').val(),
+                param,
+                select = $('#ea_option select');
+            if (select.length > 0) {
+                param = select.val();
             }
+            else {
+                param = $('#ea_option input').val();
+            }
+            data.add_essential_ability(name, param);
+            $.publish('essential_abilities_changed');
+            $('#ea_option_dialog').modal('hide');
+            return false;
         });
     };
 
+    /**
+     * Configure and launch the dialog for selecting the number of Creation
+     * Points to spend on an advantage.
+     */
     edit_advantage_cost = function (name) {
         var data = characters.current(),
             advantage = advantages[name],
@@ -1175,9 +1084,14 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             }
         });
         $('#advantage_cost_' + options[0]).click();
-        dialogs.Advantage_Cost.dialog('open');
+        $('#advantage_cost_dialog').modal('show');
+        return false;
     };
 
+    /**
+     * Configure and launch the dialog for setting the parameters of an
+     * advantage.
+     */
     edit_advantage_options = function (name, cost) {
         var advantage = advantages[name],
             data,
@@ -1206,20 +1120,22 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             if (name === 'Repeat a Characteristics Roll') {
                 panel.append($('<br />'));
                 panel.append($('<label>', {'for': 'repeat_roll'}).text('New Roll '));
-                panel.append($('<input>', {id: 'repeat_roll', type: 'text', value: ''}).addClass('required digits two-digit'));
+                panel.append($('<div id="repeat_roll" class="spinner"></div>'));
             }
         }
-        dialogs.Advantage_Options.dialog('option', 'title', advantage.Option_Title);
-        dialogs.Advantage_Options.dialog('open');
-        $('#repeat_roll').spinner({min: 4, max: 10});
+        $('#advantage_options_dialog .modal-header h4').text(advantage.Option_Title);
+        $('#advantage_options_dialog').modal('show');
+        create_spinner('#repeat_roll', {min: 4, max: 10, value: 5});
         return false;
     };
 
+    /**
+     * Configure and launch the Characteristic bonus selection dialog.
+     */
     edit_characteristic_bonus = function () {
         var level = $(this).data('level'),
             data = characters.current(),
             index = (level === 0) ? 0 : level - 1;
-            
         $('#dialog_level').val(level);
         if ('Characteristic' in data.levels[index]) {
             $('#Characteristic').val(data.levels[index].Characteristic);
@@ -1227,25 +1143,37 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         else {
             $('#Characteristic').val('STR');
         }
-        dialogs.Characteristic_Bonus.dialog('open');
+        $('#characteristic_bonus_dialog').modal('show');
         return false;
     };
 
+    /**
+     * Configure and launch the class change dialog.
+     */
     edit_class = function () {
         var data = characters.current(),
             level = $(this).data('level');
         $('#class_dialog_level').text(level);
         $('#Class').val(data.levels[level === 0 ? 0 : level - 1].Class);
-        dialogs.Class.dialog('open');
+        $('#class_dialog').modal('show');
         return false;
     };
 
+    /**
+     * Configure and launch the dialog for selecting how many creation points
+     * to gain from a disadvantage.
+     */
     edit_disadvantage_benefit = function (name) {
         $('#disadvantage_benefit_name').val(name);
         $('#disadvantage_benefit_1').click();
-        dialogs.Disadvantage_Benefit.dialog('open');
+        $('#disadvantage_benefit_dialog').modal('show');
+        return false;
     };
 
+    /**
+     * Configure and launch the dialog for setting the parameters of a
+     * disadvantage.
+     */
     edit_disadvantage_option = function (name, benefit) {
         var disadvantage = disadvantages[name],
             panel,
@@ -1253,7 +1181,6 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             input,
             data,
             select;
-
         $('#disadvantage_option_name').val(name);
         $('#disadvantage_option_benefit').val(benefit ? benefit : '');
         panel = $('#disadvantage_option');
@@ -1273,11 +1200,15 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             });
             panel.append(select);
         }
-        dialogs.Disadvantage_Option.dialog('option', 'title', disadvantage.Option_Title);
-        dialogs.Disadvantage_Option.dialog('open');
+        $('#disadvantage_option_dialog h4').text(disadvantage.Option_Title);
+        $('#disadvantage_option_dialog').modal('show');
         return false;
     };
 
+    /**
+     * Configure and launch the dialog for setting the parameters of an
+     * Essential Ability.
+     */
     edit_ea_option = function (name) {
         var ability,
             advantages = essential_abilities.advantages,
@@ -1310,11 +1241,15 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             });
             panel.append(select);
         }
-        dialogs.Essential_Ability_Option.dialog('option', 'title', ability.Option_Title);
-        dialogs.Essential_Ability_Option.dialog('open');
+        $('#ea_option_dialog h4').text(ability.Option_Title);
+        $('#ea_option_dialog').modal('show');
         return false;
     };
 
+    /**
+     * Configure and launch the dialog for selecting which Secondary Ability to
+     * put a Freelancer bonus into.
+     */
     edit_freelancer_bonus = function () {
         var data = characters.current(),
             link = $(this),
@@ -1336,10 +1271,13 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 link.removeClass('disabled');
             }
         });
-        dialogs.Freelancer.dialog('open');
+        $('#freelancer_dialog').modal('show');
         return false;
     };
 
+    /**
+     * Configure and launch the Natural Bonus selection dialog.
+     */
     edit_natural_bonus = function () {
         var level = $(this).data('level'),
             modifier,
@@ -1367,19 +1305,20 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 }
             }
         }
-        dialogs.Natural_Bonus.dialog('open');
+        $('#natural_bonus_dialog').modal('show');
         return false;
     };
 
+    /**
+     * Initialize the dialog for selecting a Secondary Ability to put a
+     * Freelancer bonus into.
+     */
     freelancer_init = function () {
         var ability,
             i,
             other = primaries.Other,
             count = other.length,
             parts;
-        if ('Freelancer' in dialogs) {
-            return;
-        }
         for (i = 0; i < count; i++) {
             ability = other[i];
             parts = ['<a href="#" class="freelancer">', ability, '</a><br />'];
@@ -1387,108 +1326,81 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 $('#Freelancer_' + abilities[ability].Field).append(parts.join(''));
             }
         }
-        dialogs.Freelancer = $('#freelancer_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            width: '1010px',
-            position: 'top',
-            buttons: {
-                Cancel: function () {
-                    dialogs.Freelancer.dialog('close');
-                }
-            }
-        });
+        create_dialog('freelancer_dialog', 'Add Freelancer bonus to...', 1010,
+                      'Cancel');
         
     };
 
+    /**
+     * Initialize the dialog for selecting Ki Ability parameters.
+     */
     ki_ability_options_init = function () {
-        if ('Ki_Ability_Options' in dialogs) {
-            return;
-        }
-        dialogs.Ki_Ability_Options = $('#ki_ability_options_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            width: '400px',
-            buttons: {
-                OK: function () {
-                    var data = characters.current(),
-                        level = parseInt($('#ki_ability_options_level').val(), 10),
-                        name = $('#ki_ability_options_name').val(),
-                        option;
-                    option = $('#ki_ability_options select').val();
-                    data.add_ki_ability(name, level, option);
-                    dialogs.Ki_Ability_Options.dialog('close');
-                    $.publish('level_data_changed');
-                },
-                Cancel: function () {
-                    dialogs.Ki_Ability_Options.dialog('close');
-                }
-            }
+        create_dialog('ki_ability_options_dialog', '', 400, 'Cancel', 'OK',
+                      function () {
+            var data = characters.current(),
+                level = parseInt($('#ki_ability_options_level').val(), 10),
+                name = $('#ki_ability_options_name').val(),
+                option;
+            option = $('#ki_ability_options select').val();
+            data.add_ki_ability(name, level, option);
+            $('#ki_ability_options_dialog').modal('hide');
+            $.publish('level_data_changed');
+            return false;
         });
     };
 
+    /**
+     * Initialize the dialog for selecting which Characteristic to attach a
+     * purchased Accumulation Multiple or Ki Point to.
+     */
     ki_characteristic_init = function () {
-        if ('Ki_Characteristic' in dialogs) {
-            return;
-        }
-        dialogs.Ki_Characteristic = $('#ki_characteristic_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            title: 'For which characteristic?',
-            width: '350px',
-            buttons: {
-                OK: function () {
-                    var available = parseInt($('#ki_characteristic_available').val(), 10),
-                        characteristic = $('#Ki_Characteristic').val(),
-                        level = parseInt($('#ki_characteristic_level').val(), 10),
-                        name = $('#ki_characteristic_name').val();
-                    dialogs.Ki_Characteristic.dialog('close');
-                    return set_ability_dp(name, level, available, characteristic);
-                },
-                Cancel: function () {
-                    dialogs.Ki_Characteristic.dialog('close');
-                }
-            }
+        create_dialog('ki_characteristic_dialog', 'For which characteristic?',
+                      350, 'Cancel', 'OK', function () {
+            var available = parseInt($('#ki_characteristic_available').val(), 10),
+                characteristic = $('#Ki_Characteristic').val(),
+                level = parseInt($('#ki_characteristic_level').val(), 10),
+                name = $('#ki_characteristic_name').val();
+            $('#ki_characteristic_dialog').modal('hide');
+            return set_ability_dp(name, level, available, characteristic);
         });
     };
-    
+
+    /**
+     * Prepare and launch the dialog for loading character data.
+     */
     load = function () {
         $('#load_text').val('');
-        dialogs.Load_Character.dialog('open');
+        $('#load_dialog').modal('show');
+        $('#load_text').focus();
         return false;
     };
 
+    /**
+     * Initialize the dialog for loading character data.
+     */
     load_character_init = function () {
-        if ('Load_Character' in dialogs) {
-            return;
-        }
-        dialogs.Load_Character = $('#load_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            width: '450px',
-            buttons: {
-                OK: function () {
-                    var attr,
-                        character = characters.current(),
-                        data = JSON.parse($('#load_text').val());
-                    if (data) {
-                        character.clear();
-                        for (attr in data) {
-                            if (data.hasOwnProperty(attr)) {
-                                character[attr] = data[attr];
-                            }
-                        }
-                        $.publish('data_loaded');
+        create_dialog('load_dialog', 'Load Character', 575, 'Cancel', 'OK',
+                      function () {
+            var attr,
+                character = characters.current(),
+                data = JSON.parse($('#load_text').val());
+            if (data) {
+                character.clear();
+                for (attr in data) {
+                    if (data.hasOwnProperty(attr)) {
+                        character[attr] = data[attr];
                     }
-                    dialogs.Load_Character.dialog('close');
-                },
-                Cancel: function () {
-                    dialogs.Load_Character.dialog('close');
                 }
+                $.publish('data_loaded');
             }
+            $('#load_dialog').modal('hide');
+            return false;
         });
     };
-  
+
+    /**
+     * Initialize the MK spending options dialog.
+     */
     mk_init = function () {
         var ability,
             ki_column = 1,
@@ -1498,10 +1410,6 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             nemesis_column = 1,
             nemesis_count = 1,
             uon = 'Use of Nemesis';
-        if ('MK' in dialogs) {
-            return;
-        }
-        $('#mk_tabs').tabs();
         for (name in ki_abilities) {
             if (ki_abilities.hasOwnProperty(name)) {
                 ability = ki_abilities[name];
@@ -1525,132 +1433,92 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 }
             }
         }
-        dialogs.MK = $('#mk_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            title: 'Select a Ki Ability or Dominion Technique',
-            width: '1000px',
-            position: 'top',
-            buttons: {
-                'Cancel': function () {
-                    dialogs.MK.dialog('close');
-                }
-            }
-        });
+        create_dialog('mk_dialog', 'Select a Ki Ability or Dominion Technique',
+                      1000, 'Cancel');
     };
 
+    /**
+     * Initialize the dialog for setting the parameters of a Combat Module.
+     */
     module_options_init = function () {
-        if ('Module_Options' in dialogs) {
-            return;
-        }
-        dialogs.Module_Options = $('#module_options_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            width: '400px',
-            buttons: {
-                OK: function () {
-                    var data = characters.current(),
-                        level = parseInt($('#module_options_level').val(), 10),
-                        name = $('#module_options_name').val(),
-                        option,
-                        select;
-                    select = $('#module_options select');
-                    if (select.length > 0) {
-                        option = select.val();
-                    }
-                    else {
-                        option = $('#module_options input').val();
-                    }
-                    data.add_module(name, level, option);
-                    dialogs.Module_Options.dialog('close');
-                    $.publish('level_data_changed');
-                },
-                Cancel: function () {
-                    dialogs.Module_Options.dialog('close');
-                }
+        create_dialog('module_options_dialog', '', 400, 'Cancel', 'OK',
+                      function () {
+            var data = characters.current(),
+                level = parseInt($('#module_options_level').val(), 10),
+                name = $('#module_options_name').val(),
+                option,
+                select;
+            select = $('#module_options select');
+            if (select.length > 0) {
+                option = select.val();
             }
-        });
-    };
-  
-    natural_bonus_init = function () {
-        if ('Natural_Bonus' in dialogs) {
-            return;
-        }
-        dialogs.Natural_Bonus = $('#natural_bonus_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            width: '1000px',
-            buttons: {
-                Cancel: function () {
-                    dialogs.Natural_Bonus.dialog('close');
-                }
+            else {
+                option = $('#module_options input').val();
             }
+            data.add_module(name, level, option);
+            $('#module_options_dialog').modal('hide');
+            $.publish('level_data_changed');
+            return false;
         });
     };
 
+    /**
+     * Initialize the Natural Bonus selection dialog.
+     */
+    natural_bonus_init = function () {
+        create_dialog('natural_bonus_dialog', 'Select an ability to improve',
+                      1000, 'Cancel');
+    };
+
+    /**
+     * Initialize the dialog for configuring the parameters of a creature power.
+     */
     power_options_init = function () {
-        if ('Power_Options' in dialogs) {
-            return;
-        }
-        dialogs.Power_Options = $('#power_options_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            width: '400px',
-            buttons: {
-                OK: function () {
-                    var count,
-                        level = parseInt($('#power_options_level').val(), 10),
-                        data,
-                        i,
-                        option,
-                        options,
-                        params = {Name: $('#power_options_name').val()},
-                        type = $('#power_options_type').val();
-                    options = $('#power_options input[type="text"], #power_options select');
-                    count = options.length;
-                    for (i = 0; i < count; i++) {
-                        option = options.eq(i);
-                        params[option.attr('name')] = option.val();
-                    }
-                    options = $('#power_options input[type="checkbox"]:checked');
-                    count = options.length;
-                    for (i = 0; i < count; i++) {
-                        params[option.attr('name')] = true;
-                    }
-                    data = characters.current();
-                    data.add_power(type, level, params);
-                    $.publish('level_data_changed');
-                    dialogs.Power_Options.dialog('close');
-                },
-                Cancel: function () {
-                    dialogs.Power_Options.dialog('close');
-                }
+        create_dialog('power_options_dialog', '', 400, 'Cancel', 'OK',
+                      function () {
+            var count,
+                level = parseInt($('#power_options_level').val(), 10),
+                data,
+                i,
+                option,
+                options,
+                params = {Name: $('#power_options_name').val()},
+                type = $('#power_options_type').val();
+            options = $('#power_options input[type="text"], #power_options select');
+            count = options.length;
+            for (i = 0; i < count; i++) {
+                option = options.eq(i);
+                params[option.attr('name')] = option.val();
             }
+            options = $('#power_options input[type="checkbox"]:checked');
+            count = options.length;
+            for (i = 0; i < count; i++) {
+                params[option.attr('name')] = true;
+            }
+            data = characters.current();
+            data.add_power(type, level, params);
+            $.publish('level_data_changed');
+            $('#power_options_dialog').modal('hide');
+            return false;
         });
     };
-    
+
+    /**
+     * Prepare and launch the dialog for saving character data.
+     */
     save = function () {
         var data = characters.current();
         $('#save_text').val(JSON.stringify(data, null, 2));
-        dialogs.Save_Character.dialog('open');
+        $('#save_dialog').modal('show');
         $('#save_text').select();
         return false;
     };
 
+    /**
+     * Initialize the dialog for displaying character data for saving.
+     */
     save_character_init = function () {
-        if ('Save_Character' in dialogs) {
-            return;
-        }
-        dialogs.Save_Character = $('#save_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            width: '450px',
-            buttons: {
-                OK: function () {
-                    dialogs.Save_Character.dialog('close');
-                }
-            }
-        });
+        create_dialog('save_dialog', 'Save Character', 575, 'OK');
     };
 
     /**
@@ -1698,33 +1566,44 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             $('#ability_spend').show();
         }
         parent.html('');
-        parent.append($('<input>', {id: 'ability_dp', type: 'text', value: '' + start}));
-        dialogs.Ability_DP.dialog('open');
-        parent.find('input').spinner({min: 0, max: max, step: cost});
+        parent.append($('<div id="ability_dp" class="spinner"></div><br /><br />'));
+        $('#ability_dp_dialog').modal('show');
+        create_spinner('#ability_dp',
+                       {min: 0, max: max, step: cost, value: start});
         return false;
     };
 
+    /**
+     * Process the selection of a Secondary Ability to put a Freelancer bonus
+     * into.
+     */
     set_freelancer_bonus = function () {
         var data = characters.current(),
             level = parseInt($('#freelancer_level').val(), 10),
             name = $(this).text(),
             previous = $('freelancer_name').val();
         data.set_freelancer_bonus(level, name, previous);
-        dialogs.Freelancer.dialog('close');
+        $('#freelancer_dialog').modal('hide');
         $.publish('level_data_changed');
         return false;
     };
 
+    /**
+     * Process a selection from the Natural Bonus dialog.
+     */
     set_natural_bonus = function () {
         var name = $(this).data('name'),
             level = parseInt($('#natural_bonus_level').val(), 10),
             data = characters.current();
         data.set_natural_bonus(level, name);
-        dialogs.Natural_Bonus.dialog('close');
+        $('#natural_bonus_dialog').modal('hide');
         $.publish('level_data_changed');
         return false;
     };
 
+    /**
+     * Configure and launch the DP spending options dialog.
+     */
     spend_dp = function () {
         var ability,
             art,
@@ -1853,10 +1732,13 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 }
             }
         }
-        dialogs.DP.dialog('open');
+        $('#dp_dialog').modal('show');
         return false;
     };
 
+    /**
+     * Configure and launch the MK spending options dialog.
+     */
     spend_mk = function () {
         var ability,
             count,
@@ -1914,10 +1796,14 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 }
             }
         }
-        dialogs.MK.dialog('open');
+        $('#mk_dialog').modal('show');
         return false;
     };
-    
+
+    /**
+     * Update the list of bonuses in the Cultural Roots configuration dialog
+     * to match the current background selection.
+     */
     update_cultural_roots = function () {
         $('#cultural_roots').html('');
         var parts,
@@ -1949,54 +1835,39 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             }
         }
     };
-    
+
+    /**
+     * Initialize the dialog for adding XP to a character.
+     */
     xp_dialog_init = function () {
-        if ('Add_XP' in dialogs) {
-            return;
-        }
-        dialogs.Add_XP = $('#xp_dialog').dialog({
-            autoOpen: false,
-            modal: true,
-            width: '400px',
-            buttons: {
-                OK: function () {
-                    var data = characters.current(),
-                        added = $('#xp_added').spinner('value');
-                    data.XP += added;
-                    $('#XP').spinner('value', data.XP);
-                    $.publish('level_data_changed');
-                    dialogs.Add_XP.dialog('close');
-                },
-                Cancel: function () {
-                    dialogs.Add_XP.dialog('close');
-                }
-            },
-            open: function () {
-                if ($('#xp_dialog').find('.ui-spinner').length) {
-                    $('#xp_added').spinner('value', 0);
-                }
-                else {
-                    $('#xp_added').spinner({min: 0, max: 9999});
-                }
-            }
+        create_dialog('xp_dialog', 'Add Experience Points', 400, 'Cancel',
+                      'OK', function () {
+            var data = characters.current(),
+                added = $('#xp_added').spinner('value');
+            data.XP += added;
+            $('#XP').spinner('value', data.XP);
+            $.publish('level_data_changed');
+            $('#xp_dialog').modal('hide');
+            return false;
         });
     };
   
     $(document).ready(function () {
         ability_dp_init();
-        advantages_init();
         advantage_cost_init();
         advantage_options_init();
+        advantages_init();
         characteristic_bonus_init();
         class_init();
         cultural_roots_init();
         delete_advantage_init();
         delete_disadvantage_init();
+        delete_ea_init();
         delete_ki_ability_init();
         delete_martial_art_init();
-        disadvantages_init();
         disadvantage_benefit_init();
         disadvantage_option_init();
+        disadvantages_init();
         dp_init();
         ea_advantages_init();
         ea_disadvantages_init();
@@ -2008,32 +1879,33 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         mk_init();
         module_options_init();
         natural_bonus_init();
+        power_options_init();
         save_character_init();
         xp_dialog_init();
         $('#add_advantage').click(add_advantage);
         $('#add_disadvantage').click(add_disadvantage);
         $('#add_xp').click(add_xp);
-        $('#advantages_tabs a.advantage').live('click', configure_advantage);
-        $('#disadvantages_tabs a.disadvantage').live('click', configure_disadvantage);
+        $(document).on('click', '#advantages_tabs a.advantage', configure_advantage);
+        $(document).on('click', '#disadvantages_tabs a.disadvantage', configure_disadvantage);
         $('#add_ea_advantage').click(add_ea_advantage);
         $('#add_ea_disadvantage').click(add_ea_disadvantage);
-        $('a.ability').live('click', configure_ability);
-        $('a.add_martial_art').live('click', add_martial_art);
-        $('a.edit_class').live('click', edit_class);
-        $('a.freelancer_bonus').live('click', edit_freelancer_bonus);
-        $('a.essential_ability').live('click', configure_essential_ability);
-        $('a.characteristic_bonus').live('click', edit_characteristic_bonus);
-        $('a.add_ki_ability').live('click', add_ki_ability);
-        $('a.delete_ki_ability').live('click', delete_ki_ability);
-        $('a.natural_bonus').live('click', edit_natural_bonus);
-        $('a.set_natural_bonus').live('click', set_natural_bonus);
-        $('a.spend_dp').live('click', spend_dp);
-        $('a.spend_mk').live('click', spend_mk);
-        $('#Advantages a').live('click', delete_advantage);
-        $('#Disadvantages a').live('click', delete_disadvantage);
-        $('#ea_advantages a').live('click', delete_essential_ability);
-        $('#ea_disadvantages a').live('click', delete_essential_ability);
-        $('#Freelancer a').live('click', set_freelancer_bonus);
+        $(document).on('click', 'a.ability', configure_ability);
+        $(document).on('click', 'a.add_martial_art', add_martial_art);
+        $(document).on('click', 'a.edit_class', edit_class);
+        $(document).on('click', 'a.freelancer_bonus', edit_freelancer_bonus);
+        $(document).on('click', 'a.essential_ability', configure_essential_ability);
+        $(document).on('click', 'a.characteristic_bonus', edit_characteristic_bonus);
+        $(document).on('click', 'a.add_ki_ability', add_ki_ability);
+        $(document).on('click', 'a.delete_ki_ability', delete_ki_ability);
+        $(document).on('click', 'a.natural_bonus', edit_natural_bonus);
+        $(document).on('click', 'a.set_natural_bonus', set_natural_bonus);
+        $(document).on('click', 'a.spend_dp', spend_dp);
+        $(document).on('click', 'a.spend_mk', spend_mk);
+        $(document).on('click', '#Advantages a', delete_advantage);
+        $(document).on('click', '#Disadvantages a', delete_disadvantage);
+        $(document).on('click', '#ea_advantages a', delete_essential_ability);
+        $(document).on('click', '#ea_disadvantages a', delete_essential_ability);
+        $(document).on('click', '#Freelancer a', set_freelancer_bonus);
         $('#save_button').click(save);
         $('#load_button').click(load);
     });

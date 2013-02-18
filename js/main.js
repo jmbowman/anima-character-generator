@@ -9,16 +9,24 @@
  * @requires spinner
  * @requires validate
  */
-require({
+
+require.config({
     paths: {
-        jqueryui: 'libs/jqueryui',
+        bootstrap: 'libs/bootstrap.min',
+        jquery: 'libs/jquery-1.9.1.min',
         pubsub: 'libs/jq.pubsub',
-        spinner: 'libs/ui.spinner.min',
         validate: 'libs/jquery.validate.min'
+    },
+    shim: {
+        bootstrap: ['jquery'],
+        pubsub: ['jquery'],
+        validate: ['jquery']
     }
-}, ['jquery', 'render', 'dialogs', 'pubsub', 'spinner', 'validate'], function ($, render) {
+});
+
+require(['jquery', 'render', 'dialogs', 'pubsub', 'validate'],
+function ($, render) {
     $(document).ready(function () {
-        $('label').parent().addClass('label-parent');
         render.render($('.container'));
         $('#proceed').click(render.start_attributes);
         $('#choose_essential_abilities').click(render.start_essential_abilities);

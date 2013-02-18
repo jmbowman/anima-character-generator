@@ -17,15 +17,17 @@
  * @requires martial_knowledge
  * @requires movement
  * @requires resistances
+ * @requires widgets
  */
 define(['jquery', 'abilities', 'characters', 'essential_abilities',
-'ki_abilities', 'martial_arts', 'modules', 'primaries', 'tables', 'armor',
-'creation_points', 'development_points', 'martial_knowledge', 'movement',
-'resistances'],
+'ki_abilities', 'martial_arts', 'modules', 'primaries', 'tables', 'widgets',
+'armor', 'creation_points', 'development_points', 'martial_knowledge',
+'movement', 'resistances'],
 function ($, abilities, characters, essential_abilities, ki_abilities,
-          martial_arts, modules, primaries, tables) {
+          martial_arts, modules, primaries, tables, widgets) {
     
-    var load_value,
+    var create_spinner = widgets.create_spinner,
+        load_value,
         next_step,
         render = {},
         set_characteristics_limits,
@@ -39,7 +41,14 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
      *     the corresponding input field)
      */
     load_value = function (name) {
-        $('#' + name).val('' + characters.current()[name]);
+        var element = $('#' + name),
+            value = characters.current()[name];
+        if (element.data('spinner')) {
+            element.spinner('value', value);
+        }
+        else {
+            element.val('' + value);
+        }
     };
 
     /**
@@ -114,7 +123,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         else if (('Divine ' + type + ' Characteristics') in first_level_dp) {
             limit = 20;
         }
-        $('#characteristics .' + type.toLowerCase()).spinner('option', 'max', limit);
+        $('#characteristics .' + type.toLowerCase()).spinner('max', limit);
     };
 
     /**
@@ -126,11 +135,17 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
     update_int = function (name) {
         var input = $('#' + name),
             value;
-        if (input.valid()) {
-            value = parseInt(input.val(), 10);
-            characters.current()[name] = value;
-            input.nextAll('span.display').text(value);
+        if (input.data('spinner')) {
+            value = input.spinner('value');
         }
+        else if (input.valid()) {
+            value = parseInt(input.val(), 10);
+        }
+        else {
+            return;
+        }
+        characters.current()[name] = value;
+        input.nextAll('span.display').text(value);
     };
 
     /**
@@ -167,6 +182,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             name,
             primary,
             score,
+            secondaries = [],
             text,
             total_mk = data.mk_totals(),
             remaining_mk = data.mk_remaining();
@@ -242,6 +258,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         $('.Zeon', root).text(data.zeon());
         $('.Magic_Level', root).text(data.magic_level());
         $('.Psychic_Points', root).text(data.psychic_points());
+        $('.psychic', root).toggle(data.discipline_access().length > 0);
         text = data.racial_abilities();
         if (text) {
             $('.Racial-Abilities').text(text);
@@ -264,11 +281,16 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                     ability = abilities[name];
                     score = data.ability(name);
                     if (score > data.modifier(ability.Characteristic)) {
-                        abilities_block.append(name + ': ' + score);
-                        if (acute && ability.Characteristic === 'PER') {
-                            abilities_block.append(' (' + (score + 30) + ' ' + acute + ')');
+                        if ('Field' in ability) {
+                            secondaries.push(name + ' ' + score);
                         }
-                        abilities_block.append('<br />');
+                        else {
+                            abilities_block.append(name + ': ' + score);
+                            if (acute && ability.Characteristic === 'PER') {
+                                abilities_block.append(' (' + (score + 30) + ' ' + acute + ')');
+                            }
+                            abilities_block.append('<br />');
+                        }
                     }
                 }
             }
@@ -279,6 +301,8 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         if (data.has_ki_ability('Ki Detection')) {
             abilities_block.append('Ki Detection: ' + data.ki_detection() + '<br />');
         }
+        secondaries.sort();
+        $('.secondary-abilities', root).text(secondaries.join(', ')).toggle(secondaries ? true : false);
         $('.Unarmed_Attack', root).text(data.unarmed_ability('Attack', arts));
         $('.Unarmed_Damage', root).text(data.unarmed_damage());
         $('.Unarmed_Block', root).text(data.unarmed_ability('Block', arts));
@@ -455,7 +479,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         var data = characters.current(),
             first_class = data.levels[0].Class,
             stage = data.creation_stage();
-        $('input.characteristic, #Appearance, #XP').show().next('span').show().nextAll('span.display').hide();
+        $('input.characteristic, #Appearance, #XP').show().nextAll('span.display').hide();
         $('#Physical, #Spiritual, #Gender, #Race, #first_class').show().nextAll('span.display').hide();
         $('#add_xp').hide();
         $('#proceed').show();
@@ -463,6 +487,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         $('#choose_characteristics').show();
         $('#choose_advantages').show().attr('disabled', 'disabled');
         $('#choose_abilities').show().attr('disabled', 'disabled');
+        $('#attributes').hide();
         $('#characteristics').hide();
         $('#advantages').hide();
         $('#levels').hide();
@@ -475,7 +500,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                 load_value('Element');
                 load_value('Gnosis');
                 $('#creature_class').val(first_class);
-                $('#creature_level').val(data['Racial Level']);
+                $('#creature_level').spinner('value', data['Racial Level']);
                 if (stage > 2) {
                     render.start_essential_abilities();
                 }
@@ -576,20 +601,20 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             $('#Element_label').hide();
             $('#Element').hide().nextAll('span.display').hide();
         }
-        if (!$('#Gnosis').find('.ui-spinner').length) {
-            $('#Gnosis').spinner({min: 0, max: 50, step: 5});
-            $('#creature_level').spinner({min: 0, max: 16});
+        if (!$('#Gnosis').find('.spinner-buttons').length) {
+            create_spinner('#Gnosis', {min: 0, max: 50, step: 5, value: 10});
+            create_spinner('#creature_level', {min: 0, max: 16, value: 0});
         }
         else {
-            $('#Gnosis, #creature_level').show().next('span').show().nextAll('span.display').hide();
+            $('#Gnosis, #creature_level').show().nextAll('span.display').hide();
         }
         if (type !== 'Human' && type !== 'Natural') {
-            $('#Gnosis').spinner('option', 'min', 10);
+            $('#Gnosis').spinner('min', 10);
         }
         // Reset fields to default values
         $('#Created').val('No');
         $('#Element').val('None');
-        $('#Gnosis').val(10);
+        $('#Gnosis').spinner('value', 10);
         render.render($('.container'));
     };
 
@@ -621,19 +646,19 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             select.hide().nextAll('span.display').text(value).show();
         }
         update_int('Gnosis');
-        $('#Gnosis').hide().next('span').hide().nextAll('span.display').show();
+        $('#Gnosis').hide().nextAll('span.display').show();
         select = $('#creature_class');
         value = select.val();
         $('#first_class').val(value);
         select.hide().nextAll('span.display').text(value).show();
         select = $('#creature_level');
-        value = parseInt(select.val(), 10);
+        value = select.spinner('value');
         data['Racial Level'] = value;
         xp = value === 0 ? -100 : tables.xp_chart[value - 1];
         if (xp > data.XP) {
             data.XP = xp;
         }
-        select.hide().next('span').hide().nextAll('span.display').text(value).show();
+        select.hide().nextAll('span.display').text(value).show();
         $('#choose_essential_abilities').hide();
         render.update_essential_abilities();
         $('#essential_abilities, #ea_dp, #choose_characteristics').show();
@@ -653,25 +678,25 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         $('#ea_dp, #choose_characteristics').hide();
         $('#choose_advantages').text(data.Type === 'Human' ? 'Choose Advantages' : 'Choose Abilities').show();
         $('#add_xp').hide();
-        if (!$('#characteristics').find('.ui-spinner').length) {
-            $('#characteristics .characteristic').spinner({min: 1, max: 10});
-            $('#Appearance').spinner({min: 1, max: 10});
-            $('.characteristic, #Appearance, #XP').change(render.update_basics);
-            $('#XP').spinner({min: -100, max: 9999});
-            $('input.characteristic, #Appearance, #Gender, #Race, #first_class, #XP').nextAll('span.display').hide();
+        if (!$('#characteristics').find('.spinner-buttons').length) {
+            create_spinner('#characteristics .characteristic', {min: 1, max: 10, value: 5});
+            create_spinner('#Appearance', {min: 1, max: 10, value: 5});
+            create_spinner('#XP', {min: -100, max: 9999, value: 0});
+            $('div.characteristic, #Appearance, #XP').on('changed', render.update_basics);
+            $('div.characteristic, #Appearance, #Gender, #Race, #first_class, #XP').nextAll('span.display').hide();
             $('#main_form').validate();
             $('#Gender, #Race, #first_class').change(function () { $(this).blur(); render.update_basics(); });
             $('#Name').change(render.update_name);
         }
         else {
-            $('input.characteristic, #Appearance, #XP').show().next('span').show().nextAll('span.display').hide();
+            $('div.characteristic, #Appearance, #XP').show().nextAll('span.display').hide();
             $('#Gender, #Race, #first_class').show().nextAll('span.display').hide();
         }
         set_characteristics_limits(data, 'Physical');
         set_characteristics_limits(data, 'Spiritual');
         // Reset fields to default values
-        $('.characteristic, #Appearance').val(5);
-        $('#XP').val(0);
+        $('.characteristic, #Appearance').spinner('value', 5);
+        $('#XP').spinner('value', 0);
         $('#Gender, #Race, #Name').val('');
         if (data.Type !== 'Human') {
             $('#Race').val('Other');
@@ -682,7 +707,8 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             else {
                 xp = tables.xp_chart[racial_level - 1];
             }
-            $('#XP').spinner('option', 'min', xp).val(xp);
+            $('#XP').spinner('min', xp);
+            $('#XP').spinner('value', xp);
             render.update_essential_abilities(true);
         }
         $('#race_and_class').toggle(data.Type === 'Human');
@@ -701,7 +727,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                     value = select.val();
                 select.hide().nextAll('span.display').text(value).show();
             });
-            $('input.characteristic, #Appearance, #XP').hide().next('span').hide().nextAll('span.display').show();
+            $('div.characteristic, #Appearance, #XP').hide().nextAll('span.display').show();
             if (characters.current().Type !== 'Human') {
                 return render.start_abilities();
             }
@@ -741,7 +767,6 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             ea_advantages = essential_abilities.advantages,
             ea_disadvantages = essential_abilities.disadvantages,
             freelancer,
-            hr,
             i,
             j,
             imk,
@@ -757,6 +782,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             primary,
             remaining_dp,
             remaining_dp_for_level,
+            row,
             times_five = ['Magic Level', 'Martial Knowledge', 'Zeon'],
             remaining_mk;
         update_int('XP');
@@ -772,10 +798,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         for (i = 0; i < level_count; i++) {
             level = levels[i];
             remaining_dp_for_level = remaining_dp[i];
-            if (i > 0) {
-                hr = $('<hr />').addClass('span-13 last level');
-                $('#levels').append(hr);
-            }
+            $('#levels').append($('<hr class="level" />'));
             level_number = current_level === 0 ? 0 : i + 1;
             content = 'Level ' + level_number + ' (';
             if (data.class_change_possible(level_number)) {
@@ -795,7 +818,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                 nb = ('Natural Bonus' in level) ? level['Natural Bonus'] : null;
                 content += ' <a href="#" class="natural_bonus" data-level="' + level_number + '">' + (nb ? nb + ' +' + data.modifier(abilities[nb].Characteristic, level_number) : 'Select natural bonus') + '</a>';
             }
-            line = $('<div>').addClass('span-13 last level').html(content);
+            line = $('<div>').addClass('level').html(content);
             $('#levels').append(line);
             if (level.Class === 'Freelancer') {
                 freelancer = level.Freelancer || [];
@@ -807,9 +830,9 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                 }
                 content += parts.join(',');
                 if (count < 5) {
-                    content += ' <a href="#" class="freelancer_bonus" data-level="' + level_number + '">+</a>';
+                    content += ' <a href="#" class="freelancer_bonus btn-mini" data-level="' + level_number + '"><i class="icon-plus"> </i></a>';
                 }
-                line = $('<div>').addClass('span-13 last level').html(content);
+                line = $('<div>').addClass('level').html(content);
                 $('#levels').append(line);
             }
             if (remaining_dp_for_level.Total > 0) {
@@ -818,10 +841,11 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                     content += ', ' + remaining_dp_for_level.Powers + ' Powers';
                 }
                 content += ')';
-                line = $('<div>').addClass('span-13 last level').html(content);
+                line = $('<div>').addClass('level').html(content);
                 $('#levels').append(line);
             }
-            $('#levels').append('<div class="span-1 level"><strong>DP</strong></div>');
+            row = $('<div class="row level"></div>');
+            row.append('<div class="span1"><strong>DP</strong></div>');
             parts = [];
             dp = level.DP;
             for (name in dp) {
@@ -880,17 +904,19 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                 content += ' [used ' + remaining_dp_for_level.Withdrawn + ' DP saved earlier]';
             }
             if (remaining_dp_for_level.Total > 0) {
-                content += ' <a href="#" class="spend_dp" data-level="' + level_number + '">+</a>';
+                content += ' <a href="#" class="spend_dp btn-mini" data-level="' + level_number + '"><i class="icon-plus"> </i></a>';
             }
-            line = '<div class="span-12 last level">' + content + '</div>';
-            $('#levels').append(line);
+            line = $('<div class="span6">' + content + '</div>');
+            row.append(line);
+            $('#levels').append(row);
             available = remaining_mk[i];
             if (available > 0) {
                 content = available + ' MK spendable at this level';
-                line = $('<div>').addClass('span-13 last level').html(content);
+                line = $('<div>').addClass('level').html(content);
                 $('#levels').append(line);
             }
-            $('#levels').append('<div class="span-1 level"><strong>MK</strong></div>');
+            row = $('<div class="row level"></div>');
+            row.append('<div class="span1"><strong>MK</strong></div>');
             parts = [];
             mk = level.MK;
             for (name in mk) {
@@ -917,10 +943,11 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             }
             content = parts.join(', ');
             if (available >= 0) {
-                content += ' <a href="#" class="spend_mk" data-level="' + level_number + '">+</a>';
+                content += ' <a href="#" class="spend_mk btn-mini" data-level="' + level_number + '"><i class="icon-plus"> </i></a>';
             }
-            line = '<div class="span-12 last level">' + content + '</div>';
-            $('#levels').append(line);
+            line = $('<div class="span6">' + content + '</div>');
+            row.append(line);
+            $('#levels').append(row);
         }
         render.render($('.container'));
     };
