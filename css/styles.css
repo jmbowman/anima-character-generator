@@ -11,6 +11,15 @@ ul.inline > li {
   padding-right: 10px;
 }
 
+.ki-table {
+  margin-bottom: 5px;
+  width: auto;
+}
+
+.ki-table th, td[class*="Accumulation_"], td[class*="Ki_"] {
+  text-align: right;
+}
+
 a.disabled {
   color: #D3D3D3;
   cursor: text;

@@ -987,6 +987,36 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
     };
 
     /**
+     * Determine if the character has a convenient means of utilizing their
+     * Zeon.  Used when deciding whether to show it in the stat block or not.
+     * @return {Boolean}
+     */
+    Character.prototype.uses_zeon = function () {
+        var bonus;
+        if (this.has_gift()) {
+            // Can cast spells with it
+            return true;
+        }
+        // Has the character invested in any summoning abilities?
+        bonus = this.modifier('POW');
+        if (this.ability('Summon') > bonus) {
+            return true;
+        }
+        if (this.ability('Banish') > bonus) {
+            return true;
+        }
+        if (this.ability('Bind') > bonus) {
+            return true;
+        }
+        bonus = this.modifier('WP');
+        if (this.ability('Control') > bonus) {
+            return true;
+        }
+        // Don't support things like Sheele yet...
+        return false;
+    };
+
+    /**
      * Get the character's total Zeon count (even if he can't normally utilize
      * it).
      * @returns {Number}

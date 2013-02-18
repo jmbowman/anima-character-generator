@@ -102,6 +102,47 @@ define(['jquery', 'character', 'classes', 'ki_abilities', 'martial_arts'],
     };
 
     /**
+     * List the character's Ki and Nemesis abilities as text descriptions.
+     * Used in the stat block.
+     * @method module:character#ki_accumulation
+     * @returns {Array} The abilities listed in alphabetical order
+     */
+    Character.prototype.ki_abilities = function () {
+        var have_options,
+            i,
+            mk,
+            levels = this.levels,
+            count = levels.length,
+            name,
+            result = [];
+        for (i = 0; i < count; i++) {
+            mk = levels[i].MK;
+            if (mk) {
+                for (name in mk) {
+                    if (mk.hasOwnProperty(name)) {
+                        if (!ki_abilities[name].Option_Title) {
+                            result.push(name);
+                        }
+                        else if (name in have_options) {
+                            have_options[name] = have_options[name].concat(mk[name]);
+                        }
+                        else {
+                            have_options[name] = mk[name];
+                        }
+                    }
+                }
+            }
+        }
+        for (name in have_options) {
+            if (have_options.hasOwnProperty(name)) {
+                result.push(name + '(' + have_options[name].join(', ') + ')');
+            }
+        }
+        result.sort();
+        return result;
+    };
+
+    /**
      * Calculate the character's Ki Accumulation rate for the specified
      * characteristic.
      * @method module:character#ki_accumulation

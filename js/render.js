@@ -256,6 +256,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             $('.MA', root).text(score);
         }
         $('.Zeon', root).text(data.zeon());
+        $('.zeon-row', root).toggle(data.uses_zeon());
         $('.Magic_Level', root).text(data.magic_level());
         $('.Psychic_Points', root).text(data.psychic_points());
         $('.psychic', root).toggle(data.discipline_access().length > 0);
@@ -267,6 +268,14 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         else {
             $('.racial-row').hide();
         }
+        ability_list = data.ki_abilities();
+        $('.Ki-Abilities', root).text(ability_list.join(', '));
+        $('.ki-abilities-row', root).toggle(ability_list.length > 0);
+        $.each(['STR', 'DEX', 'AGI', 'CON', 'POW', 'WP'], function (index, characteristic) {
+            $('.Accumulation_' + characteristic, root).text(data.ki_accumulation(characteristic));
+            $('.Ki_' + characteristic, root).text(data.ki_points(characteristic));
+        });
+        $('.ki-table', root).toggle(ability_list.length > 0);
         abilities_block = $('.abilities-block', root);
         abilities_block.html('');
         for (primary in primaries) {

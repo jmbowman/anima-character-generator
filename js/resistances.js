@@ -111,6 +111,12 @@ function ($, Character, tables) {
                 result[attuned] = 20;
             }
         }
+        if ('Easily Possessed' in this.Disadvantages) {
+            result['possession or domination'] = -50;
+        }
+        else if ('Free Will' in this.Advantages) {
+            result['possession or domination'] = 60;
+        }
         if (this.has_ki_ability('Ki Concealment')) {
             result['supernatural detection'] = Math.floor(this.ki_concealment() / 2);
         }
