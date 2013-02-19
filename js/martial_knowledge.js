@@ -10,17 +10,57 @@
  * @requires ki_abilities
  * @requires martial_arts
  * @see module:character#add_ki_ability
+ * @see module:character#add_dominion_technique
  * @see module:character#has_ki_ability
+ * @see module:character#ki_abilities
+ * @see module:character#ki_accumulation
  * @see module:character#ki_concealment
  * @see module:character#ki_detection
+ * @see module:character#ki_points
  * @see module:character#mk_remaining
  * @see module:character#mk_totals
  * @see module:character#mk_used
+ * @see module:character#remove_dominion_technique
  * @see module:character#remove_ki_ability
  * @see module:character#update_level
  */
 define(['jquery', 'character', 'classes', 'ki_abilities', 'martial_arts'],
        function ($, Character, classes, ki_abilities, martial_arts) {
+
+    /**
+     * Give the character a Dominion Technique at the specified level.
+     * @method module:character#add_dominion_technique
+     * @param {String} tree The name of the tree the Technique belongs to
+     * @param {String} name The name of the Technique
+     * @param {Number} level The level of the Technique
+     * @param {Number} mk The MK cost of the Technique (to the character; may
+     *     have been reduced from the normal amount via Technique Imitation)
+     * @param {Number} at_level The character level at which the Technique was
+     *     learned
+     */
+    Character.prototype.add_dominion_technique = function (tree, name, level,
+                                                           mk, at_level) {
+        var data = {Name: name, Level: level, MK: mk},
+            index = (at_level === 0) ? 0 : at_level - 1,
+            level_info = this.levels[index],
+            level_mk = level_info.MK,
+            remaining = this.mk_remaining()[index];
+        if (mk > remaining + 50 || 'Insufficient Martial Knowledge' in this) {
+            // can't afford it, do nothing
+            return;
+        }
+        if (!level_mk) {
+            level_mk = {};
+            level_info.MK = level_mk;
+        }
+        if (!(tree in level_mk)) {
+            level_mk[tree] = [];
+        }
+        level_mk[tree].push(data);
+        if (mk > remaining) {
+            this['Insufficient Martial Knowledge'] = {Tree: tree, Name: name, Penalty: -Math.floor((mk - remaining) / 10)};
+        }
+    };
 
     /**
      * Give the character a Ki Ability at the specified level.
@@ -70,6 +110,67 @@ define(['jquery', 'character', 'classes', 'ki_abilities', 'martial_arts'],
     };
 
     /**
+     * List the character's Dominion Techniques as text descriptions.  Used in
+     * the stat block.
+     * @method module:character#dominion_techniques
+     * @returns {Object} A mapping of the character's Technique Tree names to
+     *     alphabetically sorted Arrays of the names of the Techniques in them
+     */
+    Character.prototype.dominion_techniques = function () {
+        var i,
+            imk = this['Insufficient Martial Knowledge'],
+            imk_technique,
+            imk_tree,
+            j,
+            mk,
+            levels = this.levels,
+            count = levels.length,
+            name,
+            technique,
+            techniques,
+            technique_count,
+            trees = {};
+        if (imk && ('Tree' in imk)) {
+            imk_technique = imk.Name;
+            imk_tree = imk.Tree;
+            name = imk_technique + ' (POW ' + imk.Penalty + ' check to use)';
+            trees[imk_tree] = [name];
+        }
+        for (i = 0; i < count; i++) {
+            mk = levels[i].MK;
+            if (mk) {
+                for (name in mk) {
+                    if (mk.hasOwnProperty(name)) {
+                        if (!(name in ki_abilities)) {
+                            // Should be a Dominion Technique
+                            if (!(name in trees)) {
+                                trees[name] = [];
+                            }
+                            techniques = mk[name];
+                            technique_count = techniques.length;
+                            for (j = 0; j < technique_count; j++) {
+                                technique = techniques[j];
+                                if (name === imk_tree && technique === imk_technique) {
+                                    // Already added it above
+                                    continue;
+                                }
+                                trees[name].push(technique);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // Now sort the technique names in each tree
+        for (name in trees) {
+            if (trees.hasOwnProperty(name)) {
+                trees[name].sort();
+            }
+        }
+        return trees;
+    };
+
+    /**
      * Does the character already have a certain Ki Ability?
      * @method module:character#has_ki_ability
      * @param {String} name The name of the Ki Ability
@@ -104,30 +205,48 @@ define(['jquery', 'character', 'classes', 'ki_abilities', 'martial_arts'],
     /**
      * List the character's Ki and Nemesis abilities as text descriptions.
      * Used in the stat block.
-     * @method module:character#ki_accumulation
+     * @method module:character#ki_abilities
      * @returns {Array} The abilities listed in alphabetical order
      */
     Character.prototype.ki_abilities = function () {
-        var have_options,
+        var description,
+            have_options = {},
             i,
+            imk = this['Insufficient Martial Knowledge'],
+            imk_name,
             mk,
             levels = this.levels,
             count = levels.length,
             name,
             result = [];
+        if (imk && !('Tree' in imk)) {
+            imk_name = imk.Name;
+            description = imk_name + ' (';
+            if ('Option' in imk) {
+                description += imk.Option + ', ';
+            }
+            description += 'POW ' + imk.Penalty + ' check to use)';
+            result.push(description);
+        }
         for (i = 0; i < count; i++) {
             mk = levels[i].MK;
             if (mk) {
                 for (name in mk) {
                     if (mk.hasOwnProperty(name)) {
+                        if (!(name in ki_abilities)) {
+                            // Dominion Technique, Ars Magnus, Limit, etc.
+                            continue;
+                        }
                         if (!ki_abilities[name].Option_Title) {
-                            result.push(name);
+                            if (name !== imk_name) {
+                                result.push(name);
+                            }
                         }
                         else if (name in have_options) {
-                            have_options[name] = have_options[name].concat(mk[name]);
+                            have_options[name] = have_options[name].concat(mk[name].Options);
                         }
                         else {
-                            have_options[name] = mk[name];
+                            have_options[name] = mk[name].Options;
                         }
                     }
                 }
@@ -269,27 +388,19 @@ define(['jquery', 'character', 'classes', 'ki_abilities', 'martial_arts'],
      *     remaining from the MK gained at each level.
      */
     Character.prototype.mk_remaining = function () {
-        var adjustment,
-            amount,
+        var amount,
             i,
-            j,
             is_level_zero = this.level() === 0,
             result = [],
-            sub_count,
             totals = this.mk_totals(),
-            count = totals.length;
+            count = totals.length,
+            limit = totals[count - 1];
         for (i = count - 1; i >= 0; i--) {
             amount = totals[i] - this.mk_used(is_level_zero ? 0 : i + 1);
-            result[i] = Math.max(amount, 0);
-            if (amount < 0) {
-                // Pull shortfall from earlier levels, if available
-                sub_count = i + 1;
-                for (j = 0; j < sub_count; j++) {
-                    adjustment = Math.min(-amount, result[j]);
-                    result[j] -= adjustment;
-                    amount += adjustment;
-                }
+            if (amount < limit) {
+                limit = amount;
             }
+            result[i] = Math.max(Math.min(amount, limit), 0);
         }
         return result;
     };
@@ -359,11 +470,13 @@ define(['jquery', 'character', 'classes', 'ki_abilities', 'martial_arts'],
      */
     Character.prototype.mk_used = function (level) {
         var i,
+            j,
             item,
             levels = this.levels,
             count = levels.length,
             mk,
             used = 0,
+            technique_count,
             value;
         if (typeof level !== 'undefined') {
             count = (level === 0) ? 1 : level;
@@ -378,15 +491,61 @@ define(['jquery', 'character', 'classes', 'ki_abilities', 'martial_arts'],
                             // MK cost only
                             used += value;
                         }
+                        else if (value.Options) {
+                            // Ki Ability with parameters
+                            used += value.MK * value.Options.length;
+                        }
                         else {
-                            // has Element or Dominion Technique data also
-                            used += value.MK;
+                            // Tree of Dominion Techniques
+                            technique_count = value.length;
+                            for (j = 0; j < technique_count; j++) {
+                                used += value[j].MK;
+                            }
                         }
                     }
                 }
             }
         }
         return used;
+    };
+
+    /**
+     * Remove the Dominion Technique of the given tree and name from the
+     * abilities chosen at the specified level.
+     * @method module:character#remove_dominion_technique
+     * @param {String} tree The tree of techniques that this one belongs to
+     * @param {String} name The name of the Dominion Technique
+     * @param {Number} level The level at which it had been taken
+     */
+    Character.prototype.remove_dominion_technique = function (tree, name, level) {
+        var count,
+            i,
+            imk = this['Insufficient Martial Knowledge'],
+            index = level === 0 ? 0 : level - 1,
+            mk = this.levels[index].MK,
+            techniques;
+        if (mk[tree].length === 1) {
+            delete mk[tree];
+        }
+        else {
+            techniques = mk[tree];
+            count = techniques.length;
+            for (i = 0; i < count; i++) {
+                if (techniques[i].Name === name) {
+                    techniques.splice(i, 1);
+                    break;
+                }
+            }
+        }
+        // If something was purchased past the MK limit, need to update
+        if (imk) {
+            if (imk.Tree === tree && imk.Name === name) {
+                delete this['Insufficient Martial Knowledge'];
+            }
+            else {
+                this.update_level();
+            }
+        }
     };
 
     /**
@@ -400,6 +559,7 @@ define(['jquery', 'character', 'classes', 'ki_abilities', 'martial_arts'],
      */
     Character.prototype.remove_ki_ability = function (name, level, options) {
         var array,
+            imk = this['Insufficient Martial Knowledge'],
             index = level === 0 ? 0 : level - 1,
             ki_ability = ki_abilities[name],
             mk = this.levels[index].MK;
@@ -411,8 +571,13 @@ define(['jquery', 'character', 'classes', 'ki_abilities', 'martial_arts'],
             array.splice($.inArray(options, array), 1);
         }
         // If something was purchased past the MK limit, need to update
-        if ('Insufficient Martial Knowledge' in this) {
-            this.update_level();
+        if (imk) {
+            if (imk.Name === name && !imk.Tree) {
+                delete this['Insufficient Martial Knowledge'];
+            }
+            else {
+                this.update_level();
+            }
         }
     };
 
@@ -423,11 +588,18 @@ define(['jquery', 'character', 'classes', 'ki_abilities', 'martial_arts'],
      * @method module:character#update_level
      */
     Character.prototype.update_level = function () {
-        var ability,
+        var count,
             current_level = this.level(),
+            item,
+            highest_cost = 0,
+            i,
+            j,
+            imk = this['Insufficient Martial Knowledge'],
             levels = this.levels,
             level_count = levels.length,
-            mk_remaining;
+            mk,
+            mk_remaining,
+            value;
         // remove any extra levels if revising XP down
         while (level_count > current_level && level_count > 1) {
             levels.pop();
@@ -438,17 +610,61 @@ define(['jquery', 'character', 'classes', 'ki_abilities', 'martial_arts'],
             levels.push({Class: levels[level_count - 1].Class, DP: {}});
             level_count++;
         }
-        mk_remaining = this.mk_remaining()[level_count - 1];
-        if (mk_remaining >= 0 && 'Insufficient Martial Knowledge' in this) {
+        // Can't use mk_remaining() because we need to know if it's negative
+        mk_remaining = this.mk_totals()[level_count - 1] - this.mk_used();
+        if (mk_remaining >= 0 && imk) {
             delete this['Insufficient Martial Knowledge'];
         }
         else if (mk_remaining < 0) {
-            if ('Insufficient Martial Knowledge' in this) {
-                ability = this['Insufficient Martial Knowledge'];
-                if (this.has_ki_ability(ability.Name, ability.Option)) {
-                    ability.Penalty = Math.floor(mk_remaining / 10);
+            if (imk) {
+                if (this.has_ki_ability(imk.Name, imk.Option)) {
+                    // Still have the ability, recalculate the penalty
+                    imk.Penalty = Math.floor(mk_remaining / 10);
+                    return;
                 }
-                // TODO: select another ability or technique otherwise
+                // Lost a level with that ability, pick a new one below
+                delete this['Insufficient Martial Knowledge'];
+                imk = undefined;
+            }
+            // Look through the levels, most recent first, for a new "imk"
+            for (i = levels.length - 1; i >= 0; i--) {
+                mk = levels[i].MK;
+                for (item in mk) {
+                    if (mk.hasOwnProperty(item)) {
+                        value = mk[item];
+                        if (typeof value === 'number') {
+                            // Ki Ability with no parameters
+                            if (value > highest_cost) {
+                                imk = {Name: item};
+                                highest_cost = value;
+                            }
+                        }
+                        else if (value.MK) {
+                            // Ki Ability with a parameter
+                            if (value.MK > highest_cost) {
+                                count = value.Options.length;
+                                imk = {Name: item, Option: value.Options[count - 1]};
+                                highest_cost = value.MK;
+                            }
+                        }
+                        else {
+                            // Technique tree, may have multiple techniques
+                            count = value.length;
+                            for (j = 0; j < count; j++) {
+                                if (value[j].MK > highest_cost) {
+                                    imk = {Tree: item, Name: value[j].Name};
+                                    highest_cost = value[j].MK;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (imk) {
+                    // Found a suitable replacement
+                    imk.Penalty = -Math.floor((highest_cost - mk_remaining) / 10);
+                    this['Insufficient Martial Knowledge'] = imk;
+                    break;
+                }
             }
         }
     };

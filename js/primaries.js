@@ -52,6 +52,7 @@ define(['jquery', 'abilities', 'essential_abilities', 'martial_arts',
         this.Supernatural = [
             'Zeon',
             'MA Multiple',
+            'Zeon Regeneration Multiple',
             'Magic Projection',
             'Summon',
             'Control',

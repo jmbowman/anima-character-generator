@@ -111,6 +111,18 @@ function ($, Character, tables) {
                 result[attuned] = 20;
             }
         }
+        if (this.Race === "D'Anjayni Nephilim") {
+            result['supernatural detection'] = 30;
+        }
+        else if (this.Race === "Duk'zarist Nephilim") {
+            element = 'Darkness';
+            if (element in result) {
+                result[element] += 10;
+            }
+            else {
+                result[element] = 10;
+            }
+        }
         if ('Easily Possessed' in this.Disadvantages) {
             result['possession or domination'] = -50;
         }
@@ -118,7 +130,12 @@ function ($, Character, tables) {
             result['possession or domination'] = 60;
         }
         if (this.has_ki_ability('Ki Concealment')) {
-            result['supernatural detection'] = Math.floor(this.ki_concealment() / 2);
+            if ('supernatural detection' in result) {
+                result['supernatural detection'] += Math.floor(this.ki_concealment() / 2);
+            }
+            else {
+                result['supernatural detection'] = Math.floor(this.ki_concealment() / 2);
+            }
         }
         else if (this.has_ki_ability('Undetectable')) {
             if ('supernatural detection' in result) {

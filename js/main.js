@@ -6,7 +6,6 @@
  * @requires render
  * @requires dialogs
  * @requires pubsub
- * @requires spinner
  * @requires validate
  */
 

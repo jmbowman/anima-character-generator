@@ -27,6 +27,7 @@ define(function () {
         this.Supernatural = 50;
         this.Zeon = 3;
         this['MA Multiple'] = 70;
+        this['Zeon Regeneration Multiple'] = 35;
         this['Magic Projection'] = 3;
         this.Summon = 3;
         this.Control = 3;
@@ -105,6 +106,7 @@ define(function () {
         c.Combat = 60;
         c.Zeon = 2;
         c['MA Multiple'] = 60;
+        c['Zeon Regeneration Multiple'] = 30;
         c.Control = 1;
         c.Social = 1;
         c.reduced.Composure = 1;
@@ -131,6 +133,7 @@ define(function () {
         c.Supernatural = 60;
         c.Zeon = 2;
         c['MA Multiple'] = 60;
+        c['Zeon Regeneration Multiple'] = 30;
         c.Summon = 2;
         c.Control = 2;
         c.Bind = 2;
@@ -151,6 +154,7 @@ define(function () {
         c.Supernatural = 60;
         c.Zeon = 1;
         c['MA Multiple'] = 60;
+        c['Zeon Regeneration Multiple'] = 30;
         c['Magic Projection'] = 2;
         c.Vigor = 3;
         c.reduced['Sleight of Hand'] = 1;
@@ -182,6 +186,7 @@ define(function () {
         c.Combat = 60;
         c.Zeon = 2;
         c['MA Multiple'] = 60;
+        c['Zeon Regeneration Multiple'] = 30;
         c.Banish = 1;
         c.Social = 1;
         c.Subterfuge = 3;
@@ -245,6 +250,7 @@ define(function () {
         c.Supernatural = 60;
         c.Zeon = 1;
         c['MA Multiple'] = 60;
+        c['Zeon Regeneration Multiple'] = 30;
         c.Summon = 1;
         c.Control = 1;
         c.Bind = 1;
@@ -300,6 +306,7 @@ define(function () {
         c['Accumulation Multiple'] = 25;
         c.Zeon = 1;
         c['MA Multiple'] = 50;
+        c['Zeon Regeneration Multiple'] = 25;
         c['Magic Projection'] = 2;
         c.Summon = 2;
         c.Control = 2;
@@ -338,6 +345,7 @@ define(function () {
         c.LP = 10;
         c.Zeon = 1;
         c['MA Multiple'] = 60;
+        c['Zeon Regeneration Multiple'] = 30;
         c.Summon = 1;
         c.Control = 1;
         c.Bind = 1;
@@ -377,6 +385,7 @@ define(function () {
         c.Supernatural = 60;
         c.Zeon = 1;
         c['MA Multiple'] = 50;
+        c['Zeon Regeneration Multiple'] = 25;
         c['Magic Projection'] = 2;
         c.Summon = 2;
         c.Control = 2;
@@ -400,6 +409,7 @@ define(function () {
         c.Supernatural = 50;
         c.Zeon = 1;
         c['MA Multiple'] = 50;
+        c['Zeon Regeneration Multiple'] = 25;
         c['Magic Projection'] = 2;
         c.Summon = 2;
         c.Control = 2;

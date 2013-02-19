@@ -34,6 +34,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         add_advantage,
         add_cultural_roots_choice,
         add_disadvantage,
+        add_dominion_technique,
         add_ea_advantage,
         add_ea_disadvantage,
         add_ki_ability,
@@ -57,6 +58,8 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         delete_advantage_init,
         delete_disadvantage,
         delete_disadvantage_init,
+        delete_dominion_technique,
+        delete_dominion_technique_init,
         delete_ea_init,
         delete_essential_ability,
         delete_ki_ability,
@@ -67,6 +70,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         disadvantage_benefit_init,
         disadvantage_option_init,
         disadvantages_init,
+        dominion_technique_init,
         dp_init,
         ea_advantages_init,
         ea_disadvantages_init,
@@ -225,6 +229,30 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             }
         }
         $('#disadvantages_dialog').modal('show');
+        return false;
+    };
+
+    /**
+     * Configure and launch the dialog for entering a new Dominion Technique.
+     */
+    add_dominion_technique = function () {
+        var link = $(this),
+            available = link.data('available'),
+            level = link.data('level');
+        $('#mk_dialog').modal('hide');
+        $('#dominion_character_level').val(level);
+        $('#dominion_tree').val('');
+        $('#dominion_name').val('');
+        $('#dominion_technique_dialog').modal('show');
+        if ($('#dominion_technique_dialog .spinner-buttons').length) {
+            $('#dominion_level').spinner('value', 1);
+            $('#dominion_mk').spinner('value', 20);
+            $('#dominion_mk').spinner('max', available);
+        }
+        else {
+            create_spinner('#dominion_level', {min: 1, max: 3, value: 1});
+            create_spinner('#dominion_mk', {min: 20, max: available, value: 20});
+        }
         return false;
     };
 
@@ -744,6 +772,41 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
     };
 
     /**
+     * Confirm that the user intended to remove a Dominion Technique by
+     * clicking on it.
+     */
+    delete_dominion_technique_init = function () {
+        create_dialog('delete_dominion_technique_dialog',
+                      'Remove this Dominion Technique?', 0, 'No', 'Yes',
+                      function () {
+            var data = characters.current(),
+                level = $('#delete_dominion_technique_level').val(),
+                name = $('#delete_dominion_technique_name').val(),
+                tree = $('#delete_dominion_technique_tree').val();
+            data.remove_dominion_technique(tree, name, level);
+            $.publish('level_data_changed');
+            $('#delete_dominion_technique_dialog').modal('hide');
+            return false;
+        });
+    };
+
+    /**
+     * Configure and launch the Dominion Technique deletion confirmation
+     * dialog.
+     */
+    delete_dominion_technique = function () {
+        var self = $(this),
+            level = self.data('level'),
+            name = self.find('.name').text(),
+            tree = self.find('.tree').text();
+        $('#delete_dominion_technique_level').val(level);
+        $('#delete_dominion_technique_name').val(name);
+        $('#delete_dominion_technique_tree').val(tree);
+        $('#delete_dominion_technique_dialog').modal('show');
+        return false;
+    };
+
+    /**
      * Initialize the Essential Ability deletion confirmation dialog.
      */
     delete_ea_init = function () {
@@ -922,6 +985,49 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         }
         create_dialog('disadvantages_dialog', 'Select a disadvantage', 1000,
                       'Cancel');
+    };
+
+    /**
+     * Initialize the Dominion Technique entry dialog.
+     */
+    dominion_technique_init = function () {
+        create_dialog('dominion_technique_dialog', 'Enter a Dominion Technique',
+                      0, 'Cancel', 'OK', function () {
+            var at_level = $('#dominion_character_level').val(),
+                data = characters.current(),
+                errors = [],
+                level = $('#dominion_level').spinner('value'),
+                mk = $('#dominion_mk').spinner('value'),
+                name = $('#dominion_name').val(),
+                tree = $('#dominion_tree').val();
+            if (tree.length < 1) {
+                errors.push('Tree is required');
+            }
+            if (name.length < 1) {
+                errors.push('Name is required');
+            }
+            if (level === 1 && mk > 50) {
+                errors.push('MK too high for a level 1 technique');
+            }
+            else if (level === 2 && mk < 40) {
+                errors.push('MK too low for a level 2 technique');
+            }
+            else if (level === 2 && mk > 100) {
+                errors.push('MK too high for a level 2 technique');
+            }
+            else if (level === 3 && mk < 60) {
+                errors.push('MK too low for a level 3 technique');
+            }
+            if (errors.length > 0) {
+                $('#dominion_technique_dialog .text-error').html(errors.join('<br />'));
+            }
+            else {
+                data.add_dominion_technique(tree, name, level, mk, at_level);
+                $.publish('level_data_changed');
+                $('#dominion_technique_dialog').modal('hide');
+            }
+            return false;
+        });
     };
 
     /**
@@ -1796,6 +1902,8 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 }
             }
         }
+        $('#add_dominion_technique').data('available', remaining);
+        $('#add_dominion_technique').data('level', level);
         $('#mk_dialog').modal('show');
         return false;
     };
@@ -1862,12 +1970,14 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         cultural_roots_init();
         delete_advantage_init();
         delete_disadvantage_init();
+        delete_dominion_technique_init();
         delete_ea_init();
         delete_ki_ability_init();
         delete_martial_art_init();
         disadvantage_benefit_init();
         disadvantage_option_init();
         disadvantages_init();
+        dominion_technique_init();
         dp_init();
         ea_advantages_init();
         ea_disadvantages_init();
@@ -1884,6 +1994,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         xp_dialog_init();
         $('#add_advantage').click(add_advantage);
         $('#add_disadvantage').click(add_disadvantage);
+        $('#add_dominion_technique').click(add_dominion_technique);
         $('#add_xp').click(add_xp);
         $(document).on('click', '#advantages_tabs a.advantage', configure_advantage);
         $(document).on('click', '#disadvantages_tabs a.disadvantage', configure_disadvantage);
@@ -1896,6 +2007,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         $(document).on('click', 'a.essential_ability', configure_essential_ability);
         $(document).on('click', 'a.characteristic_bonus', edit_characteristic_bonus);
         $(document).on('click', 'a.add_ki_ability', add_ki_ability);
+        $(document).on('click', 'a.delete_dominion_technique', delete_dominion_technique);
         $(document).on('click', 'a.delete_ki_ability', delete_ki_ability);
         $(document).on('click', 'a.natural_bonus', edit_natural_bonus);
         $(document).on('click', 'a.set_natural_bonus', set_natural_bonus);

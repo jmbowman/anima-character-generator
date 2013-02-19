@@ -170,22 +170,28 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         var abilities_block,
             ability,
             ability_list,
+            block,
             count,
             data = characters.current(),
             arts = data.martial_arts(),
+            dodge,
             element = data.Element,
             first_level_dp = data.levels[0].DP,
             acute = first_level_dp['Acute Sense'],
             i,
+            j,
             keys,
             modifiers = data.resistance_modifiers(),
             name,
             primary,
             score,
             secondaries = [],
+            summoner = false,
             text,
             total_mk = data.mk_totals(),
-            remaining_mk = data.mk_remaining();
+            remaining_mk = data.mk_remaining(),
+            technique_count,
+            trees;
         $('.resistance_bonuses', root).hide();
         $('.summary', root).text(data.summary());
         $('.Gnosis', root).text(data.type_and_gnosis());
@@ -221,7 +227,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                 if (score > 0) {
                     text += '+';
                 }
-                text += score + ' ' + name;
+                text += score + ' vs ' + name;
             }
             text += ')';
             $('.resistance_modifiers', root).show().text(text);
@@ -230,6 +236,15 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             $('.resistance_modifiers', root).hide();
         }
         $('.Initiative', root).text(data.initiative());
+        $('.Attack', root).text(data.ability('Attack'));
+        block = data.ability('Block');
+        dodge = data.ability('Dodge');
+        if (block > dodge) {
+            $('.Defense', root).text(block + ' Block');
+        }
+        else {
+            $('.Defense', root).text(dodge + ' Dodge');
+        }
         score = data.damage_barrier();
         if (score > 0) {
             $('.Damage_Barrier', root).text(score).parent().show();
@@ -244,20 +259,22 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         else {
             $('.Base_Damage_reduction', root).parent().hide();
         }
+        $('.Wear_Armor', root).text(data.ability('Wear Armor'));
         i = total_mk.length - 1;
         $('.MK', root).text(total_mk[i]);
         $('.unallocated_mk').text(remaining_mk[i]);
         $('.magic', root).toggle(data.has_gift());
         score = data.ma();
+        text = score;
         if (element) {
-            $('.MA', root).text(score + ' (' + (score + 20) + ' ' + element + ', ' + (score - 20) + ' ' + tables.opposite_elements[element] + ')');
+            text += ' (' + (score + 20) + ' ' + element + ', ' + (score - 20) + ' ' + tables.opposite_elements[element] + ')';
         }
-        else {
-            $('.MA', root).text(score);
-        }
+        $('.MA', root).text(text);
         $('.Zeon', root).text(data.zeon());
         $('.zeon-row', root).toggle(data.uses_zeon());
+        $('.Magic_Projection', root).text(data.ability('Magic Projection'));
         $('.Magic_Level', root).text(data.magic_level());
+        $('.Psychic_Projection', root).text(data.ability('Psychic Projection'));
         $('.Psychic_Points', root).text(data.psychic_points());
         $('.psychic', root).toggle(data.discipline_access().length > 0);
         text = data.racial_abilities();
@@ -271,6 +288,29 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         ability_list = data.ki_abilities();
         $('.Ki-Abilities', root).text(ability_list.join(', '));
         $('.ki-abilities-row', root).toggle(ability_list.length > 0);
+        trees = data.dominion_techniques();
+        keys = Object.keys(trees);
+        keys.sort();
+        count = keys.length;
+        text = '';
+        for (i = 0; i < count; i++) {
+            if (i > 0) {
+                text += ', ';
+            }
+            name = keys[i];
+            text += name + ' (';
+            ability_list = trees[name];
+            technique_count = ability_list.length;
+            for (j = 0; j < technique_count; j++) {
+                if (j > 0) {
+                    text += '; ';
+                }
+                text += ability_list[j].Name;
+            }
+            text += ')';
+        }
+        $('.Dominion-Techniques', root).text(text);
+        $('.dominion-techniques-row', root).toggle(text.length > 0);
         $.each(['STR', 'DEX', 'AGI', 'CON', 'POW', 'WP'], function (index, characteristic) {
             $('.Accumulation_' + characteristic, root).text(data.ki_accumulation(characteristic));
             $('.Ki_' + characteristic, root).text(data.ki_points(characteristic));
@@ -289,21 +329,24 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                     }
                     ability = abilities[name];
                     score = data.ability(name);
+                    if (ability.Summoning) {
+                        $('.' + name, root).text(score);
+                    }
                     if (score > data.modifier(ability.Characteristic)) {
                         if ('Field' in ability) {
+                            if (acute && ability.Characteristic === 'PER') {
+                                score += ' (' + (score + 30) + ' ' + acute + ')';
+                            }
                             secondaries.push(name + ' ' + score);
                         }
-                        else {
-                            abilities_block.append(name + ': ' + score);
-                            if (acute && ability.Characteristic === 'PER') {
-                                abilities_block.append(' (' + (score + 30) + ' ' + acute + ')');
-                            }
-                            abilities_block.append('<br />');
+                        else if (ability.Summoning) {
+                            summoner = true;
                         }
                     }
                 }
             }
         }
+        $('.summoning', root).toggle(summoner);
         if (data.has_ki_ability('Ki Concealment')) {
             abilities_block.append('Ki Concealment: ' + data.ki_concealment() + '<br />');
         }
@@ -311,12 +354,18 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             abilities_block.append('Ki Detection: ' + data.ki_detection() + '<br />');
         }
         secondaries.sort();
-        $('.secondary-abilities', root).text(secondaries.join(', ')).toggle(secondaries ? true : false);
-        $('.Unarmed_Attack', root).text(data.unarmed_ability('Attack', arts));
-        $('.Unarmed_Damage', root).text(data.unarmed_damage());
-        $('.Unarmed_Block', root).text(data.unarmed_ability('Block', arts));
-        $('.Unarmed_Dodge', root).text(data.unarmed_ability('Dodge', arts));
+        $('.secondary-abilities', root).text(secondaries.join(', '));
         $('.Unarmed_Initiative', root).text(data.unarmed_ability('Initiative', arts));
+        $('.Unarmed_Attack', root).text(data.unarmed_ability('Attack', arts));
+        block = data.unarmed_ability('Block', arts);
+        dodge = data.unarmed_ability('Dodge', arts);
+        if (block > dodge) {
+            $('.Unarmed_Defense', root).text(block + ' Block');
+        }
+        else {
+            $('.Unarmed_Defense', root).text(dodge + ' Dodge');
+        }
+        $('.Unarmed_Damage', root).text(data.unarmed_damage());
         $('.unarmed-advantages-block', root).text(data.martial_arts_advantages(arts).join(', '));
     };
 
@@ -779,6 +828,8 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             i,
             j,
             imk,
+            imk_name,
+            imk_tree,
             level,
             levels,
             level_count,
@@ -792,13 +843,16 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             remaining_dp,
             remaining_dp_for_level,
             row,
+            technique,
             times_five = ['Magic Level', 'Martial Knowledge', 'Zeon'],
             remaining_mk;
         update_int('XP');
         data.update_level();
         remaining_mk = data.mk_remaining();
-        if ('Insufficient Martial Knowledge' in data) {
-            imk = data['Insufficient Martial Knowledge'].Name;
+        imk = data['Insufficient Martial Knowledge'];
+        if (imk) {
+            imk_name = imk.Name;
+            imk_tree = imk.Tree;
         }
         levels = data.levels;
         level_count = levels.length;
@@ -933,11 +987,11 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                     if (name in ki_abilities) {
                         line = '<span class="name">' + name + '</span>';
                         if (ki_abilities[name].Option_Title) {
-                            line += ' (<span class="options">' + mk[name].Options.join(', ') + '</span>)';
+                            line += ': <span class="options">' + mk[name].Options.join(', ') + '</span>';
                         }
-                        if (imk === name) {
-                            line += '(POW';
-                            amount = data['Insufficient Martial Knowledge'].Penalty;
+                        if (imk_name === name && !imk_tree) {
+                            line += ' (POW';
+                            amount = imk.Penalty;
                             if (amount < 0) {
                                 line += ' ' + amount;
                             }
@@ -946,12 +1000,27 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                         parts.push('<a href="#" class="delete_ki_ability" data-level="' + level_number + '">' + line + '</a>');
                     }
                     else {
-                        // TODO: handle dominion techniques
+                        // Technique Tree
+                        count = mk[name].length;
+                        for (j = 0; j < count; j++) {
+                            technique = mk[name][j];
+                            line = '<span class="tree">' + name + '</span>: <span class="technique">' + technique.Name;
+                            if (imk_tree === name && imk_name === technique.Name) {
+                                line += ' (POW';
+                                amount = imk.Penalty;
+                                if (amount < 0) {
+                                    line += ' ' + amount;
+                                }
+                                line += ' check to use)';
+                            }
+                            line += '</span>';
+                            parts.push('<a href="#" class="delete_dominion_technique" data-level="' + level_number + '">' + line + '</a>');
+                        }
                     }
                 }
             }
             content = parts.join(', ');
-            if (available >= 0) {
+            if (available >= 0 && !imk) {
                 content += ' <a href="#" class="spend_mk btn-mini" data-level="' + level_number + '"><i class="icon-plus"> </i></a>';
             }
             line = $('<div class="span6">' + content + '</div>');
