@@ -1687,7 +1687,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         var data = characters.current(),
             level = parseInt($('#freelancer_level').val(), 10),
             name = $(this).text(),
-            previous = $('freelancer_name').val();
+            previous = $('#freelancer_name').val();
         data.set_freelancer_bonus(level, name, previous);
         $('#freelancer_dialog').modal('hide');
         $.publish('level_data_changed');

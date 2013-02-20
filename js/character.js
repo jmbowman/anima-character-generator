@@ -865,13 +865,13 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             freelancer_bonuses = [];
             levels[level - 1].Freelancer = freelancer_bonuses;
         }
-        if (freelancer_bonuses.length >= 5) {
-            return;
-        }
         if (previous) {
             freelancer_bonuses[$.inArray(previous, freelancer_bonuses)] = name;
         }
         else {
+            if (freelancer_bonuses.length >= 5) {
+                return;
+            }
             freelancer_bonuses.push(name);
         }
     };
@@ -1042,6 +1042,51 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             if (magic_nature) {
                 total += magic_nature * 50;
             }
+        }
+        return total;
+    };
+
+    /**
+     * Get the number of Zeon points the character recovers each day before
+     * subtracting maintained spells, binds, etc.  May be different from MA
+     * due to advantages, Zeon Regeneration Multiples, and so forth.
+     * @return {Number}
+     */
+    Character.prototype.zeon_recovery = function () {
+        var base = tables.base_ma[this.characteristic('POW')],
+            blockage = this.Advantages['Magical Blockage'],
+            blockage_ea = this.levels[0].DP['Magic Blockage'],
+            i,
+            level,
+            levels = this.levels,
+            length = levels.length,
+            multiples,
+            slow = this.Disadvantages['Slow Recovery of Magic'],
+            slow_ea = this.levels[0].DP['Slow Recovery of Magic'],
+            superior = this.Advantages['Superior Magic Recovery'],
+            superior_ea = this.levels[0].DP['Superior Magic Recovery'],
+            total = this.ma();
+        if (blockage || blockage_ea) {
+            return 0;
+        }
+        for (i = 0; i < length; i++) {
+            level = levels[i];
+            multiples = level.DP['Zeon Regeneration Multiple'];
+            if (multiples) {
+                total += multiples * base;
+            }
+        }
+        if (superior) {
+            total *= (superior + 1);
+        }
+        else if (superior_ea) {
+            total *= 2;
+        }
+        if (slow) {
+            total /= 2;
+        }
+        else if (slow_ea) {
+            total /= 2;
         }
         return total;
     };

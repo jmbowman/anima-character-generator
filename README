@@ -4,9 +4,8 @@ This is a browser-based utility for generating characters for the Anima: Beyond
 Fantasy role-playing game.  It doesn't require an internet connection or even a
 local server; everything is done in JavaScript within the browser.  Character
 data is saved and reloaded by copying and pasting it (using a JSON text
-format).  It's currently complete enough to basically support characters who
-can be defined mainly in terms of their DP usage and don't use many of the new
-abilities from Dominus Exxet, etc.  Better support for ki, magic, and psychic
+format).  It's already relatively complete for DP and MK expenditure and
+assorted score calculations.  Better support for magic, psychic, and creature
 abilities is gradually being implemented.
 
 Background
@@ -39,16 +38,38 @@ them (although it may eventually have options to use alternate rule
 interpretations).  It separates the raw data that needs to be input from the
 display of the resulting character statistics.  It has a summary display that
 shows just the information I usually need in order to run a monster or NPC
-effectively.  And it will be capable of showing the summaries for several
-characters at a time, and easily editing any of them.
+effectively.  This stat block can be copied and pasted into a text file and
+still look ok.  And it will eventually be capable of showing the summaries for
+several characters at a time, and easily editing any of them.
 
 Status
 ------
-The basic data format and many of the core calculations have been implemented.
-Most of the things that DP can be spent on are supported, although martial arts,
-Ars Magnus, and creature powers aren't implemented yet.  The visual design of
-the page is still pretty basic, as I've been focused on functionality.  It's
-currently useful for starting almost any character, and can fully represent
-characters with only basic martial abilities.  The code has been uploaded to
-Github in order to make it easier for the players in my game to contribute to
-its development, and for any other interested individuals to play around with.
+The basic data format and most of the core calculations have been implemented.
+Advantages, disadvantages, and most of the things that DP and MK can be spent
+on are supported, although some things like Ars Magnus and creature powers
+aren't fully implemented yet.  It's currently useful for starting almost any
+character, and can fully represent characters without magic, psychic, or truly
+esoteric martial abilities.  Support for creature Essential Abilities is in
+place, and work on creature Powers has been started (but isn't in the UI yet).
+The character's total Psychic Points and Magic Level are calculated and
+displayed, but allocating them to abilities isn't yet implemented.
+
+These are the main things left to be implemented that I'm aware of:
+
+* Allocation of Magic Level to Paths, spells, and Metamagic Advantages
+* Allocation of Psychic Points
+* Specializations in Secondary Abilites (partially implemented)
+* Show the effects of Mystical and Psychic Modules on Projection scores
+* Magic Projection Imbalance
+* Creature Powers (about half implemented, but not yet in the UI)
+* Current Elan level and its effect on abilities
+* Mental Patterns (from Arcana Exxet)
+* Ars Magnus (from Dominus Exxet)
+* Limits (from Dominus Exxet)
+* Seals of Invocation (from Dominus Exxet)
+* Legacies of Blood (from Dominus Exxet)
+* Selection of weapons and armor, and display relevant stats when using them
+* Option to use Secondary Ability development rules from Core Exxet
+
+If you notice other missing features or find bugs in what's already there, let
+me know and I'll update it as free time allows.

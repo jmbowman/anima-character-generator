@@ -167,8 +167,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
      * @param {Node} root The root DOM node for the stat block
      */
     render.render = function (root) {
-        var abilities_block,
-            ability,
+        var ability,
             ability_list,
             block,
             count,
@@ -181,9 +180,11 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             i,
             j,
             keys,
+            ma_modifiers = [],
             modifiers = data.resistance_modifiers(),
             name,
             primary,
+            recovery,
             score,
             secondaries = [],
             summoner = false,
@@ -267,7 +268,15 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         score = data.ma();
         text = score;
         if (element) {
-            text += ' (' + (score + 20) + ' ' + element + ', ' + (score - 20) + ' ' + tables.opposite_elements[element] + ')';
+            ma_modifiers.push((score + 20) + ' ' + element);
+            ma_modifiers.push((score - 20) + ' ' + tables.opposite_elements[element]);
+        }
+        recovery = data.zeon_recovery();
+        if (recovery !== score) {
+            ma_modifiers.push(recovery + ' Recovery');
+        }
+        if (ma_modifiers.length > 0) {
+            text += ' (' + ma_modifiers.join(', ') + ')';
         }
         $('.MA', root).text(text);
         $('.Zeon', root).text(data.zeon());
@@ -286,6 +295,14 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             $('.racial-row').hide();
         }
         ability_list = data.ki_abilities();
+        i = $.inArray('Ki Concealment', ability_list);
+        if (i > -1) {
+            ability_list[i] += ' (' + data.ki_concealment() + ')';
+        }
+        i = $.inArray('Ki Detection', ability_list);
+        if (i > -1) {
+            ability_list[i] += ' (' + data.ki_detection() + ')';
+        }
         $('.Ki-Abilities', root).text(ability_list.join(', '));
         $('.ki-abilities-row', root).toggle(ability_list.length > 0);
         trees = data.dominion_techniques();
@@ -316,8 +333,6 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             $('.Ki_' + characteristic, root).text(data.ki_points(characteristic));
         });
         $('.ki-table', root).toggle(ability_list.length > 0);
-        abilities_block = $('.abilities-block', root);
-        abilities_block.html('');
         for (primary in primaries) {
             if (primaries.hasOwnProperty(primary)) {
                 ability_list = primaries[primary];
@@ -347,12 +362,6 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             }
         }
         $('.summoning', root).toggle(summoner);
-        if (data.has_ki_ability('Ki Concealment')) {
-            abilities_block.append('Ki Concealment: ' + data.ki_concealment() + '<br />');
-        }
-        if (data.has_ki_ability('Ki Detection')) {
-            abilities_block.append('Ki Detection: ' + data.ki_detection() + '<br />');
-        }
         secondaries.sort();
         $('.secondary-abilities', root).text(secondaries.join(', '));
         $('.Unarmed_Initiative', root).text(data.unarmed_ability('Initiative', arts));
