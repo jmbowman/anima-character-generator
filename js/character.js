@@ -664,29 +664,6 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
     };
 
     /**
-     * Gets the character's current Magic Accumulation (regardless of whether
-     * or not they have the ability to utilize it).
-     * @return {Number}
-     */
-    Character.prototype.ma = function () {
-        var base = tables.base_ma[this.characteristic('POW')],
-            i,
-            level,
-            levels = this.levels,
-            length = levels.length,
-            multiples,
-            total = base;
-        for (i = 0; i < length; i++) {
-            level = levels[i];
-            multiples = level.DP['MA Multiple'];
-            if (multiples) {
-                total += multiples * base;
-            }
-        }
-        return total;
-    };
-
-    /**
      * Get the character's modifier for the specified characteristic at the
      * specified level
      * @param {String} characteristic The abbreviated name of a characteristic
@@ -703,65 +680,6 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
      */
     Character.prototype.presence = function () {
         return this.level() * 5 + 25;
-    };
-
-    /**
-     * Get the character's total number of psychic points.
-     * @returns {Number}
-     */
-    Character.prototype.psychic_points = function () {
-        var class_levels = {},
-            cls,
-            dp,
-            i,
-            level,
-            levels = this.levels,
-            count = levels.length,
-            result = 1;
-        for (i = 0; i < count; i++) {
-            level = levels[i];
-            cls = level.Class;
-            dp = level.DP;
-            if (cls in class_levels) {
-                class_levels[cls] += 1;
-            }
-            else {
-                class_levels[cls] = 1;
-            }
-            if (class_levels[cls] % classes[cls]['Innate Psychic Points'] === 0) {
-                result += 1;
-            }
-            if ('Psychic Points' in dp) {
-                result += dp['Psychic Points'];
-            }
-        }
-        return result;
-    };
-
-    /**
-     * Get a listing of the character's known psychic  powers.  Returns an
-     * object whose attribute names are the Power names and values are the
-     * character's Psychic Potential with those powers.
-     * @returns {Object}
-     * @todo Finish implementing this
-     */
-    Character.prototype.psychic_powers = function () {
-        var info = this.Advantages['Access to Natural Psychic Powers'],
-            points,
-            potential,
-            powers = {};
-        if (info) {
-            potential = 120;
-            points = info.Points;
-            if (points === 2) {
-                potential = 140;
-            }
-            else if (points === 3) {
-                potential = 180;
-            }
-            powers[info.Power] = potential;
-        }
-        return powers;
     };
 
     /**
@@ -865,7 +783,7 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             freelancer_bonuses = [];
             levels[level - 1].Freelancer = freelancer_bonuses;
         }
-        if (previous) {
+        if ($.trim(previous)) {
             freelancer_bonuses[$.inArray(previous, freelancer_bonuses)] = name;
         }
         else {
@@ -984,138 +902,6 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             return true;
         }
         return false;
-    };
-
-    /**
-     * Determine if the character has a convenient means of utilizing their
-     * Zeon.  Used when deciding whether to show it in the stat block or not.
-     * @return {Boolean}
-     */
-    Character.prototype.uses_zeon = function () {
-        var bonus;
-        if (this.has_gift()) {
-            // Can cast spells with it
-            return true;
-        }
-        // Has the character invested in any summoning abilities?
-        bonus = this.modifier('POW');
-        if (this.ability('Summon') > bonus) {
-            return true;
-        }
-        if (this.ability('Banish') > bonus) {
-            return true;
-        }
-        if (this.ability('Bind') > bonus) {
-            return true;
-        }
-        bonus = this.modifier('WP');
-        if (this.ability('Control') > bonus) {
-            return true;
-        }
-        // Don't support things like Sheele yet...
-        return false;
-    };
-
-    /**
-     * Get the character's total Zeon count (even if he can't normally utilize
-     * it).
-     * @returns {Number}
-     */
-    Character.prototype.zeon = function () {
-        var i,
-            level,
-            levels = this.levels,
-            length = levels.length,
-            magic_nature = this.Advantages['Magic Nature'],
-            total = tables.base_zeon[this.characteristic('POW')],
-            zeon;
-        for (i = 0; i < length; i++) {
-            level = levels[i];
-            zeon = level.DP.Zeon;
-            if (zeon) {
-                total += zeon * 5;
-            }
-            zeon = classes[level.Class].bonuses.Zeon;
-            if (zeon) {
-                total += zeon;
-            }
-            if (magic_nature) {
-                total += magic_nature * 50;
-            }
-        }
-        return total;
-    };
-
-    /**
-     * Get the number of Zeon points the character recovers each day before
-     * subtracting maintained spells, binds, etc.  May be different from MA
-     * due to advantages, Zeon Regeneration Multiples, and so forth.
-     * @return {Number}
-     */
-    Character.prototype.zeon_recovery = function () {
-        var base = tables.base_ma[this.characteristic('POW')],
-            blockage = this.Advantages['Magical Blockage'],
-            blockage_ea = this.levels[0].DP['Magic Blockage'],
-            i,
-            level,
-            levels = this.levels,
-            length = levels.length,
-            multiples,
-            slow = this.Disadvantages['Slow Recovery of Magic'],
-            slow_ea = this.levels[0].DP['Slow Recovery of Magic'],
-            superior = this.Advantages['Superior Magic Recovery'],
-            superior_ea = this.levels[0].DP['Superior Magic Recovery'],
-            total = this.ma();
-        if (blockage || blockage_ea) {
-            return 0;
-        }
-        for (i = 0; i < length; i++) {
-            level = levels[i];
-            multiples = level.DP['Zeon Regeneration Multiple'];
-            if (multiples) {
-                total += multiples * base;
-            }
-        }
-        if (superior) {
-            total *= (superior + 1);
-        }
-        else if (superior_ea) {
-            total *= 2;
-        }
-        if (slow) {
-            total /= 2;
-        }
-        else if (slow_ea) {
-            total /= 2;
-        }
-        return total;
-    };
-
-    /**
-     * Get the character's total Magic Level (some of which may not have been
-     * allocated yet to learning spells and such).
-     * @returns {Number}
-     */
-    Character.prototype.magic_level = function () {
-        var i,
-            level,
-            levels = this.levels,
-            length = levels.length,
-            gradual_magic_learning = this.Advantages['Gradual Magic Learning'],
-            total = tables.magic_level[this.characteristic('INT')],
-            ml;
-        for (i = 0; i < length; i++) {
-            level = levels[i];
-            ml = level.DP['Magic Level'];
-            if (ml) {
-                total += ml * 5;
-            }
-            if (gradual_magic_learning) {
-                total += 5;
-            }
-        }
-        return total;
-        
     };
   
     return Character;

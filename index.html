@@ -58,9 +58,9 @@
     <div class="span10"><strong>MA:</strong> <span class="MA"> </span></div>
   </div>
 
-  <div class="magic row">
-    <div class="span3"><strong>Magic Projection:</strong> <span class="Magic_Projection"> </span>&nbsp;&nbsp;&nbsp;</div>
-    <div class="span9"><strong>Magic Level:</strong> <span class="Magic_Level"> </span></div>
+  <div class="magic">
+    <div><strong>Magic Projection:</strong> <span class="Magic_Projection"> </span></div>
+    <div><strong>Magic Level:</strong> <span class="Magic_Level"> </span></div>
   </div>
 
   <div class="summoning row">
@@ -70,9 +70,9 @@
     <div class="span6"><strong>Banish:</strong> <span class="Banish"> </span></div>
   </div>
 
-  <div class="psychic row">
-    <div class="span3"><strong>Psychic Projection:</strong> <span class="Psychic_Projection"> </span>&nbsp;&nbsp;&nbsp;</div>
-    <div class="span9"><strong>Psychic Points:</strong> <span class="Psychic_Points"> </span></div>
+  <div class="psychic">
+    <div><strong>Psychic Projection:</strong> <span class="Psychic_Projection"> </span></div>
+    <div><strong>Psychic Points:</strong> <span class="Psychic_Points"> </span></div>
   </div>
 
   <div class="racial-row"><strong>Racial Abilities:</strong> <span class="Racial-Abilities"> </span></div>
@@ -531,6 +531,13 @@
   </div>
 </div>
 
+<div id="delete_module_dialog" class="modal hide">
+  <div class="modal-body">
+    <input type="hidden" id="delete_module_name" value="" />
+    <input type="hidden" id="delete_module_level" value="" />
+  </div>
+</div>
+
 <div id="disadvantages_dialog" class="modal hide">
   <div class="modal-body">
   <div id="disadvantages_tabs">
@@ -814,6 +821,14 @@
   <input type="hidden" id="module_options_name" name="module_options_name" value="" />
   <input type="hidden" id="module_options_level" name="module_options_level" value="" />
   <div id="module_options"> </div>
+  </div>
+</div>
+
+<div id="mp_imbalance_dialog" class="modal hide">
+  <div class="modal-body">
+    <div>Shift Magic Projection how strongly in favor of offense? (Negative values indicate a shift in favor of defense.)</div>
+    <input type="hidden" id="mp_imbalance_level" />
+    <div id="mp_imbalance" class="spinner"> </div>
   </div>
 </div>
 

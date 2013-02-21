@@ -39,6 +39,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         add_ea_disadvantage,
         add_ki_ability,
         add_martial_art,
+        add_module,
         add_xp,
         advantage_cost_init,
         advantage_options_init,
@@ -50,7 +51,6 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         configure_disadvantage,
         configure_essential_ability,
         configure_ki_ability,
-        configure_module,
         create_dialog = widgets.create_dialog,
         create_spinner = widgets.create_spinner,
         cultural_roots_init,
@@ -66,6 +66,8 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         delete_ki_ability_init,
         delete_martial_art,
         delete_martial_art_init,
+        delete_module,
+        delete_module_init,
         dialogs = {},
         disadvantage_benefit_init,
         disadvantage_option_init,
@@ -83,6 +85,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         edit_disadvantage_option,
         edit_ea_option,
         edit_freelancer_bonus,
+        edit_mp_imbalance,
         edit_natural_bonus,
         freelancer_init,
         ki_ability_options_init,
@@ -91,6 +94,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         load_character_init,
         mk_init,
         module_options_init,
+        mp_imbalance_init,
         natural_bonus_init,
         power_options_init,
         save,
@@ -251,7 +255,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         }
         else {
             create_spinner('#dominion_level', {min: 1, max: 3, value: 1});
-            create_spinner('#dominion_mk', {min: 20, max: available, value: 20});
+            create_spinner('#dominion_mk', {min: 10, max: available, value: 20});
         }
         return false;
     };
@@ -360,6 +364,52 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         $('#dp_dialog').modal('hide');
         data.add_martial_art(name, degree, level);
         $.publish('level_data_changed');
+        return false;
+    };
+
+    /**
+     * Process the selection of a Module from the DP spending dialog.
+     */
+    add_module = function () {
+        var data = characters.current(),
+            input,
+            link = $(this),
+            level = parseInt(link.data('level'), 10),
+            name = link.find('.name').text(),
+            module = modules[name],
+            multiple = module.Option_Title,
+            options,
+            panel,
+            select;
+        $('#dp_dialog').modal('hide');
+        if (!multiple && data.has_module(name)) {
+            return false;
+        }
+        if (!multiple) {
+            data.add_module(name, level);
+            $.publish('level_data_changed');
+            return false;
+        }
+        $('#module_options_name').val(name);
+        $('#module_options_level').val(level);
+        panel = $('#module_options');
+        panel.html('');
+        options = module.Options;
+        if (options.length === 0) {
+            input = $('<input>', {type: 'text', value: ''}).addClass('required');
+            panel.append(input);
+        }
+        else {
+            select = $('<select>');
+            $.each(options, function (i, option) {
+                if (!data.has_module(name, option)) {
+                    select.append($('<option>', {value: option}).text(option));
+                }
+            });
+            panel.append(select);
+        }
+        $('#module_options_dialog h4').text(module.Option_Title);
+        $('#module_options_dialog').modal('show');
         return false;
     };
 
@@ -523,7 +573,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             return delete_martial_art(name, level);
         }
         if (name in modules) {
-            return configure_module(name, level);
+            return delete_module(name, level);
         }
         if (!characteristic) {
             if (name === 'Accumulation Multiple' || name === 'Ki') {
@@ -638,51 +688,6 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         panel.append(select);
         $('#ki_ability_options_dialog h4').text(title);
         $('#ki_ability_options_dialog').modal('show');
-        return false;
-    };
-
-    /**
-     * Prompt for any option required by a module being purchased, otherwise
-     * just add it to the specified level.
-     * @param {String} name The name of the combat module
-     * @param {Number} level The level at which the module is being obtained
-     */
-    configure_module = function (name, level) {
-        var data = characters.current(),
-            input,
-            module = modules[name],
-            multiple = module.Option_Title,
-            options,
-            panel,
-            select;
-        if (!multiple && data.has_module(name)) {
-            return false;
-        }
-        if (!multiple) {
-            data.add_module(name, level);
-            $.publish('level_data_changed');
-            return false;
-        }
-        $('#module_options_name').val(name);
-        $('#module_options_level').val(level);
-        panel = $('#module_options');
-        panel.html('');
-        options = module.Options;
-        if (options.length === 0) {
-            input = $('<input>', {type: 'text', value: ''}).addClass('required');
-            panel.append(input);
-        }
-        else {
-            select = $('<select>');
-            $.each(options, function (i, option) {
-                if (!data.has_module(name, option)) {
-                    select.append($('<option>', {value: option}).text(option));
-                }
-            });
-            panel.append(select);
-        }
-        $('#module_options_dialog h4').text(module.Option_Title);
-        $('#module_options_dialog').modal('show');
         return false;
     };
 
@@ -908,6 +913,32 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
     };
 
     /**
+     * Initialize the Module deletion confirmation dialog.
+     */
+    delete_module_init = function () {
+        create_dialog('delete_module_dialog', 'Remove this module?', 0, 'No',
+                      'Yes', function () {
+            var data = characters.current(),
+                level = $('#delete_module_level').val(),
+                name = $('#delete_module_name').val();
+            delete data.level_info(level).DP[name];
+            $.publish('level_data_changed');
+            $('#delete_module_dialog').modal('hide');
+            return false;
+        });
+    };
+
+    /**
+     * Confirm that the user meant to remove a Module by clicking on it.
+     */
+    delete_module = function (name, level) {
+        $('#delete_module_level').val(level);
+        $('#delete_module_name').val(name);
+        $('#delete_module_dialog').modal('show');
+        return false;
+    };
+
+    /**
      * Initialize the dialog for creation points gained from a disadvantage.
      */
     disadvantage_benefit_init = function () {
@@ -1009,13 +1040,13 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             if (level === 1 && mk > 50) {
                 errors.push('MK too high for a level 1 technique');
             }
-            else if (level === 2 && mk < 40) {
+            else if (level === 2 && mk < 20) {
                 errors.push('MK too low for a level 2 technique');
             }
             else if (level === 2 && mk > 100) {
                 errors.push('MK too high for a level 2 technique');
             }
-            else if (level === 3 && mk < 60) {
+            else if (level === 3 && mk < 30) {
                 errors.push('MK too low for a level 3 technique');
             }
             if (errors.length > 0) {
@@ -1070,7 +1101,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         for (name in modules) {
             if (modules.hasOwnProperty(name)) {
                 module = modules[name];
-                parts = ['<a href="#" class="ability"><span class="name">',
+                parts = ['<a href="#" class="add_module"><span class="name">',
                          name, '</span></a> (<span class="cost">', module.DP,
                          '</span>)<br />'];
                 primary = module.Primary;
@@ -1382,6 +1413,47 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
     };
 
     /**
+     * Configure and launch the dialog for setting or changing Magic Projection
+     * Imbalance.
+     */
+    edit_mp_imbalance = function () {
+        var adjacent_value,
+            data = characters.current(),
+            imbalances = data.magic_projection_imbalances(),
+            count = imbalances.length,
+            level = $(this).data('level'),
+            index = (level === 0) ? 0 : level - 1,
+            min = -30,
+            max = 30,
+            spinner,
+            value = imbalances[index];
+        $('#mp_imbalance_level').val(level);
+        if (index > 0) {
+            adjacent_value = imbalances[index - 1];
+            if (typeof adjacent_value === 'number') {
+                min = Math.max(min, adjacent_value - 10);
+                max = Math.min(max, adjacent_value + 10);
+            }
+        }
+        if (index < count - 1) {
+            adjacent_value = imbalances[index + 1];
+            min = Math.max(min, adjacent_value - 10);
+            max = Math.min(max, adjacent_value + 10);
+        }
+        if ($('#mp_imbalance_dialog .spinner-buttons').length) {
+            spinner = $('#mp_imbalance');
+            spinner.spinner('min', min);
+            spinner.spinner('max', max);
+            spinner.spinner('value', value);
+        }
+        else {
+            create_spinner('#mp_imbalance', {min: -30, max: 30, value: value});
+        }
+        $('#mp_imbalance_dialog').modal('show');
+        return false;
+    };
+
+    /**
      * Configure and launch the Natural Bonus selection dialog.
      */
     edit_natural_bonus = function () {
@@ -1563,6 +1635,26 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             }
             data.add_module(name, level, option);
             $('#module_options_dialog').modal('hide');
+            $.publish('level_data_changed');
+            return false;
+        });
+    };
+
+    /**
+     * Initialize the dialog for changing the Magic Projection Imbalance.
+     */
+    mp_imbalance_init = function () {
+        create_dialog('mp_imbalance_dialog',
+                      'Magic Projection Imbalance', 350, 'Cancel',
+                      'OK', function () {
+            var data = characters.current(),
+                imbalance = $('#mp_imbalance').spinner('value'),
+                level = parseInt($('#mp_imbalance_level').val(), 10),
+                level_info = data.level_info(level);
+            level_info['Magic Projection Imbalance'] = imbalance;
+            // later values will update on the following render when
+            // magic_projection_imbalances() is called
+            $('#mp_imbalance_dialog').modal('hide');
             $.publish('level_data_changed');
             return false;
         });
@@ -1974,6 +2066,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         delete_ea_init();
         delete_ki_ability_init();
         delete_martial_art_init();
+        delete_module_init();
         disadvantage_benefit_init();
         disadvantage_option_init();
         disadvantages_init();
@@ -1988,6 +2081,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         load_character_init();
         mk_init();
         module_options_init();
+        mp_imbalance_init();
         natural_bonus_init();
         power_options_init();
         save_character_init();
@@ -2002,6 +2096,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         $('#add_ea_disadvantage').click(add_ea_disadvantage);
         $(document).on('click', 'a.ability', configure_ability);
         $(document).on('click', 'a.add_martial_art', add_martial_art);
+        $(document).on('click', 'a.add_module', add_module);
         $(document).on('click', 'a.edit_class', edit_class);
         $(document).on('click', 'a.freelancer_bonus', edit_freelancer_bonus);
         $(document).on('click', 'a.essential_ability', configure_essential_ability);
@@ -2009,6 +2104,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         $(document).on('click', 'a.add_ki_ability', add_ki_ability);
         $(document).on('click', 'a.delete_dominion_technique', delete_dominion_technique);
         $(document).on('click', 'a.delete_ki_ability', delete_ki_ability);
+        $(document).on('click', 'a.mp_imbalance', edit_mp_imbalance);
         $(document).on('click', 'a.natural_bonus', edit_natural_bonus);
         $(document).on('click', 'a.set_natural_bonus', set_natural_bonus);
         $(document).on('click', 'a.spend_dp', spend_dp);

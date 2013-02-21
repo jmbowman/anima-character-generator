@@ -8,8 +8,10 @@
  * @requires characters
  * @requires essential_abilities
  * @requires ki_abilities
+ * @requires magic
  * @requires modules
  * @requires primaries
+ * @requires psychic
  * @requires tables
  * @requires armor
  * @requires creation_points
@@ -21,8 +23,8 @@
  */
 define(['jquery', 'abilities', 'characters', 'essential_abilities',
 'ki_abilities', 'martial_arts', 'modules', 'primaries', 'tables', 'widgets',
-'armor', 'creation_points', 'development_points', 'martial_knowledge',
-'movement', 'resistances'],
+'armor', 'creation_points', 'development_points', 'magic', 'martial_knowledge',
+'movement', 'psychic', 'resistances'],
 function ($, abilities, characters, essential_abilities, ki_abilities,
           martial_arts, modules, primaries, tables, widgets) {
     
@@ -281,9 +283,25 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         $('.MA', root).text(text);
         $('.Zeon', root).text(data.zeon());
         $('.zeon-row', root).toggle(data.uses_zeon());
-        $('.Magic_Projection', root).text(data.ability('Magic Projection'));
+        i = data.magic_projection_offense();
+        j = data.magic_projection_defense();
+        if (i === j) {
+            text = i + '';
+        }
+        else {
+            text = i + ' Offensive, ' + j + ' Defensive';
+        }
+        $('.Magic_Projection', root).text(text);
         $('.Magic_Level', root).text(data.magic_level());
-        $('.Psychic_Projection', root).text(data.ability('Psychic Projection'));
+        i = data.psychic_projection_offense();
+        j = data.psychic_projection_defense();
+        if (i === j) {
+            text = i + '';
+        }
+        else {
+            text = i + ' Offensive, ' + j + ' Defensive';
+        }
+        $('.Psychic_Projection', root).text(text);
         $('.Psychic_Points', root).text(data.psychic_points());
         $('.psychic', root).toggle(data.discipline_access().length > 0);
         text = data.racial_abilities();
@@ -836,6 +854,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             freelancer,
             i,
             j,
+            imbalances,
             imk,
             imk_name,
             imk_tree,
@@ -866,6 +885,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         levels = data.levels;
         level_count = levels.length;
         $('.level').remove();
+        imbalances = data.magic_projection_imbalances();
         remaining_dp = data.dp_remaining();
         for (i = 0; i < level_count; i++) {
             level = levels[i];
@@ -889,6 +909,10 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             if (level_number > 0 && !('Without any Natural Bonus' in data.Disadvantages)) {
                 nb = ('Natural Bonus' in level) ? level['Natural Bonus'] : null;
                 content += ' <a href="#" class="natural_bonus" data-level="' + level_number + '">' + (nb ? nb + ' +' + data.modifier(abilities[nb].Characteristic, level_number) : 'Select natural bonus') + '</a>';
+            }
+            amount = imbalances[i];
+            if (typeof amount === 'number') {
+                content += ' <a href="#" class="mp_imbalance" data-level="' + level_number + '">Magic Projection Imbalance: ' + amount + '</a>';
             }
             line = $('<div>').addClass('level').html(content);
             $('#levels').append(line);

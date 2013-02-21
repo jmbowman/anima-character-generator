@@ -1,5 +1,6 @@
 Anima Character Generator
--------------------------
+=========================
+
 This is a browser-based utility for generating characters for the Anima: Beyond
 Fantasy role-playing game.  It doesn't require an internet connection or even a
 local server; everything is done in JavaScript within the browser.  Character
@@ -37,10 +38,11 @@ write our own utility to deal with this.  It interprets the rules as I run
 them (although it may eventually have options to use alternate rule
 interpretations).  It separates the raw data that needs to be input from the
 display of the resulting character statistics.  It has a summary display that
-shows just the information I usually need in order to run a monster or NPC
-effectively.  This stat block can be copied and pasted into a text file and
-still look ok.  And it will eventually be capable of showing the summaries for
-several characters at a time, and easily editing any of them.
+shows just the information you're likely to need in order to run that
+particular character effectively.  This stat block can be copied and pasted
+into a text file and still look ok.  And it will eventually be capable of
+showing the summaries for several characters at a time, and easily editing any
+of them.
 
 Status
 ------
@@ -50,17 +52,15 @@ on are supported, although some things like Ars Magnus and creature powers
 aren't fully implemented yet.  It's currently useful for starting almost any
 character, and can fully represent characters without magic, psychic, or truly
 esoteric martial abilities.  Support for creature Essential Abilities is in
-place, and work on creature Powers has been started (but isn't in the UI yet).
-The character's total Psychic Points and Magic Level are calculated and
-displayed, but allocating them to abilities isn't yet implemented.
+place, and work on creature Powers has been started.  The character's total
+Psychic Points and Magic Level are calculated and displayed, but allocating
+them to abilities isn't yet implemented.
 
 These are the main things left to be implemented that I'm aware of:
 
 * Allocation of Magic Level to Paths, spells, and Metamagic Advantages
 * Allocation of Psychic Points
 * Specializations in Secondary Abilites (partially implemented)
-* Show the effects of Mystical and Psychic Modules on Projection scores
-* Magic Projection Imbalance
 * Creature Powers (about half implemented, but not yet in the UI)
 * Current Elan level and its effect on abilities
 * Mental Patterns (from Arcana Exxet)
