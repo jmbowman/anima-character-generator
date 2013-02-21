@@ -88,9 +88,6 @@ function (Character, classes, martial_arts) {
                     }
                     value = this.martial_art_damage(name, art.Degree, arts);
                     result = Math.max(result, value);
-                    if (has_tcs && name !== 'Tai Chi') {
-                        result += this.modifier('POW');
-                    }
                 }
             }
             if ('Damage' in data) {
@@ -387,7 +384,7 @@ function (Character, classes, martial_arts) {
         if ('Asakusen' in arts) {
             result += 10;
         }
-        if (this.has_ki_ability('Increased Damage')) {
+        if (this.has_ki_ability('Increased Damage') && !('Exelion' in arts)) {
             result += 10;
         }
         return result;

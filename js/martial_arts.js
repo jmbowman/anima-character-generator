@@ -1112,6 +1112,7 @@ define({
                 Characteristic: 'POW',
                 Multiplier: 3
             },
+            MK: 30,
             Requirements: {
                 'Ki Abilities': ['Use of Necessary Energy'],
                 Attack: 180,

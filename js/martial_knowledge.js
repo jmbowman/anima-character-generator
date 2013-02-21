@@ -188,6 +188,9 @@ define(['jquery', 'character', 'classes', 'ki_abilities', 'martial_arts'],
         if (typeof level !== 'undefined') {
             count = level === 0 ? 1 : level;
         }
+        if (name === 'Ki Concealment' && this.Race === "D'Anjayni Nephilim") {
+            return true;
+        }
         for (i = 0; i < count; i++) {
             mk = levels[i].MK;
             if (mk && (name in mk)) {
@@ -256,6 +259,9 @@ define(['jquery', 'character', 'classes', 'ki_abilities', 'martial_arts'],
             if (have_options.hasOwnProperty(name)) {
                 result.push(name + '(' + have_options[name].join(', ') + ')');
             }
+        }
+        if (this.Race === "D'Anjayni Nephilim") {
+            result.push('Ki Concealment');
         }
         result.sort();
         return result;

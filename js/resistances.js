@@ -123,6 +123,15 @@ function ($, Character, tables) {
                 result[element] = 10;
             }
         }
+        else if (this.Race === "Sylvain Nephilim") {
+            element = 'Light';
+            if (element in result) {
+                result[element] += 10;
+            }
+            else {
+                result[element] = 10;
+            }
+        }
         if ('Easily Possessed' in this.Disadvantages) {
             result['possession or domination'] = -50;
         }

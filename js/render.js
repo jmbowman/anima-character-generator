@@ -191,6 +191,8 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             secondaries = [],
             summoner = false,
             text,
+            total_accumulation = 0,
+            total_ki = 0,
             total_mk = data.mk_totals(),
             remaining_mk = data.mk_remaining(),
             technique_count,
@@ -347,9 +349,15 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         $('.Dominion-Techniques', root).text(text);
         $('.dominion-techniques-row', root).toggle(text.length > 0);
         $.each(['STR', 'DEX', 'AGI', 'CON', 'POW', 'WP'], function (index, characteristic) {
-            $('.Accumulation_' + characteristic, root).text(data.ki_accumulation(characteristic));
-            $('.Ki_' + characteristic, root).text(data.ki_points(characteristic));
+            i = data.ki_accumulation(characteristic);
+            total_accumulation += i;
+            j = data.ki_points(characteristic);
+            total_ki += j;
+            $('.Accumulation_' + characteristic, root).text(i);
+            $('.Ki_' + characteristic, root).text(j);
         });
+        $('.Accumulation_Total', root).text(total_accumulation);
+        $('.Ki_Total', root).text(total_ki);
         $('.ki-table', root).toggle(ability_list.length > 0);
         for (primary in primaries) {
             if (primaries.hasOwnProperty(primary)) {

@@ -1877,7 +1877,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 degree = 'Base';
             }
             else {
-                degree = arts[name];
+                degree = arts[name].Degree;
                 if (degree === 'Supreme' || degree === 'Arcane') {
                     // Already done with it
                     $('#' + type + '_Martial_Arts').append(name + '<br />');
