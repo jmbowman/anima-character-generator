@@ -113,27 +113,27 @@ define({
         },
         Causality: {
             'Create Chaos': {Level: 1, Minimum: 'Absurd', Maintenance: true},
-            'Delete a Law of Causality': {Level: 2, Minimum: 'Absurd', Maintenance: true},
-            'Control Weather': {Level: 2, Minimum: 'Very Difficult', Maintenance: false},
+            'Delete Law of Causality': {Level: 2, Minimum: 'Absurd', Maintenance: true},
+            'Alter Climate': {Level: 2, Minimum: 'Very Difficult', Maintenance: false},
             'Create Order': {Level: 3, Minimum: 'Impossible', Maintenance: true},
             'Control Causality': {Level: 3, Minimum: 'Almost Impossible', Maintenance: false}
         },
         Electromagnetism: {
-            'Sense Electricity': {Level: 1, Minimum: 'Difficult', Maintenance: false},
+            'Perceive Electricity': {Level: 1, Minimum: 'Difficult', Maintenance: false},
             'Create Electricity': {Level: 1, Minimum: 'Medium', Maintenance: true},
-            'Control Electricity': {Level: 1, Minimum: 'Medium', Maintenance: true},
+            'Electricity Control': {Level: 1, Minimum: 'Medium', Maintenance: true},
             'Magnetic Manipulation': {Level: 1, Minimum: 'Difficult', Maintenance: true},
             'Magnetic Shield': {Level: 2, Minimum: 'Difficult', Maintenance: true},
             'Read Electrical Impulses': {Level: 2, Minimum: 'Difficult', Maintenance: true},
-            'Electric Arc': {Level: 2, Minimum: 'Difficult', Maintenance: false},
+            'Electricity Arc': {Level: 2, Minimum: 'Difficult', Maintenance: false},
             'Magnetic Acceleration Attack': {Level: 3, Minimum: 'Almost Impossible', Maintenance: false},
             'Control Electrical Impulses': {Level: 3, Minimum: 'Almost Impossible', Maintenance: true}
         },
         Teleportation: {
             'Relocate Object': {Level: 1, Minimum: 'Medium', Maintenance: false},
-            'Auto-Relocation': {Level: 1, Minimum: 'Difficult', Maintenance: false},
+            'Teleport Self': {Level: 1, Minimum: 'Difficult', Maintenance: false},
             'Defensive Transportation': {Level: 1, Minimum: 'Difficult', Maintenance: true},
-            'Major Auto-Relocation': {Level: 2, Minimum: 'Absurd', Maintenance: false},
+            'Major Teleport Self': {Level: 2, Minimum: 'Absurd', Maintenance: false},
             'Aleph': {Level: 3, Minimum: 'Absurd', Maintenance: true},
             'Major Relocate Object': {Level: 3, Minimum: 'Almost Impossible', Maintenance: false},
             'Teleport': {Level: 3, Minimum: 'Absurd', Maintenance: false}
@@ -142,14 +142,14 @@ define({
             'Manipulate Light': {Level: 1, Minimum: 'Difficult', Maintenance: true},
             'Create Light': {Level: 1, Minimum: 'Medium', Maintenance: true},
             'Flash of Light': {Level: 1, Minimum: 'Medium', Maintenance: false},
-            'Shield of Light': {Level: 2, Minimum: 'Very Difficult', Maintenance: true},
+            'Screen of Light': {Level: 2, Minimum: 'Very Difficult', Maintenance: true},
             'Hologram': {Level: 2, Minimum: 'Absurd', Maintenance: true},
             'Laser': {Level: 3, Minimum: 'Absurd', Maintenance: false}
         },
         Hypersensitivity: {
             'Filter Senses': {Level: 1, Minimum: 'Easy', Maintenance: true},
-            'Shift Senses': {Level: 2, Minimum: 'Medium', Maintenance: true},
-            'Superior Senses': {Level: 3, Minimum: 'Absurd', Maintenance: true}
+            'Move Sense': {Level: 2, Minimum: 'Medium', Maintenance: true},
+            'Superior Sense': {Level: 3, Minimum: 'Absurd', Maintenance: true}
         }
     },
     

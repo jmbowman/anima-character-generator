@@ -438,12 +438,16 @@ define(['jquery', 'character', 'classes', 'ki_abilities', 'martial_arts'],
         if (typeof level !== 'undefined') {
             count = level === 0 ? 1 : level;
         }
+        else {
+            level = this.level();
+        }
         if (martial_mastery) {
             total += martial_mastery * 40;
         }
         for (i = 0; i < count; i++) {
             level_info = levels[i];
-            total += classes[level_info.Class].MK;
+            mk = classes[level_info.Class].MK;
+            total += (level === 0) ? (mk / 2) : mk;
             dp = level_info.DP;
             for (item in dp) {
                 if (dp.hasOwnProperty(item)) {

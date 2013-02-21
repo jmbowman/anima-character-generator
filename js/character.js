@@ -135,7 +135,7 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             }
             freelancer = info.Freelancer;
             if (freelancer && $.inArray(name, freelancer) >= 0) {
-                total += 10;
+                total += (tot_level === 0) ? 5 : 10;
             }
             amount = cls.bonuses[name];
             if (amount) {
@@ -774,14 +774,15 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
      */
     Character.prototype.set_freelancer_bonus = function (level, name, previous) {
         var freelancer_bonuses,
+            index = level === 0 ? 0 : level - 1,
             levels = this.levels;
-        if (level < 1 || level > levels.length) {
+        if (level < 0 || level > levels.length) {
             return;
         }
-        freelancer_bonuses = levels[level - 1].Freelancer;
+        freelancer_bonuses = levels[index].Freelancer;
         if (!freelancer_bonuses) {
             freelancer_bonuses = [];
-            levels[level - 1].Freelancer = freelancer_bonuses;
+            levels[index].Freelancer = freelancer_bonuses;
         }
         if ($.trim(previous)) {
             freelancer_bonuses[$.inArray(previous, freelancer_bonuses)] = name;

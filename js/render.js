@@ -587,8 +587,8 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         $('.level').remove();
         load_value('Type');
         if (stage > 1) {
+            render.start_attributes();
             if (data.Type !== 'Human') {
-                render.start_attributes();
                 $('#Created').val(data.Created ? 'Yes': 'No');
                 load_value('Element');
                 load_value('Gnosis');
@@ -599,7 +599,6 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                 }
             }
             if (stage > 3) {
-                render.start_characteristics();
                 load_value('STR');
                 load_value('DEX');
                 load_value('AGI');
