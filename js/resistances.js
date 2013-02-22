@@ -25,6 +25,11 @@ function ($, Character, tables) {
             points,
             total = this.presence() + this.modifier(tables.resistances[name]);
         switch (this.Race) {
+        case 'Devah Nephilim':
+            if (name === 'PhR' || name === 'DR') {
+                total -= 10;
+            }
+            break;
         case "Duk'zarist Nephilim":
             gender = this.gender();
             if (name === 'PhR' && gender === 'Male') {
@@ -54,6 +59,11 @@ function ($, Character, tables) {
             }
             else {
                 total += 5;
+            }
+            break;
+        case 'Vetala Nephilim':
+            if (name === 'DR') {
+                total -= 20;
             }
         }
         if (name === 'PhR' && this.has_ki_ability('Physical Dominion')) {
@@ -98,6 +108,7 @@ function ($, Character, tables) {
         var element = this.Element,
             first_level_dp = this.levels[0].DP,
             attuned = first_level_dp.Attuned,
+            race = this.Race,
             result = {};
         if (element) {
             result[element] = 20;
@@ -111,10 +122,13 @@ function ($, Character, tables) {
                 result[attuned] = 20;
             }
         }
-        if (this.Race === "D'Anjayni Nephilim") {
+        if (race === "D'Anjayni Nephilim") {
             result['supernatural detection'] = 30;
         }
-        else if (this.Race === "Duk'zarist Nephilim") {
+        else if (race === 'Devah Nephilim') {
+            result['mind reading and emotion alteration'] = 10;
+        }
+        else if (race === "Duk'zarist Nephilim") {
             element = 'Darkness';
             if (element in result) {
                 result[element] += 10;
@@ -123,7 +137,7 @@ function ($, Character, tables) {
                 result[element] = 10;
             }
         }
-        else if (this.Race === "Sylvain Nephilim") {
+        else if (race === "Sylvain Nephilim") {
             element = 'Light';
             if (element in result) {
                 result[element] += 10;
@@ -131,6 +145,9 @@ function ($, Character, tables) {
             else {
                 result[element] = 10;
             }
+        }
+        else if (race === 'Vetala Nephilim') {
+            result['Criticals to vulnerable points'] = 50;
         }
         if ('Easily Possessed' in this.Disadvantages) {
             result['possession or domination'] = -50;

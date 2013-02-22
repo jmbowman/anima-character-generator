@@ -68,6 +68,7 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             nb_multiplier = 1,
             option,
             params,
+            race = this.Race,
             spec,
             tot_level = this.level(),
             total = 0,
@@ -177,6 +178,9 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         }
         if ('Talented' in myAdvantages && name === 'Sleight of Hand') {
             bonuses += 30;
+        }
+        if (race === 'Devah Nephilim' && $.inArray(name, ['Banish', 'Bind'])) {
+            bonuses += 10;
         }
         total += bonuses + this.modifier(characteristic, level);
         return total;
@@ -693,6 +697,8 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             return 'Pass Without Trace, Forgetfulness, +30 to Resistance vs. detection, Silent Whisper, -3 XP';
         case 'Daimah Nephilim':
             return 'See the Essence, Sense the Forest, +3 Regeneration in thick forest or jungle, Movement in the Forest, -2 XP';
+        case 'Devah Nephilim':
+            return '+10 to Resistances vs. mind reading and emotion alteration, The Eye of the Soul, +10 Bind and Banish, -10 PhR and DR, -3 XP';
         case "Duk'zarist Nephilim":
             return '+10 to Resistances vs. Dark, Automatically pass between life and death PhR checks, Limited Needs, Sense Light and Dark, Night Vision, Allergic to Metal, -5 XP';
         case 'Ebudan Nephilim':
@@ -701,6 +707,8 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             return 'Spiritual Vision, -3 XP';
         case 'Sylvain Nephilim':
             return '+10 to Resistances vs. Light, Sense Light and Dark, Limited Needs, -4 XP';
+        case 'Vetala Nephilim':
+            return '+50 PhR vs. Criticals, Blood Ecstasy, +1 Regeneration, Photosensitive Skin, Blood Obsession, -20 DR, -3 XP';
         default:
             return '';
         }
@@ -714,7 +722,7 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         var gnosis = this.gnosis(),
             advantage = this.Advantages.Regeneration,
             total = tables.regeneration[this.characteristic('CON')];
-        if ($.inArray(this.Race, ["Duk'zarist Nephilim", 'Sylvain Nephilim']) !== -1) {
+        if ($.inArray(this.Race, ["Duk'zarist Nephilim", 'Sylvain Nephilim', 'Vetala Nephilim']) !== -1) {
             total += 1;
         }
         if (advantage) {
