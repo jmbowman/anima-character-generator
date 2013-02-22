@@ -9,8 +9,8 @@
  * @requires development_points
  * @see module:character#psychic_points
  * @see module:character#psychic_powers
- * @see module:characters#psychic_projection_defense
- * @see module:characters#psychic_projection_offense
+ * @see module:character#psychic_projection_defense
+ * @see module:character#psychic_projection_offense
  */
 define(['jquery', 'character', 'classes', 'development_points'],
 function ($, Character, classes) {

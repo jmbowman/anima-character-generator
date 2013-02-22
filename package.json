@@ -1,0 +1,25 @@
+{
+  "name": "anima-character-generator",
+  "version": "0.5.0",
+  "description": "A character generation utility for the Anima: Beyond Fantasy RPG",
+  "homepage": "https://github.com/jmbowman/anima-character-generator",
+  "keywords": [
+    "game"
+  ],
+  "bugs": "https://github.com/jmbowman/anima-character-generator/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jmbowman/anima-character-generator.git"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.0",
+    "grunt-contrib-jshint": "~0.1.1",
+    "grunt-contrib-requirejs": "~0.4.0",
+    "grunt-css": "~0.5.3",
+    "grunt-jsdoc": "~0.2.3",
+    "grunt-contrib-copy": "~0.4.0",
+    "grunt-contrib-clean": "~0.4.0",
+    "grunt-contrib-concat": "~0.1.2",
+    "grunt-md5": "~0.1.7"
+  }
+}

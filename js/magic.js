@@ -11,7 +11,7 @@
  * @see module:character#ma
  * @see module:character#magic_level
  * @see module:character#magic_projection_defense
- * @see mdoule:character#magic_projection_imbalances
+ * @see module:character#magic_projection_imbalances
  * @see module:character#magic_projection_offense
  * @see module:character#uses_zeon
  * @see module:character#zeon

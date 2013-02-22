@@ -7,7 +7,7 @@
  * @requires classes
  * @requires martial_knowledge
  * @see module:character#initiative
- * @see module:character@movement_value
+ * @see module:character#movement_value
  */
 define(['character', 'classes', 'martial_knowledge'],
 function (Character, classes) {

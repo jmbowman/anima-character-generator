@@ -25,7 +25,7 @@
 define(['jquery', 'abilities', 'advantages', 'characters', 'cultural_roots',
 'disadvantages', 'essential_abilities', 'ki_abilities', 'martial_arts',
 'modules', 'powers', 'primaries', 'tables', 'widgets', 'combat',
-'creation_points', 'development_points', 'pubsub'],
+'creation_points', 'development_points', 'libs/json2', 'pubsub'],
 function ($, abilities, advantages, characters, cultural_roots, disadvantages,
           essential_abilities, ki_abilities, martial_arts, modules, powers,
           primaries, tables, widgets) {

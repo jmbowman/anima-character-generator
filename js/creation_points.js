@@ -1,4 +1,26 @@
 /*global define: false */
+/**
+ * Adds methods to {@link module:character} related to the allocation of
+ * Creation Points.
+ * @module creation_points
+ * @requires jquery
+ * @requires advantages
+ * @requires character
+ * @requires classes
+ * @requires disadvantages
+ * @requires tables
+ * @requires libs/utils
+ * @see module:character#add_advantage
+ * @see module:character#add_disadvantage
+ * @see module:character#advantage_allowed
+ * @see module:character#advantage_cost
+ * @see module:character#advantage_summary
+ * @see module:character#cp_remaining
+ * @see module:character#cp_total
+ * @see module:character#disadvantage_allowed
+ * @see module:character#disadvantage_benefit
+ * @see module:character#disadvantage_summary
+ */
 define(['jquery', 'advantages', 'character', 'classes', 'disadvantages',
 'tables', 'libs/utils'], function ($, advantages, Character, classes,
 disadvantages, tables, utils) {
