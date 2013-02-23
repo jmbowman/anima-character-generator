@@ -341,7 +341,7 @@ define(['jquery', 'character', 'psychic_disciplines'],
             if (pp && pp.Potential) {
                 boost += pp.Potential;
             }
-			result[i] = boost;
+            result[i] = boost;
         }
         return result;
     };
