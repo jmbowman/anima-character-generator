@@ -44,11 +44,11 @@ define(['jquery', 'character', 'psychic_disciplines'],
             pp = {};
             level_info.PP = pp;
         }
-		if (!pp.Disciplines) {
-			pp.Disciplines = {};
-		}
-		pp.Disciplines[name] = {};
-		pp.Disciplines[name].Affinity = true;
+        if (!pp.Disciplines) {
+            pp.Disciplines = {};
+        }
+        pp.Disciplines[name] = {};
+        pp.Disciplines[name].Affinity = true;
     };
 
 
@@ -71,7 +71,7 @@ define(['jquery', 'character', 'psychic_disciplines'],
         for (i = 0; i < count; i++) {
             pp = levels[i].PP;
             if (pp && (name in pp.Disciplines)) {
-				return true;
+                return true;
             }
         }
         return false;
@@ -86,25 +86,25 @@ define(['jquery', 'character', 'psychic_disciplines'],
      */
     Character.prototype.remove_discipline = function (name, level) {
         var i,
-			levels = this.levels,
-			count = levels.length,
-			pp;
+            levels = this.levels,
+            count = levels.length,
+            pp;
         if (this.has_discipline(name, level)) {
-			for (i = 0; i < count; i++) {
-				pp = levels[i].PP;
-				if (pp && pp.Disciplines && pp.Disciplines[name]) {
-					delete pp.Disciplines[name];
-					if (!Object.keys(pp.Disciplines.length)) {
-						delete pp.Disciplines;
-						if (!Object.keys(pp.length)) {
-							delete levels[i].PP;
-						}
-					}
-				}
-			}
+            for (i = 0; i < count; i++) {
+                pp = levels[i].PP;
+                if (pp && pp.Disciplines && pp.Disciplines[name]) {
+                    delete pp.Disciplines[name];
+                    if (!Object.keys(pp.Disciplines.length)) {
+                        delete pp.Disciplines;
+                        if (!Object.keys(pp.length)) {
+                            delete levels[i].PP;
+                        }
+                    }
+                }
+            }
         } else {
-			return;
-		}
+            return;
+        }
     };
 
 	
@@ -132,16 +132,16 @@ define(['jquery', 'character', 'psychic_disciplines'],
             pp = {};
             level_info.PP = pp;
         }
-		if (!pp.Disciplines) {
-			pp.Disciplines = {};
-		}
-		if (!pp.Disciplines[discipline]) {
-			pp.Disciplines[discipline] = {};
-		}
-		if (!pp.Disciplines[discipline].Mastered) {
-			pp.Disciplines[discipline].Mastered = [];
-		}
-		pp.Disciplines[discipline].Mastered.push(name);
+        if (!pp.Disciplines) {
+            pp.Disciplines = {};
+        }
+        if (!pp.Disciplines[discipline]) {
+            pp.Disciplines[discipline] = {};
+        }
+        if (!pp.Disciplines[discipline].Mastered) {
+            pp.Disciplines[discipline].Mastered = [];
+        }
+        pp.Disciplines[discipline].Mastered.push(name);
     };
 	
 	
@@ -165,7 +165,7 @@ define(['jquery', 'character', 'psychic_disciplines'],
         for (i = 0; i < count; i++) {
             pp = levels[i].PP;
             if (pp && pp.Disciplines && pp.Disciplines[discipline] && pp.Disciplines[discipline].Mastered && (name in pp.Disciplines[discipline].Mastered)) {
-				return true;
+                return true;
             }
         }
         return false;
@@ -181,39 +181,38 @@ define(['jquery', 'character', 'psychic_disciplines'],
      */
     Character.prototype.remove_psychic_power = function (name, discipline, level) {
         var i,
-			index = (level === 0) ? 0 : level - 1,
-			levels = this.levels,
-			level_info = this.levels[index],
-			list,
-			pp,
-			count = levels.length;
+            index = (level === 0) ? 0 : level - 1,
+            levels = this.levels,
+            level_info = this.levels[index],
+            list,
+            pp,
+            count = levels.length;
         if (this.has_psychic_power(name, discipline, level)) {
-			list = level_info.PP.Disciplines[discipline].Mastered;
-			list.splice(list.indexOf(name), 1);
-			if (list.length > 0) {
-				level_info.PP.Disciplines[discipline].Mastered = list;
-			} else {
-				delete level_info.PP.Disciplines[discipline].Mastered;
-			}
-			
-			for (i = 0; i < count; i++) {
-				pp = levels[i].PP;
-				if (pp && pp.Disciplines && pp.Disciplines[discipline] && pp.Disciplines[discipline][name]) {
-					delete pp.Disciplines[discipline][name];
-					if (!Object.keys(pp.Disciplines[discipline].length)) {
-						delete pp.Disciplines[discipline];
-						if (!Object.keys(pp.Disciplines.length)) {
-							delete pp.Disciplines;
-							if (!Object.keys(pp.length)) {
-								delete levels[i].PP;
-							}
-						}
-					}
-				}
-			}
+            list = level_info.PP.Disciplines[discipline].Mastered;
+            list.splice(list.indexOf(name), 1);
+            if (list.length > 0) {
+                level_info.PP.Disciplines[discipline].Mastered = list;
+            } else {
+                delete level_info.PP.Disciplines[discipline].Mastered;
+            }	
+            for (i = 0; i < count; i++) {
+                pp = levels[i].PP;
+                if (pp && pp.Disciplines && pp.Disciplines[discipline] && pp.Disciplines[discipline][name]) {
+                    delete pp.Disciplines[discipline][name];
+                    if (!Object.keys(pp.Disciplines[discipline].length)) {
+                        delete pp.Disciplines[discipline];
+                        if (!Object.keys(pp.Disciplines.length)) {
+                            delete pp.Disciplines;
+                            if (!Object.keys(pp.length)) {
+                                delete levels[i].PP;
+                            }
+                        }
+                    }
+                }
+            }
         } else {
-			return;
-		}
+            return;
+        }
     };
 	
 	
@@ -230,10 +229,10 @@ define(['jquery', 'character', 'psychic_disciplines'],
             level_info = this.levels[index],
             pp = level_info.PP,
             remaining = this.pp_remaining()[index],
-			current_boost = this.psychic_power_boost_total(name, discipline)[index];
-		if (boost + current_boost > 10) {
+            current_boost = this.psychic_power_boost_total(name, discipline)[index];
+        if (boost + current_boost > 10) {
 			// exceeds boost cap of 10, do nothing
-			return;
+            return;
 		}
         if (remaining < boost) {
             // can't afford it, do nothing
@@ -243,22 +242,22 @@ define(['jquery', 'character', 'psychic_disciplines'],
             pp = {};
             level_info.PP = pp;
         }
-		if (!pp.Disciplines) {
-			pp.Disciplines = {};
-		}
-		if (!pp.Disciplines[discipline]) {
-			pp.Disciplines[discipline] = {};
-		}
-		pp.Disciplines[discipline][name] = boost;
-		if (boost === 0) {
+        if (!pp.Disciplines) {
+            pp.Disciplines = {};
+        }
+        if (!pp.Disciplines[discipline]) {
+            pp.Disciplines[discipline] = {};
+        }
+        pp.Disciplines[discipline][name] = boost;
+        if (boost === 0) {
             delete pp.Disciplines[discipline][name];
-			if (!Object.keys(pp.Disciplines[discipline].length)) {
-				delete pp.Disciplines;
-			}
-			if (!Object.keys(pp.length)) {
-				delete level_info.PP;
-			}
-		}
+            if (!Object.keys(pp.Disciplines[discipline].length)) {
+                delete pp.Disciplines;
+            }
+            if (!Object.keys(pp.length)) {
+                delete level_info.PP;
+            }
+        }
     };
 	
 	
@@ -274,16 +273,16 @@ define(['jquery', 'character', 'psychic_disciplines'],
     Character.prototype.psychic_power_boost_total = function (name, discipline) {
         var boost = 0,
             i,
-			levels = this.levels,
+            levels = this.levels,
             count = levels.length,
-			pp,
+            pp,
             result = [];
         for (i = 0; i < count; i++) {
-			pp = levels[i].PP;
-			if (pp && pp.Disciplines && pp.Disciplines[discipline] && pp.Disciplines[discipline][name]) {
+            pp = levels[i].PP;
+            if (pp && pp.Disciplines && pp.Disciplines[discipline] && pp.Disciplines[discipline][name]) {
                 boost += pp.Disciplines[discipline][name];
-			}
-			result[i] = boost;
+            }
+            result[i] = boost;
         }
         return result;
     };
@@ -300,11 +299,11 @@ define(['jquery', 'character', 'psychic_disciplines'],
             level_info = this.levels[index],
             pp = level_info.PP,
             remaining = this.pp_remaining()[index],
-			current_boost = this.global_potential_boost_total()[index];
-		if (boost + current_boost > 10) {
-			// exceeds boost cap of 10, do nothing
-			return;
-		}
+            current_boost = this.global_potential_boost_total()[index];
+        if (boost + current_boost > 10) {
+            // exceeds boost cap of 10, do nothing
+            return;
+        }
         if (remaining < (boost * (boost + 1) / 2) - ((current_boost) * (current_boost + 1) / 2)) {
             // can't afford it, do nothing
             return;
@@ -313,13 +312,13 @@ define(['jquery', 'character', 'psychic_disciplines'],
             pp = {};
             level_info.PP = pp;
         }
-		pp.Potential = boost;
-		if (boost === 0) {
-			delete pp.Potential;
-			if (!Object.keys(pp.length)) {
-				delete level_info.PP;
-			}
-		}
+        pp.Potential = boost;
+        if (boost === 0) {
+            delete pp.Potential;
+            if (!Object.keys(pp.length)) {
+                delete level_info.PP;
+            }
+        }
     };
 	
 	
@@ -367,10 +366,10 @@ define(['jquery', 'character', 'psychic_disciplines'],
             pp = {};
             level_info.PP = pp;
         }
-		pp["Innate Slots"] = slots;
+        pp["Innate Slots"] = slots;
         if (slots === 0) {
             delete pp["Innate Slots"];
-			if (!Object.keys(pp.length)) {
+            if (!Object.keys(pp.length)) {
                 delete level_info.PP;
             }
         }
