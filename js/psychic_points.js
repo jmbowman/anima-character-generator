@@ -112,7 +112,7 @@ define(['jquery', 'character', 'psychic_disciplines'],
      * Give the character a Psychic Power at the specified level.
      * @method module:character#add_psychic_power
      * @param {String} name The name of the Psychic Power obtained
-	 * @param {String} discipline The discipline of the Psychic Power obtained
+     * @param {String} discipline The discipline of the Psychic Power obtained
      * @param {Number} level The level at which the Psychic Power was purchased
      */
     Character.prototype.add_psychic_power = function (name, discipline, level) {
@@ -149,7 +149,7 @@ define(['jquery', 'character', 'psychic_disciplines'],
      * Does the character already have a certain Psychic Power?
      * @method module:character#has_psychic_power
      * @param {String} name The name of the Psychic Power
-	 * @param {String} discipline The discipline of the Psychic Power
+     * @param {String} discipline The discipline of the Psychic Power
      * @param {Number} [level] If specified, the level by which the character
      *     must have the Psychic Power for the return value to be true.
      * @returns {Boolean}
@@ -176,7 +176,7 @@ define(['jquery', 'character', 'psychic_disciplines'],
      * Remove from the character a Psychic Power at the specified level.
      * @method module:character#remove_psychic_power
      * @param {String} name The name of the Psychic Power removed
-	 * @param {String} discipline The discipline of the Psychic Power removed
+     * @param {String} discipline The discipline of the Psychic Power removed
      * @param {Number} level The level at which the Psychic Power was removed
      */
     Character.prototype.remove_psychic_power = function (name, discipline, level) {
@@ -221,8 +221,8 @@ define(['jquery', 'character', 'psychic_disciplines'],
      * Boosts the character's Psychic Power at the specified level.
      * @method module:character#boost_psychic_power
      * @param {String} name The name of the Psychic Power boosted
-	 * @param {String} discipline The discipline of the Psychic Power boosted
-	 * @param {Number} boost The amount the Psychic Power is boosted
+     * @param {String} discipline The discipline of the Psychic Power boosted
+     * @param {Number} boost The amount the Psychic Power is boosted
      * @param {Number} level The level at which the Psychic Discipline was boosted
      */
     Character.prototype.boost_psychic_power = function (name, discipline, boost, level) {
@@ -265,8 +265,8 @@ define(['jquery', 'character', 'psychic_disciplines'],
     /**
      * Calculates the character's boost amount for a psychic power at each level.
      * @method module:character#psychic_power_boost_total
-	 * @param {String} name The name of the Psychic Power
-	 * @param {String} discipline The discipline of the Psychic Power
+     * @param {String} name The name of the Psychic Power
+     * @param {String} discipline The discipline of the Psychic Power
      * @returns {Object} An array of the character's psychic power boost total at each
      *     level.  Note that these are cumulative totals, not just the amounts
      *     gained at each level.
@@ -292,7 +292,7 @@ define(['jquery', 'character', 'psychic_disciplines'],
      /**
      * Boosts the character's Global Potential at the specified level.
      * @method module:character#boost_global_potential
-	 * @param {Number} boost The amount the Global Potential is boosted
+     * @param {Number} boost The amount the Global Potential is boosted
      * @param {Number} level The level at which the Global Potential was boosted
      */
     Character.prototype.boost_global_potential = function (boost, level) {
