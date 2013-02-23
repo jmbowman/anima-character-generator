@@ -231,7 +231,7 @@ define(['jquery', 'character', 'psychic_disciplines'],
             remaining = this.pp_remaining()[index],
             current_boost = this.psychic_power_boost_total(name, discipline)[index];
         if (boost + current_boost > 10) {
-			// exceeds boost cap of 10, do nothing
+            // exceeds boost cap of 10, do nothing
             return;
 		}
         if (remaining < boost) {
@@ -332,15 +332,15 @@ define(['jquery', 'character', 'psychic_disciplines'],
     Character.prototype.global_potential_boost_total = function () {
         var boost = 0,
             i,
-			levels = this.levels,
+            levels = this.levels,
             count = levels.length,
-			pp,
+            pp,
             result = [];
         for (i = 0; i < count; i++) {
-			pp = levels[i].PP;
-			if (pp && pp.Potential) {
+            pp = levels[i].PP;
+            if (pp && pp.Potential) {
                 boost += pp.Potential;
-			}
+            }
 			result[i] = boost;
         }
         return result;
