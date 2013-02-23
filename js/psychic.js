@@ -16,18 +16,21 @@ define(['jquery', 'character', 'classes', 'development_points'],
 function ($, Character, classes) {
 
     /**
-     * Get the character's total number of psychic points.
+     * Get the character's total number of psychic points at the specified
+     * level.
      * @method module:character#psychic_points
+     * @param {Number} [level] The level at which to get the total; if omitted,
+     *     calculates for the character's current level
      * @returns {Number}
      */
-    Character.prototype.psychic_points = function () {
+    Character.prototype.psychic_points = function (level) {
         var class_levels = {},
             cls,
             dp,
             i,
             level,
             levels = this.levels,
-            count = levels.length,
+            count = level ? level : levels.length,
             result = 1;
         for (i = 0; i < count; i++) {
             level = levels[i];
