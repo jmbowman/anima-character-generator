@@ -597,6 +597,9 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                 if (stage > 2) {
                     render.start_essential_abilities();
                 }
+                if (stage > 3) {
+                    render.start_characteristics();
+                }
             }
             if (stage > 3) {
                 load_value('STR');
@@ -675,7 +678,9 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             select = $('#Type'),
             type = select.val();
         data.Type = type;
-        data.Race = 'Other';
+        if (!data.Race) {
+            data.Race = 'Other';
+        }
         select.hide().nextAll('span.display').text(type).show();
         $('#proceed').hide();
         if (type === 'Human') {
