@@ -257,7 +257,7 @@ define(function () {
         c.Banish = 1;
         c.Vigor = 3;
         c.reduced.Occult = 1;
-        c.bonuses = {Zeon: 50,  Summon: 10, Control: 10, Bind: 10, Banish: 10, 'Magic Appraisal': 5, Occult: 5};
+        c.bonuses = {Zeon: 50,  Summon: 10, Control: 10, Bind: 10, Banish: 10, 'Magic Appraisal': 5, Occult: 10};
     }(classes.Summoner));
 
     // Tao
