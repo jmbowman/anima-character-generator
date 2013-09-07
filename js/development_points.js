@@ -858,7 +858,7 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
         for (req in requirements) {
             if (requirements.hasOwnProperty(req)) {
                 data = requirements[req];
-                if (req === 'Attack' || req === 'Block' || req === 'Dodge') {
+                if (req === 'Attack' || req === 'Block' || req === 'Dodge' || req === 'Initiative') {
                     if (this.unarmed_ability(req, arts, level) < data) {
                         return false;
                     }
