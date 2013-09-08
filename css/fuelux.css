@@ -1,3 +1,11 @@
+.combobox a {
+  font-size: 14px;
+}
+
+.span2 {
+  width: 140px;
+}
+
 .spinner input {
   float: left;
   width: 43px;

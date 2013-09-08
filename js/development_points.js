@@ -338,6 +338,7 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
             i,
             item,
             j,
+            k,
             level = this.level(),
             levels = this.levels,
             level_count = levels.length,
@@ -347,12 +348,13 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
             ml = 0,
             new_dp = 600,
             pinch_points,
+            previous_saved,
             primary,
             quarter,
             remaining,
             result,
             results = [],
-            saved = {Combat: 0, Psychic: 0, Supernatural: 0, Powers: 0, Other: 0},
+            saved,
             scores = {Attack: 0, Block: 0, Dodge: 0},
             spent,
             totals = {Attack: 0, Block: 0, Dodge: 0, DP: 0,
@@ -388,7 +390,18 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
                     result.Powers -= 100;
                     result.Total -= 100;
                 }
+                saved = {Combat: 0, Psychic: 0, Supernatural: 0, Powers: 0, Other: 0};
             }
+            else {
+                saved = {};
+                previous_saved = results[i - 1].Saved;
+                for (primary in previous_saved) {
+                    if (previous_saved.hasOwnProperty(primary)) {
+                        saved[primary] = previous_saved[primary];
+                    }
+                }
+            }
+            result.Saved = saved;
             mk += new_dp / 10;
             ml += new_dp / 10;
             result['Martial Knowledge'] = mk;
@@ -446,6 +459,9 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
                     result.Total -= spent;
                     primary = primaries.for_ability(item);
                     result[primary] -= spent;
+                    if (item.indexOf('Save ') === 0) {
+                        saved[primary] += spent;
+                    }
                     if (item in result) {
                         result[item] -= spent;
                         if (item === 'Magic Level') {
@@ -497,6 +513,10 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
                     }
                     result.Withdrawn[primary] = -remaining;
                     result[primary] = 0;
+                    for (k = 0; k <= i; k++) {
+                        saved = results[k].Saved;
+                        saved[primary] = Math.max(saved[primary] + remaining, 0);
+                    }
                 }
                 else {
                     result[primary] = Math.min(result[primary], result.Total);
@@ -508,19 +528,18 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
         for (i = 0; i < level_count; i++) {
             level_dp = levels[i].DP;
             result = results[i];
+            saved = result.Saved;
             for (j = 0; j < count; j++) {
                 primary = categories[j];
-                if ('Withdrawn' in result && primary in result.Withdrawn) {
-                    saved[primary] -= result.Withdrawn[primary];
-                }
                 item = (primary === 'Other') ? 'generic' : primary;
                 item = 'Save ' + item + ' DP for later';
-                result[item] = result[primary];
-                result[primary] += saved[primary];
-                result.Total += saved[primary];
+                previous_saved = saved[primary];
                 if (item in level_dp) {
-                    saved[primary] += level_dp[item];
+                    previous_saved -= level_dp[item];
                 }
+                result[item] = result[primary];
+                result[primary] += previous_saved;
+                result.Total += previous_saved;
             }
         }
         // Now finish calculating the limits for abilities with special rules

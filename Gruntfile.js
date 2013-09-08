@@ -6,14 +6,14 @@ module.exports = function (grunt) {
         pkg: grunt.file.readJSON('package.json'),
         clean: {
             all: ['build'],
-            css: ['build/css/spinner.min.css', 'build/css/styles.min.css']
+            css: ['build/css/fuelux.min.css', 'build/css/styles.min.css']
         },
         concat: {
             options: {
                 separator: ''
             },
             css: {
-                src: ['css/bootstrap.min.css', 'build/css/spinner.min.css', 'build/css/styles.min.css'],
+                src: ['css/bootstrap.min.css', 'build/css/fuelux.min.css', 'build/css/styles.min.css'],
                 dest: 'build/css/styles.css'
             }
         },
@@ -29,7 +29,7 @@ module.exports = function (grunt) {
                     processContent: function (content) {
                         // Adjust CSS and JS tags to use minified files
                         content = content.replace(/<link rel="stylesheet" href="css\/bootstrap\.min\.css" media="screen" \/>/, '');
-                        content = content.replace(/<link rel="stylesheet" href="css\/spinner\.css" \/>/, '');
+                        content = content.replace(/<link rel="stylesheet" href="css\/f\.css" \/>/, '');
                         content = content.replace(/styles\.css/, 'styles.css');
                         content = content.replace(/data-main="js\/main" src="js\/libs\/require\.js"/, 'src="js/main.js"');
                         return content;
@@ -46,9 +46,9 @@ module.exports = function (grunt) {
             }
         },
         cssmin: {
-            spinner: {
-                src: 'css/spinner.css',
-                dest: 'build/css/spinner.min.css'
+            fuelux: {
+                src: 'css/fuelux.css',
+                dest: 'build/css/fuelux.min.css'
             },
             styles: {
                 src: 'css/styles.css',

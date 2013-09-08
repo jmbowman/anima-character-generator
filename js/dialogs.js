@@ -14,6 +14,8 @@
  * @requires disadvantages
  * @requires essential_abilities
  * @requires ki_abilities
+ * @requires libs/combobox
+ * @requires libs/json2
  * @requires martial_arts
  * @requires modules
  * @requires powers
@@ -25,7 +27,8 @@
 define(['jquery', 'abilities', 'advantages', 'characters', 'cultural_roots',
 'disadvantages', 'essential_abilities', 'ki_abilities', 'martial_arts',
 'modules', 'powers', 'primaries', 'tables', 'widgets', 'combat',
-'creation_points', 'development_points', 'libs/json2', 'pubsub'],
+'creation_points', 'development_points', 'libs/combobox', 'libs/json2',
+'pubsub'],
 function ($, abilities, advantages, characters, cultural_roots, disadvantages,
           essential_abilities, ki_abilities, martial_arts, modules, powers,
           primaries, tables, widgets) {
@@ -112,6 +115,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
      * ability at a particular level.
      */
     ability_dp_init = function () {
+        $('#ability_specialization').combobox();
         create_dialog('ability_dp_dialog', 'Amount of DP to Spend', 400,
                       'Cancel', 'OK', function () {
             var data = characters.current(),
@@ -120,7 +124,8 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 dp = $('#ability_dp').spinner('value'),
                 level = parseInt($('#ability_level').val(), 10),
                 level_info = data.level_info(level),
-                name = $('#ability_name').text();
+                name = $('#ability_name').text(),
+                specialization = $('#ability_specialization').combobox('selectedItem').text;
             if (dp) {
                 if (characteristic) {
                     // Accumulation Multiple or Ki
@@ -131,6 +136,12 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 }
                 else {
                     level_info.DP[name] = dp / cost;
+                    if (specialization) {
+                        if (!('Specializations' in data)) {
+                            data.Specializations = {};
+                        }
+                        data.Specializations[name] = specialization;
+                    }
                 }
                 $.publish('level_data_changed');
             }
@@ -1730,13 +1741,19 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
      *     Points and Accumulation Multiples
      */
     set_ability_dp = function (name, level, available, characteristic) {
-        var data = characters.current(),
+        var ability = abilities[name],
+            count,
+            data = characters.current(),
+            dropdown,
+            i,
             level_info = data.level_info(level),
             cls = level_info.Class,
             cost = data.dp_cost(name, cls),
             max = Math.floor(available / cost) * cost,
             parent = $('#ability_dp_parent'),
             purchased = level_info.DP[name],
+            specialization,
+            specializations,
             start = max;
         if (characteristic && purchased) {
             // Accumulation Multiples and Ki Points are by characteristic
@@ -1763,6 +1780,34 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             $('#ability_save').hide();
             $('#ability_spend').show();
         }
+        // Configure the specialization selector
+        if (ability) {
+            specializations = ability.specializations;
+        }
+        if (specializations) {
+            dropdown = $('#ability_specialization .dropdown-menu');
+            dropdown.html('');
+            count = specializations.length;
+            for (i = 0; i < count; i++) {
+                dropdown.append('<li><a href="#">' + specializations[i] + '</a></li>');
+            }
+            specializations = data.Specializations;
+            if (specializations) {
+                specialization = specializations[name];
+                if (specialization) {
+                    $('#ability_specialization input').val(specialization);
+                }
+                else {
+                    $('#ability_specialization input').val('');
+                }
+            }
+            $('#specialization_label, #ability_specialization').show();
+        }
+        else {
+            $('#ability_specialization input').val('');
+            $('#specialization_label, #ability_specialization').hide();
+        }
+        // Show the dialog and recreate the spinner
         parent.html('');
         parent.append($('<div id="ability_dp" class="spinner"></div><br /><br />'));
         $('#ability_dp_dialog').modal('show');

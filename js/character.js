@@ -70,6 +70,7 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             params,
             race = this.Race,
             spec,
+            specializations,
             tot_level = this.level(),
             total = 0,
             use_of_armor = name === 'Wear Armor' && myAdvantages['Use of Armor'];
@@ -182,6 +183,15 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         if (race === 'Devah Nephilim' && $.inArray(name, ['Banish', 'Bind'])) {
             bonuses += 10;
         }
+        if (specialty) {
+            specializations = this.Specializations;
+            if (specializations) {
+                spec = specializations[name];
+                if (spec === specialty) {
+                    bonuses += 40;
+                }
+            }
+        }
         total += bonuses + this.modifier(characteristic, level);
         return total;
     };
@@ -241,6 +251,9 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         }
         if ('Insufficient Martial Knowledge' in this) {
             delete this['Insufficient Martial Knowledge'];
+        }
+        if ('Specializations' in this) {
+            delete this.Specializations;
         }
     };
 

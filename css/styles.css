@@ -39,6 +39,14 @@ a.maybe {
   max-height: none;
 }
 
+#ability_dp_dialog {
+  overflow: visible;
+}
+
+#ability_dp_dialog .modal-body {
+  overflow-y: visible;
+}
+
 #Element, #creature_class {
   width: 160px;
 }

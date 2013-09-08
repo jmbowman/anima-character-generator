@@ -189,6 +189,8 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             recovery,
             score,
             secondaries = [],
+            specialization,
+            specializations = data.Specializations,
             summoner = false,
             text,
             total_accumulation = 0,
@@ -375,6 +377,13 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                     }
                     if (score > data.modifier(ability.Characteristic)) {
                         if ('Field' in ability) {
+                            if (specializations) {
+                                specialization = specializations[name];
+                                if (specialization) {
+                                    score = '(' + specialization + ') ';
+                                    score += data.ability(name, specialization);
+                                }
+                            }
                             if (acute && ability.Characteristic === 'PER') {
                                 score += ' (' + (score + 30) + ' ' + acute + ')';
                             }
@@ -882,10 +891,11 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             primary,
             remaining_dp,
             remaining_dp_for_level,
+            remaining_mk,
             row,
             technique,
             times_five = ['Magic Level', 'Martial Knowledge', 'Zeon'],
-            remaining_mk;
+            withdrawn;
         update_int('XP');
         data.update_level();
         remaining_mk = data.mk_remaining();
@@ -1009,8 +1019,20 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                 parts.push('Class change (' + remaining_dp_for_level.Class_Change + ')');
             }
             content = parts.join(', ');
-            if ('Withdrawn' in remaining_dp_for_level) {
-                content += ' [used ' + remaining_dp_for_level.Withdrawn + ' DP saved earlier]';
+            withdrawn = remaining_dp_for_level.Withdrawn;
+            if (withdrawn) {
+                content += ' [used ';
+                j = 0;
+                for (primary in withdrawn) {
+                    if (withdrawn.hasOwnProperty(primary)) {
+                        if (j > 0) {
+                            content += ', ';
+                        }
+                        content += withdrawn[primary] + ' ' + primary;
+                        j++;
+                    }
+                }
+                content += ' DP saved earlier]';
             }
             if (remaining_dp_for_level.Total > 0) {
                 content += ' <a href="#" class="spend_dp btn-mini" data-level="' + level_number + '"><i class="icon-plus"> </i></a>';

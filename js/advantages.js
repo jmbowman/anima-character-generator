@@ -24,6 +24,7 @@ define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines',
         }), Option_Title: 'Select a subject'},
         'Aptitude for Magic Development': {Category: 'Magic', Cost: 1}, // adds +3 to INT to determine max potential no other ability
         Artifact: {Category: 'Background', Cost: [1, 2, 3], Options: [], Option_Title: 'Enter the name of the artifact'},
+        'Artifact Affinity': {Cost: 1},
         'Been Around': {Category: 'Background', Cost: [1, 2, 3]},
         'Born Wizard': {Category: 'Magic', Cost: 1},
         Charm: {Cost: 1},
