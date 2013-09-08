@@ -948,6 +948,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                 if (data.Type !== 'Human') {
                     content += ', ' + remaining_dp_for_level.Powers + ' Powers';
                 }
+                content += ', ' + remaining_dp_for_level.Other + ' Other';
                 content += ')';
                 line = $('<div>').addClass('level').html(content);
                 $('#levels').append(line);

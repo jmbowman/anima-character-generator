@@ -28,14 +28,14 @@ function ($, Character, classes) {
             cls,
             dp,
             i,
-            level,
+            level_info,
             levels = this.levels,
             count = level ? level : levels.length,
             result = 1;
         for (i = 0; i < count; i++) {
-            level = levels[i];
-            cls = level.Class;
-            dp = level.DP;
+            level_info = levels[i];
+            cls = level_info.Class;
+            dp = level_info.DP;
             if (cls in class_levels) {
                 class_levels[cls] += 1;
             }

@@ -194,7 +194,7 @@ define(['jquery', 'character', 'psychic_disciplines'],
                 level_info.PP.Disciplines[discipline].Mastered = list;
             } else {
                 delete level_info.PP.Disciplines[discipline].Mastered;
-            }	
+            }
             for (i = 0; i < count; i++) {
                 pp = levels[i].PP;
                 if (pp && pp.Disciplines && pp.Disciplines[discipline] && pp.Disciplines[discipline][name]) {

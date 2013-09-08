@@ -338,7 +338,6 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
             i,
             item,
             j,
-            k,
             level = this.level(),
             levels = this.levels,
             level_count = levels.length,
@@ -354,7 +353,6 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
             result,
             results = [],
             saved = {Combat: 0, Psychic: 0, Supernatural: 0, Powers: 0, Other: 0},
-            saved_this_level,
             scores = {Attack: 0, Block: 0, Dodge: 0},
             spent,
             totals = {Attack: 0, Block: 0, Dodge: 0, DP: 0,
@@ -362,7 +360,6 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
                       'Psychic Projection': 0, Supernatural: 0,
                       'Martial Knowledge': 0, 'Magic Level': 0};
         for (i = 0; i < level_count; i++) {
-            saved_this_level = {Combat: 0, Psychic: 0, Supernatural: 0, Powers: 0, Other: 0},
             results.push({});
             result = results[i];
             level_info = levels[i];
@@ -378,7 +375,7 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
             totals.Psychic += class_info.Psychic * new_dp / 100;
             totals.Supernatural += class_info.Supernatural * new_dp / 100;
             totals.Powers += new_dp / 2;
-            result.Total = new_dp + saved.Combat + saved.Psychic + saved.Supernatural + saved.Powers + saved.Other;
+            result.Total = new_dp;
             result.Combat = class_info.Combat * new_dp / 100;
             result.Psychic = class_info.Psychic * new_dp / 100;
             result.Supernatural = class_info.Supernatural * new_dp / 100;
@@ -396,7 +393,7 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
             ml += new_dp / 10;
             result['Martial Knowledge'] = mk;
             result['Magic Level'] = ml;
-            result.Other = new_dp + saved.Other;
+            result.Other = new_dp;
             result['Magic Projection'] = (totals.Supernatural / 2) - totals['Magic Projection'];
             result['Psychic Projection'] = (totals.Psychic / 2) - totals['Psychic Projection'];
             level_dp = level_info.DP;
@@ -449,10 +446,6 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
                     result.Total -= spent;
                     primary = primaries.for_ability(item);
                     result[primary] -= spent;
-                    if (item.indexOf('Save ') === 0) {
-                        saved[primary] += spent;
-                        saved_this_level[primary] = spent;
-                    }
                     if (item in result) {
                         result[item] -= spent;
                         if (item === 'Magic Level') {
@@ -493,42 +486,44 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
                 result.Class_Change = cost;
             }
             count = categories.length;
+            // Reconcile against total limit and previously saved DP
             for (j = 0; j < count; j++) {
                 primary = categories[j];
                 remaining = result[primary];
                 if (remaining < 0) {
-                    // used some of the saved DP
+                    // used some of the DP saved at earlier levels
                     if (!('Withdrawn' in result)) {
-                        result.Withdrawn = 0;
+                        result.Withdrawn = {};
                     }
-                    result.Withdrawn -= remaining;
-                    saved[primary] += remaining;
-                    item = (primary === 'Other') ? 'generic' : primary;
-                    item = 'Save ' + item + ' DP for later';
-                    // make the saved DP just used unavailable earlier
-                    for (k = i - 1; k >= 0; k--) {
-                        level_dp = levels[k].DP;
-                        if (item in level_dp) {
-                            remaining += level_dp[item];
-                        }
-                        if (remaining < 0) {
-                            results[k][primary] += remaining;
-                            results[k].Total += remaining;
-                        }
-                        else {
-                            break;
-                        }
-                    }
+                    result.Withdrawn[primary] = -remaining;
                     result[primary] = 0;
                 }
-                // now add in the remaining saved amount
-                result[primary] += saved[primary] - saved_this_level[primary];
-                if (result[primary] > result.Total) {
-                    // Ran out of total DP before exhausting this primary
-                    result[primary] = result.Total;
+                else {
+                    result[primary] = Math.min(result[primary], result.Total);
                 }
             }
         }
+        // Now add the remaining DP saved from earlier levels
+        count = categories.length;
+        for (i = 0; i < level_count; i++) {
+            level_dp = levels[i].DP;
+            result = results[i];
+            for (j = 0; j < count; j++) {
+                primary = categories[j];
+                if ('Withdrawn' in result && primary in result.Withdrawn) {
+                    saved[primary] -= result.Withdrawn[primary];
+                }
+                item = (primary === 'Other') ? 'generic' : primary;
+                item = 'Save ' + item + ' DP for later';
+                result[item] = result[primary];
+                result[primary] += saved[primary];
+                result.Total += saved[primary];
+                if (item in level_dp) {
+                    saved[primary] += level_dp[item];
+                }
+            }
+        }
+        // Now finish calculating the limits for abilities with special rules
         pinch_points = {Attack: result.Attack, Block: result.Block,
                         Dodge: result.Dodge,
                         'Magic Projection': result['Magic Projection'],
