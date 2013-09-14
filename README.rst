@@ -60,7 +60,6 @@ These are the main things left to be implemented that I'm aware of:
 
 * Allocation of Magic Level to Paths, spells, and Metamagic Advantages
 * Allocation of Psychic Points
-* Specializations in Secondary Abilites (partially implemented)
 * Creature Powers (about half implemented, but not yet in the UI)
 * Current Elan level and its effect on abilities
 * Mental Patterns (from Arcana Exxet)

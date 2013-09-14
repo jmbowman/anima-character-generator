@@ -29,17 +29,17 @@ module.exports = function (grunt) {
                     processContent: function (content) {
                         // Adjust CSS and JS tags to use minified files
                         content = content.replace(/<link rel="stylesheet" href="css\/bootstrap\.min\.css" media="screen" \/>/, '');
-                        content = content.replace(/<link rel="stylesheet" href="css\/f\.css" \/>/, '');
+                        content = content.replace(/<link rel="stylesheet" href="css\/fuelux\.css" \/>/, '');
                         content = content.replace(/styles\.css/, 'styles.css');
                         content = content.replace(/data-main="js\/main" src="js\/libs\/require\.js"/, 'src="js/main.js"');
                         return content;
                     }
                 }
             },
-            images: {
+            fonts: {
                 files: [
                     {
-                        src: ['img/*.png'],
+                        src: ['fonts/glyphicons-*.*'],
                         dest: 'build/'
                     }
                 ]

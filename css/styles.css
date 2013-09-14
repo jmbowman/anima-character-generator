@@ -1,23 +1,18 @@
-.container label {
-  line-height: 30px;
-}
-
-span.display {
-  line-height: 30px;
-}
-
 ul.inline > li {
   padding-left: 0px;
   padding-right: 10px;
 }
 
-.ki-table {
+.ki-table .table {
   margin-bottom: 5px;
-  width: auto;
 }
 
 .ki-table th, td[class*="Accumulation_"], td[class*="Ki_"] {
   text-align: right;
+}
+
+.ki-table .table-condensed thead > tr > th {
+  padding-top: 0px;
 }
 
 a.disabled {
@@ -35,18 +30,32 @@ a.maybe {
   border-bottom: 1px solid white;
 }
 
-.modal-body {
-  max-height: none;
+#advantages_dialog .modal-dialog,
+#disadvantages_dialog .modal-dialog,
+#dp_dialog .modal-dialog,
+#ea_advantages_dialog .modal-dialog,
+#mk_dialog .modal-dialog,
+#natural_bonus_dialog .modal-dialog {
+  width: auto;
 }
 
-#ability_dp_dialog {
-  overflow: visible;
+#Common_Advantages, #Common_Disadvantages, #Nemesis_Abilities {
+  -moz-column-gap: 25px;
+  -moz-column-width: 250px;
+  -webkit-column-gap: 25px;
+  -webkit-column-width: 250px;
 }
 
-#ability_dp_dialog .modal-body {
-  overflow-y: visible;
+#EA_Common_Advantages {
+  -moz-column-gap: 25px;
+  -moz-column-width: 440px;
+  -webkit-column-gap: 25px;
+  -webkit-column-width: 440px;
 }
 
-#Element, #creature_class {
-  width: 160px;
+#Ki_Abilities {
+  -moz-column-gap: 25px;
+  -moz-column-width: 270px;
+  -webkit-column-gap: 25px;
+  -webkit-column-width: 270px;
 }

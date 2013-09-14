@@ -2,19 +2,15 @@
   font-size: 14px;
 }
 
-.span2 {
-  width: 140px;
-}
-
 .spinner input {
   float: left;
-  width: 43px;
+  width: 61px;
 }
 
 .spinner .btn {
   position: relative;
-  width: 20px;
-  height: 14px;
+  width: 21px;
+  height: 18px;
   padding-top: 0;
   padding-right: 9px;
   padding-left: 9px;
@@ -26,29 +22,28 @@
 
 .spinner .spinner-buttons {
   position: relative;
-  left: -22px;
+  left: -20px;
   float: left;
   width: 20px;
   height: 28px;
 }
 
 .spinner .spinner-up {
-  top: 2px;
   padding: 0 0 4px 1px;
 }
 
 .spinner .spinner-up i {
   position: relative;
-  top: -4px;
+  top: -1px;
 }
 
 .spinner .spinner-down {
-  top: 2px;
-  height: 13px;
+  height: 17px;
   padding: 0 0 4px 1px;
 }
 
 .spinner .spinner-down i {
   position: relative;
-  top: -5px;
+  left: -1px;
+  top: -1px;
 }

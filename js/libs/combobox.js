@@ -28,14 +28,10 @@ define(['require', 'jquery', 'libs/util'], function (require, $) {
 
 		selectedItem: function () {
 			var item = this.$selectedItem;
-			var data = {};
+			var data = {text: this.$input.val()};
 
 			if (item) {
-				var txt = this.$selectedItem.text();
-				data = $.extend({ text: txt }, this.$selectedItem.data());
-			}
-			else {
-				data = { text: this.$input.val()};
+				data = $.extend(data, item.data());
 			}
 
 			return data;

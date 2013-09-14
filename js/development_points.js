@@ -60,6 +60,9 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
             if (name in first_level_dp) {
                 first_level_dp[name] += 1;
             }
+            else {
+                first_level_dp[name] = 1;
+            }
         }
         else if (option) {
             first_level_dp[name] = option;

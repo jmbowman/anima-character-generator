@@ -246,11 +246,23 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
         this.Race = '';
         this.XP = 0;
         this.levels = [{Class: 'Freelancer', DP: {}}];
+        if ('Created' in this) {
+            delete this.Created;
+        }
+        if ('Element' in this) {
+            delete this.Element;
+        }
         if ('First Martial Art' in this) {
             delete this['First Martial Art'];
         }
+        if ('Gnosis' in this) {
+            delete this.Gnosis;
+        }
         if ('Insufficient Martial Knowledge' in this) {
             delete this['Insufficient Martial Knowledge'];
+        }
+        if ('Racial Level' in this) {
+            delete this['Racial Level'];
         }
         if ('Specializations' in this) {
             delete this.Specializations;
@@ -838,6 +850,32 @@ cultural_roots, disciplines, essential_abilities, tables, utils) {
             total += unnatural_size;
         }
         return total;
+    };
+
+    /**
+     * Get the name of the character's Size category
+     */
+    Character.prototype.size_category = function () {
+        var size = this.size();
+        if (size <= 3) {
+            return 'Miniscule';
+        }
+        if (size <= 8) {
+            return 'Small';
+        }
+        if (size <= 22) {
+            return 'Medium';
+        }
+        if (size <= 24) {
+            return 'Big';
+        }
+        if (size <= 28) {
+            return 'Enormous';
+        }
+        if (size <= 33) {
+            return 'Giant';
+        }
+        return 'Colossal';
     };
 
     /**

@@ -147,7 +147,12 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             return;
         }
         characters.current()[name] = value;
-        input.nextAll('span.display').text(value);
+        if (name === 'XP') {
+            input.nextAll('.form-control-static').find('span').text(value);
+        }
+        else {
+            input.nextAll('.display').text(value);
+        }
     };
 
     /**
@@ -213,7 +218,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         $('.WP', root).text(data.characteristic('WP'));
         $('.PER', root).text(data.characteristic('PER'));
         $('.Appearance', root).text(data.appearance());
-        $('.Size', root).text(data.size());
+        $('.Size', root).text(data.size() + ' ' + data.size_category());
         $('.MV', root).text(data.movement_value());
         $('.Regeneration', root).text(data.regeneration());
         $('.PhR', root).text(data.resistance('PhR'));
@@ -326,7 +331,18 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             ability_list[i] += ' (' + data.ki_detection() + ')';
         }
         $('.Ki-Abilities', root).text(ability_list.join(', '));
-        $('.ki-abilities-row', root).toggle(ability_list.length > 0);
+        $.each(['STR', 'DEX', 'AGI', 'CON', 'POW', 'WP'], function (index, characteristic) {
+            i = data.ki_accumulation(characteristic);
+            total_accumulation += i;
+            j = data.ki_points(characteristic);
+            total_ki += j;
+            $('.Accumulation_' + characteristic, root).text(i);
+            $('.Ki_' + characteristic, root).text(j);
+        });
+        $('.Accumulation_Total', root).text(total_accumulation);
+        $('.Ki_Total', root).text(total_ki);
+        $('.ki-abilities', root).toggle(ability_list.length > 0);
+        $('.ki-table', root).toggle(ability_list.length > 0);
         trees = data.dominion_techniques();
         keys = Object.keys(trees);
         keys.sort();
@@ -350,17 +366,6 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         }
         $('.Dominion-Techniques', root).text(text);
         $('.dominion-techniques-row', root).toggle(text.length > 0);
-        $.each(['STR', 'DEX', 'AGI', 'CON', 'POW', 'WP'], function (index, characteristic) {
-            i = data.ki_accumulation(characteristic);
-            total_accumulation += i;
-            j = data.ki_points(characteristic);
-            total_ki += j;
-            $('.Accumulation_' + characteristic, root).text(i);
-            $('.Ki_' + characteristic, root).text(j);
-        });
-        $('.Accumulation_Total', root).text(total_accumulation);
-        $('.Ki_Total', root).text(total_ki);
-        $('.ki-table', root).toggle(ability_list.length > 0);
         for (primary in primaries) {
             if (primaries.hasOwnProperty(primary)) {
                 ability_list = primaries[primary];
@@ -581,8 +586,8 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         var data = characters.current(),
             first_class = data.levels[0].Class,
             stage = data.creation_stage();
-        $('input.characteristic, #Appearance, #XP').show().nextAll('span.display').hide();
-        $('#Physical, #Spiritual, #Gender, #Race, #first_class').show().nextAll('span.display').hide();
+        $('input.characteristic, #Appearance, #XP').show().nextAll('.display').hide();
+        $('#Physical, #Spiritual, #Gender, #Race, #first_class').show().nextAll('.display').hide();
         $('#add_xp').hide();
         $('#proceed').show();
         $('#choose_essential_abilities').show();
@@ -590,6 +595,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         $('#choose_advantages').show().attr('disabled', 'disabled');
         $('#choose_abilities').show().attr('disabled', 'disabled');
         $('#attributes').hide();
+        $('#essential_abilities').hide();
         $('#characteristics').hide();
         $('#advantages').hide();
         $('#levels').hide();
@@ -690,29 +696,29 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         if (!data.Race) {
             data.Race = 'Other';
         }
-        select.hide().nextAll('span.display').text(type).show();
+        select.hide().nextAll('.display').text(type).show();
         $('#proceed').hide();
         if (type === 'Human') {
-            select.nextAll('span.display').text('Human or Nephilim');
+            select.nextAll('.display').text('Human or Nephilim');
             return render.start_characteristics();
         }
         $('#attributes').show();
         $('#choose_essential_abilities').show();
-        $('#Created, #creature_class').show().nextAll('span.display').hide();
+        $('#Created, #creature_class').show().nextAll('.display').hide();
         if (data.element_allowed()) {
             $('#Element_label').show();
-            $('#Element').show().nextAll('span.display').hide();
+            $('#Element').show().nextAll('.display').hide();
         }
         else {
             $('#Element_label').hide();
-            $('#Element').hide().nextAll('span.display').hide();
+            $('#Element').hide().nextAll('.display').hide();
         }
         if (!$('#Gnosis').find('.spinner-buttons').length) {
             create_spinner('#Gnosis', {min: 0, max: 50, step: 5, value: 10});
             create_spinner('#creature_level', {min: 0, max: 16, value: 0});
         }
         else {
-            $('#Gnosis, #creature_level').show().nextAll('span.display').hide();
+            $('#Gnosis, #creature_level').show().nextAll('.display').hide();
         }
         if (type !== 'Human' && type !== 'Natural') {
             $('#Gnosis').spinner('min', 10);
@@ -735,13 +741,13 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             value = select.val(),
             xp;
         data.Created = (value === 'Yes');
-        select.hide().nextAll('span.display').text(value).show();
+        select.hide().nextAll('.display').text(value).show();
         select = $('#Damage_Resistance');
         value = select.val();
         if (value === 'Yes') {
             data['Damage Resistance'] = true;
         }
-        select.hide().nextAll('span.display').text(value).show();
+        select.hide().nextAll('.display').text(value).show();
         if (data.element_allowed()) {
             update_text('Element');
             select = $('#Element');
@@ -749,14 +755,14 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             if (!value) {
                 value = 'None';
             }
-            select.hide().nextAll('span.display').text(value).show();
+            select.hide().nextAll('.display').text(value).show();
         }
         update_int('Gnosis');
-        $('#Gnosis').hide().nextAll('span.display').show();
+        $('#Gnosis').hide().nextAll('.display').show();
         select = $('#creature_class');
         value = select.val();
         $('#first_class').val(value);
-        select.hide().nextAll('span.display').text(value).show();
+        select.hide().nextAll('.display').text(value).show();
         select = $('#creature_level');
         value = select.spinner('value');
         data['Racial Level'] = value;
@@ -764,7 +770,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         if (xp > data.XP) {
             data.XP = xp;
         }
-        select.hide().nextAll('span.display').text(value).show();
+        select.hide().nextAll('.display').text(value).show();
         $('#choose_essential_abilities').hide();
         render.update_essential_abilities();
         $('#essential_abilities, #ea_dp, #choose_characteristics').show();
@@ -789,14 +795,22 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             create_spinner('#Appearance', {min: 1, max: 10, value: 5});
             create_spinner('#XP', {min: -100, max: 9999, value: 0});
             $('div.characteristic, #Appearance, #XP').on('changed', render.update_basics);
-            $('div.characteristic, #Appearance, #Gender, #Race, #first_class, #XP').nextAll('span.display').hide();
-            $('#main_form').validate();
+            $('div.characteristic, #Appearance, #Gender, #Race, #first_class, #XP').nextAll('.display').hide();
+            $('#main_form').validate({
+                errorClass: 'has-error',
+                highlight: function (element, errorClass) {
+                    $(element).parents('.form-group').addClass(errorClass);
+                },
+                unhighlight: function (element, errorClass) {
+                    $(element).parents('.form-group').removeClass(errorClass);
+                }
+            });
             $('#Gender, #Race, #first_class').change(function () { $(this).blur(); render.update_basics(); });
             $('#Name').change(render.update_name);
         }
         else {
-            $('div.characteristic, #Appearance, #XP').show().nextAll('span.display').hide();
-            $('#Gender, #Race, #first_class').show().nextAll('span.display').hide();
+            $('div.characteristic, #Appearance, #XP').show().nextAll('.display').hide();
+            $('#Gender, #Race, #first_class').show().nextAll('.display').hide();
         }
         set_characteristics_limits(data, 'Physical');
         set_characteristics_limits(data, 'Spiritual');
@@ -831,9 +845,9 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             $('#Gender, #Race, #first_class').each(function () {
                 var select = $(this),
                     value = select.val();
-                select.hide().nextAll('span.display').text(value).show();
+                select.hide().nextAll('.display').text(value).show();
             });
-            $('div.characteristic, #Appearance, #XP').hide().nextAll('span.display').show();
+            $('div.characteristic, #Appearance, #XP').hide().nextAll('.display').show();
             if (characters.current().Type !== 'Human') {
                 return render.start_abilities();
             }
@@ -887,12 +901,13 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             mk,
             name,
             nb,
+            panel,
+            panel_body,
             parts,
             primary,
             remaining_dp,
             remaining_dp_for_level,
             remaining_mk,
-            row,
             technique,
             times_five = ['Magic Level', 'Martial Knowledge', 'Zeon'],
             withdrawn;
@@ -912,9 +927,10 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         for (i = 0; i < level_count; i++) {
             level = levels[i];
             remaining_dp_for_level = remaining_dp[i];
-            $('#levels').append($('<hr class="level" />'));
+            //$('#levels').append($('<hr class="level" />'));
+            panel = $('<div class="panel panel-default level"></div>');
             level_number = current_level === 0 ? 0 : i + 1;
-            content = 'Level ' + level_number + ' (';
+            content = '<strong>Level ' + level_number + '</strong> (';
             if (data.class_change_possible(level_number)) {
                 content += '<a href="#" class="edit_class" data-level="' + level_number + '">' + level.Class + '</a>):';
             }
@@ -936,8 +952,9 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             if (typeof amount === 'number') {
                 content += ' <a href="#" class="mp_imbalance" data-level="' + level_number + '">Magic Projection Imbalance: ' + amount + '</a>';
             }
-            line = $('<div>').addClass('level').html(content);
-            $('#levels').append(line);
+            line = $('<div class="panel-heading"></div>').html(content);
+            panel.append(line);
+            panel_body = $('<div class="panel-body row"></div>');
             if (level.Class === 'Freelancer') {
                 freelancer = level.Freelancer || [];
                 content = 'Freelancer Bonuses:';
@@ -948,10 +965,10 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                 }
                 content += parts.join(',');
                 if (count < 5) {
-                    content += ' <a href="#" class="freelancer_bonus btn-mini" data-level="' + level_number + '"><i class="icon-plus"> </i></a>';
+                    content += ' <a href="#" class="freelancer_bonus btn-xs" data-level="' + level_number + '"><i class="glyphicon glyphicon-plus"> </i></a>';
                 }
-                line = $('<div>').addClass('level').html(content);
-                $('#levels').append(line);
+                line = $('<div class="col-xs-12"></div>').html(content);
+                panel_body.append(line);
             }
             if (remaining_dp_for_level.Total > 0) {
                 content = remaining_dp_for_level.Total + ' DP remaining (Limits: ' + remaining_dp_for_level.Combat + ' Combat, ' + remaining_dp_for_level.Psychic + ' Psychic, ' + remaining_dp_for_level.Supernatural + ' Supernatural';
@@ -960,11 +977,10 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                 }
                 content += ', ' + remaining_dp_for_level.Other + ' Other';
                 content += ')';
-                line = $('<div>').addClass('level').html(content);
-                $('#levels').append(line);
+                line = $('<div class="col-xs-12"></div>').html(content);
+                panel_body.append(line);
             }
-            row = $('<div class="row level"></div>');
-            row.append('<div class="span1"><strong>DP</strong></div>');
+            panel_body.append('<div class="col-xs-1"><strong>DP</strong></div>');
             parts = [];
             dp = level.DP;
             for (name in dp) {
@@ -1035,19 +1051,19 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                 content += ' DP saved earlier]';
             }
             if (remaining_dp_for_level.Total > 0) {
-                content += ' <a href="#" class="spend_dp btn-mini" data-level="' + level_number + '"><i class="icon-plus"> </i></a>';
+                content += ' <a href="#" class="spend_dp btn-xs" data-level="' + level_number + '"><i class="glyphicon glyphicon-plus"> </i></a>';
             }
-            line = $('<div class="span6">' + content + '</div>');
-            row.append(line);
-            $('#levels').append(row);
+            line = $('<div class="col-xs-11">' + content + '</div>');
+            panel_body.append(line);
             available = remaining_mk[i];
             if (available > 0) {
+                panel_body.append('<div class="clearfix"></div>');
                 content = available + ' MK spendable at this level';
-                line = $('<div>').addClass('level').html(content);
-                $('#levels').append(line);
+                line = $('<div class="col-xs-12">').html(content);
+                panel_body.append(line);
             }
-            row = $('<div class="row level"></div>');
-            row.append('<div class="span1"><strong>MK</strong></div>');
+            panel_body.append('<div class="clearfix"></div>');
+            panel_body.append('<div class="col-xs-1"><strong>MK</strong></div>');
             parts = [];
             mk = level.MK;
             for (name in mk) {
@@ -1089,11 +1105,12 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
             }
             content = parts.join(', ');
             if (available >= 0 && !imk) {
-                content += ' <a href="#" class="spend_mk btn-mini" data-level="' + level_number + '"><i class="icon-plus"> </i></a>';
+                content += ' <a href="#" class="spend_mk btn-xs" data-level="' + level_number + '"><i class="glyphicon glyphicon-plus"> </i></a>';
             }
-            line = $('<div class="span6">' + content + '</div>');
-            row.append(line);
-            $('#levels').append(row);
+            line = $('<div class="col-xs-11">' + content + '</div>');
+            panel_body.append(line);
+            panel.append(panel_body);
+            $('#levels').append(panel);
         }
         render.render($('.container'));
     };
