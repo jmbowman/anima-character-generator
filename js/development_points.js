@@ -30,7 +30,9 @@
  * @see module:character#has_martial_art
  * @see module:character#has_module
  * @see module:character#martial_art_allowed
+ * @see module:character#power_allowed
  * @see module:character#power_parameters
+ * @see module:character#power_upgrade_cost
  * @see module:character#remove_martial_art
  */
 define(['jquery', 'abilities', 'character', 'classes', 'essential_abilities',
@@ -338,6 +340,7 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
             defense,
             degrees,
             entry,
+            gnosis = this.Gnosis || 0,
             i,
             item,
             j,
@@ -354,6 +357,7 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
             previous_saved,
             primary,
             quarter,
+            racial_level = this['Racial Level'] || 0,
             remaining,
             result,
             results = [],
@@ -364,6 +368,7 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
                       'Magic Projection': 0, Powers: 0, Psychic: 0,
                       'Psychic Projection': 0, Supernatural: 0,
                       'Martial Knowledge': 0, 'Magic Level': 0};
+        categories.push('Powers');
         for (i = 0; i < level_count; i++) {
             results.push({});
             result = results[i];
@@ -379,12 +384,17 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
             totals.DP += new_dp;
             totals.Psychic += class_info.Psychic * new_dp / 100;
             totals.Supernatural += class_info.Supernatural * new_dp / 100;
-            totals.Powers += new_dp / 2;
             result.Total = new_dp;
             result.Combat = class_info.Combat * new_dp / 100;
             result.Psychic = class_info.Psychic * new_dp / 100;
             result.Supernatural = class_info.Supernatural * new_dp / 100;
-            result.Powers = new_dp / 2;
+            if (i === 0 || i < racial_level || gnosis >= 25) {
+                totals.Powers += new_dp / 2;
+                result.Powers = new_dp / 2;
+            }
+            else {
+                result.Powers = 0;
+            }
             if (i === 0) {
                 j = this.bonus_dp_from_gnosis();
                 result.Powers += j;
@@ -423,6 +433,9 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
                             cost += this.dp_cost(item, class_name, degrees[j]);
                         }
                         spent = cost;
+                    }
+                    else if (item in powers) {
+                        spent = powers[item].Options[0].DP;
                     }
                     else {
                         cost = this.dp_cost(item, class_name);
@@ -961,12 +974,32 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
     };
 
     /**
+     * Find the index of the entry in the provided array of creature Power
+     * options which has the specified description.
+     * @method module:character#power_option_index
+     * @param {Array} options An array of Creature power options
+     * @param {String} description The description of one of the options
+     * @returns {Number} The index of the desired option in the array, or -1 if
+     *     not found
+     */
+    Character.prototype.power_option_index = function (options, description) {
+        var count = options.length,
+            i;
+        for (i = 0; i < count; i++) {
+            if (options[i].Description === description) {
+                return i;
+            }
+        }
+        return -1;
+    };
+
+    /**
      * Determine if the character has a specific type of creature power, and if
      * so return its current parameters.
      * @method module:character#power_parameters
      * @param {String} type The type of power to look for (Natural Weapons,
      *     etc.)
-     * @returns {Boolean} An array of power parameter objects (evaluates to
+     * @returns {Array} An array of power parameter objects (evaluates to
      *     false if the power has never been taken).  If a power has been
      *     upgraded over time, its current parameters are returned.
      */
@@ -990,6 +1023,50 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
             }
         }
         return result;
+    };
+
+    /**
+     * Determine the minimum DP cost to acquire or upgrade the specified power
+     * at a given level.
+     * @param {String} type The type of power to acquire or upgrade (Natural
+     *     Weapons, etc.)
+     * @param {Number} level The level at which the power is to be upgraded
+     * @returns {Number} The DP cost to upgrade the power, or 0 if it is not
+     *     possible at the specified level (note that some powers are
+     *     disadvantages which yield DP)
+     */
+    Character.prototype.power_upgrade_cost = function (type, level) {
+        var cost = 0,
+            gnosis = this.Gnosis,
+            index = 0,
+            power = powers[type],
+            options = power.Options,
+            //penalties = power.Penalties,
+            //penalty,
+            //reduction = 0,
+            taken,
+            taken_options;
+        if (this.Type === 'Human or Nephilim') {
+            // Not a creature, so no creature Powers
+            return 0;
+        }
+        if (level > this['Racial Level'] && gnosis < 25) {
+            // Unable to choose powers beyond those standard for species
+            return 0;
+        }
+        taken = this.power_parameters(type);
+        if ($.isArray(options)) {
+            if (taken.length) {
+                taken_options = taken[taken.length - 1].Options;
+                index = options.indexOf() + 1;
+                if (index >= options.length) {
+                    // already maxed it out
+                    return 0;
+                }
+            }
+            cost = options[index].DP;
+        }
+        return cost;
     };
 
     /**
@@ -1030,6 +1107,34 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
         }
         else {
             degrees.splice($.inArray(degree, degrees), 1);
+        }
+    };
+
+    /**
+     * Get the amount of DP spent on a particular type of creature Power
+     * (optionally at a particular level).
+     * @param {String} type The Power type
+     * @param {Number} level The level for which to calculate the spent DP
+     * @returns {Number} The number of DP spent
+     */
+    Character.prototype.spent_on_power = function (type, level) {
+        var params = this.power_parameters(type),
+            power = powers[type],
+            option,
+            options = power.Options;
+        if (!params.length) {
+            // Haven't spent anything on it...
+            return 0;
+        }
+        if ($.isArray(options)) {
+            if (options.length === 1) {
+                if (!level || type in this.level_info(level).DP) {
+                    return options[0].DP;
+                }
+                else {
+                    return 0;
+                }
+            }
         }
     };
 

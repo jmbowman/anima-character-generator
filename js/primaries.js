@@ -10,8 +10,8 @@
  * @requires libs/utils
  */
 define(['jquery', 'abilities', 'essential_abilities', 'martial_arts',
-    'modules', 'libs/utils'],
-    function ($, abilities, essential_abilities, martial_arts, modules) {
+    'modules', 'powers', 'libs/utils'],
+    function ($, abilities, essential_abilities, martial_arts, modules, powers) {
 
     /**
      * Repository of information about Primary Abilties and their category
@@ -115,6 +115,11 @@ define(['jquery', 'abilities', 'essential_abilities', 'martial_arts',
         for (name in modules) {
             if (modules.hasOwnProperty(name)) {
                 this.reverse_lookup_cache[name] = modules[name].Primary;
+            }
+        }
+        for (name in powers) {
+            if (powers.hasOwnProperty(name)) {
+                this.reverse_lookup_cache[name] = 'Powers';
             }
         }
     };

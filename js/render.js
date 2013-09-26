@@ -22,11 +22,11 @@
  * @requires widgets
  */
 define(['jquery', 'abilities', 'characters', 'essential_abilities',
-'ki_abilities', 'martial_arts', 'modules', 'primaries', 'tables', 'widgets',
-'armor', 'creation_points', 'development_points', 'magic', 'martial_knowledge',
-'movement', 'psychic', 'resistances'],
+'ki_abilities', 'martial_arts', 'modules', 'powers', 'primaries', 'tables',
+'widgets', 'armor', 'creation_points', 'development_points', 'magic',
+'martial_knowledge', 'movement', 'psychic', 'resistances'],
 function ($, abilities, characters, essential_abilities, ki_abilities,
-          martial_arts, modules, primaries, tables, widgets) {
+          martial_arts, modules, powers, primaries, tables, widgets) {
     
     var create_spinner = widgets.create_spinner,
         load_value,
@@ -1008,6 +1008,12 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                                 parts.push('<a href="#" class="ability" data-available="' + available + '" data-level="' + level_number + '" data-characteristic="' + characteristic + '">' + line + '</a>');
                             }
                         }
+                        continue;
+                    }
+                    else if (name in powers) {
+                        available = remaining_dp_for_level.Powers;
+                        line = '<span class="type">' + name + '</span>';
+                        parts.push('<a href="#" class="power" data-available="' + available + '" data-level="' + level_number + '">' + line + '</a>');
                         continue;
                     }
                     else {

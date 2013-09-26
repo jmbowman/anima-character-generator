@@ -9,7 +9,7 @@ define([], function () {
         'Natural Weapons': {
             Category: 'Offensive Abilities',
             Options: [
-                {Effect: 'Natural Weapons', DP: 20, Gnosis: 0}
+                {Description: 'Natural Weapons', DP: 20, Gnosis: 0}
             ]
         },
         'Additional Attacks': {

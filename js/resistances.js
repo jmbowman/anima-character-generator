@@ -4,12 +4,13 @@
  * @module resistances
  * @requires jquery
  * @requires character
+ * @requires development_points
  * @requires tables
  * @requires martial_knowledge
  * @see module:character#resistance
  * @see module:character#resistance_modifiers
  */
-define(['jquery', 'character', 'tables', 'martial_knowledge'],
+define(['jquery', 'character', 'tables', 'development_points', 'martial_knowledge'],
 function ($, Character, tables) {
 
     /**
@@ -22,7 +23,9 @@ function ($, Character, tables) {
         var gender,
             myAdvantages = this.Advantages,
             myDisadvantages = this.Disadvantages,
+            penalty,
             points,
+            power,
             total = this.presence() + this.modifier(tables.resistances[name]);
         switch (this.Race) {
         case 'Devah Nephilim':
@@ -81,9 +84,25 @@ function ($, Character, tables) {
         else if (name === 'PsR' && (points = myAdvantages['Exceptional Psychic Resistance'])) {
             total += points * 25;
         }
-        else if ($.inArray(name, ['DR', 'PhR', 'VR']) !== -1 &&
-                 (points = myAdvantages['Exceptional Physical Resistance'])) {
-            total += points * 25;
+        else if ($.inArray(name, ['DR', 'PhR', 'VR']) !== -1) {
+            points = myAdvantages['Exceptional Physical Resistance'];
+            if (points) {
+                total += points * 25;
+            }
+            power = this.power_parameters('Increased Physical Resistance');
+            if (power.length) {
+                power = power[power.length - 1];
+                penalty = power.Penalties;
+                if (!penalty || penalty === name) {
+                    total += power.Options.slice(1, 3) * 1;
+                }
+            }
+        }
+        if (name === 'MR' || name === 'PsR') {
+            power = this.power_parameters('Mystical & Psychic Resistance');
+            if (power) {
+                power = power[power.length - 1];
+            }
         }
         if (this.has_ki_ability('Body of Emptiness')) {
             total += 20;

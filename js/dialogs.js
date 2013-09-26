@@ -16,6 +16,7 @@
  * @requires ki_abilities
  * @requires libs/combobox
  * @requires libs/json2
+ * @requires libs/utils
  * @requires martial_arts
  * @requires modules
  * @requires powers
@@ -28,7 +29,7 @@ define(['jquery', 'abilities', 'advantages', 'characters', 'cultural_roots',
 'disadvantages', 'essential_abilities', 'ki_abilities', 'martial_arts',
 'modules', 'powers', 'primaries', 'tables', 'widgets', 'combat',
 'creation_points', 'development_points', 'libs/combobox', 'libs/json2',
-'pubsub'],
+'libs/utils', 'pubsub'],
 function ($, abilities, advantages, characters, cultural_roots, disadvantages,
           essential_abilities, ki_abilities, martial_arts, modules, powers,
           primaries, tables, widgets) {
@@ -54,6 +55,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         configure_disadvantage,
         configure_essential_ability,
         configure_ki_ability,
+        configure_power,
         create_dialog = widgets.create_dialog,
         create_spinner = widgets.create_spinner,
         cultural_roots_init,
@@ -71,6 +73,8 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         delete_martial_art_init,
         delete_module,
         delete_module_init,
+        delete_power,
+        delete_power_init,
         dialogs = {},
         disadvantage_benefit_init,
         disadvantage_option_init,
@@ -699,6 +703,44 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
     };
 
     /**
+     * Process a click on a link representing a creature power, from either the
+     * DP spending options dialog or the list of powers the character has
+     * already chosen.
+     * @returns {Boolean} Always false, to stop URL change from link click
+     */
+    configure_power = function () {
+        var data = characters.current(),
+            link = $(this),
+            //available = parseInt(link.data('available'), 10),
+            level = parseInt(link.data('level'), 10),
+            name = link.data('name') || '',
+            type = link.find('.type').text(),
+            power = powers[type],
+            options = power.Options,
+            penalties = power.Penalties,
+            taken = data.power_parameters(type);
+        $('#dp_dialog').modal('hide');
+        // Are there even any choices to make?
+        if ($.isArray(options) && options.length === 1 && !penalties) {
+            if (taken.length) {
+                // Clicked on a taken Power, ask if they want to delete it
+                return delete_power(type, level);
+            }
+            else {
+                // Just clicked on the power to take it
+                data.add_power(type, level, {Options: options[0]});
+            }
+            $.publish('level_data_changed');
+            return false;
+        }
+        $('#power_options_level').val(level);
+        $('#power_options_name').val(name);
+        $('#power_options_type').val(type);
+        // configure option widgets
+        $('#power_options_dialog').modal('show');
+    };
+
+    /**
      * Initialize the Cultural Roots advantage configuration dialog.
      */
     cultural_roots_init = function () {
@@ -938,10 +980,36 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
     /**
      * Confirm that the user meant to remove a Module by clicking on it.
      */
-    delete_module = function (name, level) {
+    delete_power = function (name, level) {
         $('#delete_module_level').val(level);
         $('#delete_module_name').val(name);
         $('#delete_module_dialog').modal('show');
+        return false;
+    };
+
+    /**
+     * Initialize the Power deletion confirmation dialog.
+     */
+    delete_power_init = function () {
+        create_dialog('delete_power_dialog', 'Remove this Power?', 'No',
+                      'Yes', function () {
+            var data = characters.current(),
+                level = $('#delete_power_level').val(),
+                name = $('#delete_power_name').val();
+            delete data.level_info(level).DP[name];
+            $.publish('level_data_changed');
+            $('#delete_power_dialog').modal('hide');
+            return false;
+        });
+    };
+
+    /**
+     * Confirm that the user meant to remove a simple Power by clicking on it.
+     */
+    delete_power = function (name, level) {
+        $('#delete_power_level').val(level);
+        $('#delete_power_name').val(name);
+        $('#delete_power_dialog').modal('show');
         return false;
     };
 
@@ -1070,7 +1138,9 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             i,
             module,
             name,
+            names = Object.keys(powers).sort(),
             parts,
+            power,
             primary;
         for (name in primaries) {
             if (primaries.hasOwnProperty(name)) {
@@ -1111,6 +1181,14 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                 $('#' + primary).append(parts.join(''));
                 i++;
             }
+        }
+        count = names.length;
+        for (i = 0; i < count; i++) {
+            name = names[i];
+            power = powers[name];
+            parts = ['<a href="#" class="power"><span class="type">', name,
+                     '</span></a> (<span class="cost"></span>)<br />'];
+            $('#Powers').append(parts.join(''));
         }
         create_dialog('dp_dialog', 'Spend DP on...', 'Cancel');
     };
@@ -1845,6 +1923,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             names,
             new_ma_allowed = data.new_martial_art_allowed(level),
             parts,
+            power,
             primary,
             type;
         $('#Other a:contains("Life Point") .name').text(dr ? 'Life Points' : 'Life Point Multiple');
@@ -1945,6 +2024,23 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
                             link.removeClass('disabled');
                         }
                     }
+                }
+            }
+        }
+        for (name in powers) {
+            if (powers.hasOwnProperty(name)) {
+                power = powers[name];
+                available = limits.Powers;
+                link = $('#dp_tabs a:contains("' + name + '")');
+                cost = data.power_upgrade_cost(name, level);
+                link.next('.cost').text(cost === 0 ? 'N/A' : cost);
+                link.data('available', available);
+                link.data('level', level);
+                if (cost === 0 || cost > available) {
+                    link.addClass('disabled');
+                }
+                else {
+                    link.removeClass('disabled');
                 }
             }
         }
@@ -2085,6 +2181,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         delete_ki_ability_init();
         delete_martial_art_init();
         delete_module_init();
+        delete_power_init();
         disadvantage_benefit_init();
         disadvantage_option_init();
         disadvantages_init();
@@ -2124,6 +2221,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         $(document).on('click', 'a.delete_ki_ability', delete_ki_ability);
         $(document).on('click', 'a.mp_imbalance', edit_mp_imbalance);
         $(document).on('click', 'a.natural_bonus', edit_natural_bonus);
+        $(document).on('click', 'a.power', configure_power);
         $(document).on('click', 'a.set_natural_bonus', set_natural_bonus);
         $(document).on('click', 'a.spend_dp', spend_dp);
         $(document).on('click', 'a.spend_mk', spend_mk);

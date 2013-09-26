@@ -347,7 +347,11 @@ function (Character, classes, martial_arts) {
      * @returns {Number}
      */
     Character.prototype.unarmed_damage = function (arts) {
-        var name,
+        var i,
+            levels = this.levels,
+            length = levels.length,
+            name,
+            nw = false,
             result = 0,
             size = this.size();
         if (!arts) {
@@ -360,24 +364,32 @@ function (Character, classes, martial_arts) {
             }
         }
         if (result === 0) {
+            for (i = 0; i < length; i++) {
+                if ('Natural Weapons' in levels[i].DP) {
+                    nw = true;
+                }
+            }
             // Use appropriate value for size
             if (size < 4) {
-                result = 5;
+                result = nw ? 20 : 5;
+            }
+            else if (size < 9) {
+                result = nw ? 30 : 10;
             }
             else if (size < 23) {
-                result = 10;
+                result = nw ? 40 : 10;
             }
             else if (size < 25) {
-                result = 20;
+                result = nw ? 60 : 20;
             }
             else if (size < 29) {
-                result = 30;
+                result = nw ? 100 : 30;
             }
             else if (size < 34) {
-                result = 40;
+                result = nw ? 120 : 40;
             }
             else {
-                result = 60;
+                result = nw ? 140 : 60;
             }
             result += this.modifier('STR');
         }
