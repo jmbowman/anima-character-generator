@@ -11,7 +11,7 @@
   <link href="images/favicon.ico" rel="shortcut icon" type="image/x-icon" />-->
   
   
-  <link rel="stylesheet" href="css/styles-a07831a33d5bac9ca4d456bfd49c7b69.css" />
+  <link rel="stylesheet" href="css/styles-41a0a513472c435a95f79b972523829f.css" />
 </head>
 <body>
 <form id="main_form" action="javascript:void(0);" role="form" class="form-horizontal">
@@ -307,6 +307,8 @@
         </div>
       </div>
 
+      <div class="clearfix"> </div>
+
       <div class="form-group col-xs-12">
         <div class="col-xs-3 visible-xs"> </div>
         <label for="Appearance" class="control-label col-xs-3 col-sm-6">Appearance</label>
@@ -380,6 +382,8 @@
           <div class="col-xs-10"><div id="XP" class="spinner"> </div><p class="display form-control-static"><span> </span>&nbsp;<a id="add_xp" class="btn-xs" href="#"><i class="glyphicon glyphicon-plus"> </i></a></p></div>
         </div>
       </div>
+
+      <div class="clearfix"> </div>
 
       <div class="col-xs-12">
         <button id="choose_advantages" type="button" class="btn btn-default">Choose Advantages</button>
@@ -623,6 +627,17 @@
   </div>
 </div>
 
+<div id="delete_power_dialog" class="modal fade" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+        <input type="hidden" id="delete_power_name" value="" />
+        <input type="hidden" id="delete_power_level" value="" />
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="disadvantages_dialog" class="modal fade" role="dialog" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -718,6 +733,7 @@
           <li><a href="#Psychic" data-toggle="tab">Psychic</a></li>
           <li><a href="#Supernatural" data-toggle="tab">Supernatural</a></li>
           <li><a href="#Secondary" data-toggle="tab">Secondary Abilities</a></li>
+          <li><a href="#Powers" data-toggle="tab">Powers</a></li>
           <li><a href="#Other" data-toggle="tab">Other</a></li>
         </ul>
         <div class="tab-content">
@@ -773,6 +789,7 @@
     	    </div>
     	  </div>
         </div>
+        <div id="Powers" class="tab-pane"> </div>
         <div id="Other" class="tab-pane"> </div>
         </div>
       </div>
@@ -1051,7 +1068,7 @@
   </div>
 </div>
 
-<script src="js/main-3485cdf165c886721d28f19cf10a7ad5.js"></script>
+<script src="js/main-4921b5d5dcf668352223e93b593b326f.js"></script>
 
 </body>
 </html>
