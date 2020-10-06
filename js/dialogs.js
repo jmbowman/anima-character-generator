@@ -633,7 +633,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         var name = $.trim($(this).text()),
             data = characters.current(),
             disadvantage = disadvantages[name];
-        
+
         if (!data.disadvantage_allowed(name, null)) {
             return false;
         }
@@ -961,15 +961,24 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         return false;
     };
 
+
+    delete_module = function (name, level) {
+        $('#delete_module_level').val(level);
+        $('#delete_module_name').val(name);
+        $('#delete_module_dialog').modal('show');
+        return false;
+    };
+
+
     /**
      * Initialize the Module deletion confirmation dialog.
      */
     delete_module_init = function () {
-        create_dialog('delete_module_dialog', 'Remove this module?', 'No',
-                      'Yes', function () {
-            var data = characters.current(),
-                level = $('#delete_module_level').val(),
-                name = $('#delete_module_name').val();
+        create_dialog('delete_module_dialog', 'Remove this module?',
+                      'No', 'Yes', function () {
+            var level = $('#delete_module_level').val(),
+                name = $('#delete_module_name').val(),
+                data = characters.current();
             delete data.level_info(level).DP[name];
             $.publish('level_data_changed');
             $('#delete_module_dialog').modal('hide');
@@ -977,15 +986,6 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         });
     };
 
-    /**
-     * Confirm that the user meant to remove a Module by clicking on it.
-     */
-    delete_power = function (name, level) {
-        $('#delete_module_level').val(level);
-        $('#delete_module_name').val(name);
-        $('#delete_module_dialog').modal('show');
-        return false;
-    };
 
     /**
      * Initialize the Power deletion confirmation dialog.
@@ -1577,7 +1577,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         }
         create_dialog('freelancer_dialog', 'Add Freelancer bonus to...',
                       'Cancel');
-        
+
     };
 
     /**
@@ -2165,7 +2165,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             return false;
         });
     };
-  
+
     $(document).ready(function () {
         ability_dp_init();
         advantage_cost_init();
