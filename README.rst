@@ -11,6 +11,8 @@ abilities is gradually being implemented.
 
 Background
 ----------
+From original creator: https://github.com/jmbowman/anima-character-generator
+
 I'm currently running an Anima game, and while the players and I really like
 the system, character generation is rather time-consuming; there are a lot of
 options to consider and calculations to make, and there aren't any official
@@ -72,3 +74,22 @@ These are the main things left to be implemented that I'm aware of:
 
 If you notice other missing features or find bugs in what's already there, let
 me know and I'll update it as free time allows.
+
+----------
+
+Update 2020:
+
+New developer - BandanaT start to continuing development on this project. I'm
+an Anima player myself and had been using Jmbowman's character sheet for several
+years. As a developer myself, I decided to continue work on this project to
+help with the running of my current campaign. I had a player wanting to use a
+Weapons master however the module reductions had not yet been
+implemented correctly.
+
+During the process of attempting to fix this. Bug fixing came naturally in hand
+whilst starting to learn and understand the code.
+
+Fixes so far:
+* Weapon module DP reduction for weapon masters (Half working - DP is reduced.
+UI not currently updated)
+* You can now remove basic modules from your character
