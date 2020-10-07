@@ -90,6 +90,5 @@ During the process of attempting to fix this. Bug fixing came naturally in hand
 whilst starting to learn and understand the code.
 
 Fixes so far:
-* Weapon module DP reduction for weapon masters (Half working - DP is reduced.
-UI not currently updated)
+* Weapon module DP reduction for weapon masters class
 * You can now remove basic modules from your character
