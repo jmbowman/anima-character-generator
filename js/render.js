@@ -979,11 +979,6 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                     parts = ['<a href="#" class="add_module"><span class="name">',
                              name, '</span></a> (<span class="cost">', module.DP,
                              '</span>)<br />'];
-                    /*Weapons master stuff with both present - messy
-                    parts = ['<a href="#" class="add_module"><span class="name">',
-                             name, '</span></a> (<span class="cost">', module.DP,
-                             '</span>) (<span class="weaponmastercost">', module.WDP || "N/A",')<br />'];
-                    */
                     primary = module.Primary;
                     if (primary === 'Combat') {
                         primary = 'Combat_Modules_' + ((i < 24) ? 1 : 2);
