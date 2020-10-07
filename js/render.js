@@ -27,7 +27,7 @@ define(['jquery', 'abilities', 'characters', 'essential_abilities',
 'martial_knowledge', 'movement', 'psychic', 'resistances'],
 function ($, abilities, characters, essential_abilities, ki_abilities,
           martial_arts, modules, powers, primaries, tables, widgets) {
-    
+
     var create_spinner = widgets.create_spinner,
         load_value,
         next_step,
@@ -970,6 +970,37 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
                 line = $('<div class="col-xs-12"></div>').html(content);
                 panel_body.append(line);
             }
+            for (name in modules) {
+                if (modules.hasOwnProperty(name)) {
+                    module = modules[name];
+                    partsWM = ['<a href="#" class="add_module"><span class="name">',
+                             name, '</span></a> (<span class="weapsonscost">', module.WDP || module.DP,
+                             '</span>)<br />'];
+                    parts = ['<a href="#" class="add_module"><span class="name">',
+                             name, '</span></a> (<span class="cost">', module.DP,
+                             '</span>)<br />'];
+                    /*Weapons master stuff with both present - messy
+                    parts = ['<a href="#" class="add_module"><span class="name">',
+                             name, '</span></a> (<span class="cost">', module.DP,
+                             '</span>) (<span class="weaponmastercost">', module.WDP || "N/A",')<br />'];
+                    */
+                    primary = module.Primary;
+                    if (primary === 'Combat') {
+                        primary = 'Combat_Modules_' + ((i < 24) ? 1 : 2);
+                    }
+                    var data = characters.current();
+                    levels = data.levels;
+                    level = levels[0];
+                    if (level.Class === 'Weaponsmaster') {
+                      console.log("WEAPONSMASTER in here wooooow")
+                      $('#' + primary).append(partsWM.join(''));
+                    }
+                    else {
+                      $('#' + primary).append(parts.join(''));
+                    }
+                    i++;
+                }
+            }
             if (remaining_dp_for_level.Total > 0) {
                 content = remaining_dp_for_level.Total + ' DP remaining (Limits: ' + remaining_dp_for_level.Combat + ' Combat, ' + remaining_dp_for_level.Psychic + ' Psychic, ' + remaining_dp_for_level.Supernatural + ' Supernatural';
                 if (data.Type !== 'Human') {
@@ -1120,6 +1151,6 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         }
         render.render($('.container'));
     };
-  
+
     return render;
 });

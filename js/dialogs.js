@@ -961,7 +961,9 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         return false;
     };
 
-
+    /**
+     * Confirm that the user meant to remove a Module by clicking on it.
+     */
     delete_module = function (name, level) {
         $('#delete_module_level').val(level);
         $('#delete_module_name').val(name);
@@ -1168,20 +1170,6 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             }
         }
         i = 1;
-        for (name in modules) {
-            if (modules.hasOwnProperty(name)) {
-                module = modules[name];
-                parts = ['<a href="#" class="add_module"><span class="name">',
-                         name, '</span></a> (<span class="cost">', module.DP,
-                         '</span>)<br />'];
-                primary = module.Primary;
-                if (primary === 'Combat') {
-                    primary = 'Combat_Modules_' + ((i < 24) ? 1 : 2);
-                }
-                $('#' + primary).append(parts.join(''));
-                i++;
-            }
-        }
         count = names.length;
         for (i = 0; i < count; i++) {
             name = names[i];
