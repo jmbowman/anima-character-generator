@@ -268,7 +268,12 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
             return essentialDisadvantages[name].DP;
         }
         if (name in modules) {
-            return modules[name].DP;
+           if (class_name === 'Weaponsmaster') {
+             return (modules[name].DP / 2)
+           }
+           else {
+             return modules[name].DP;
+           }
         }
         if (name in martial_arts) {
             info = martial_arts[name];

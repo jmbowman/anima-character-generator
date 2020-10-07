@@ -633,7 +633,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         var name = $.trim($(this).text()),
             data = characters.current(),
             disadvantage = disadvantages[name];
-        
+
         if (!data.disadvantage_allowed(name, null)) {
             return false;
         }
@@ -962,14 +962,25 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
     };
 
     /**
+     * Confirm that the user meant to remove a Module by clicking on it.
+     */
+    delete_module = function (name, level) {
+        $('#delete_module_level').val(level);
+        $('#delete_module_name').val(name);
+        $('#delete_module_dialog').modal('show');
+        return false;
+    };
+
+
+    /**
      * Initialize the Module deletion confirmation dialog.
      */
     delete_module_init = function () {
-        create_dialog('delete_module_dialog', 'Remove this module?', 'No',
-                      'Yes', function () {
-            var data = characters.current(),
-                level = $('#delete_module_level').val(),
-                name = $('#delete_module_name').val();
+        create_dialog('delete_module_dialog', 'Remove this module?',
+                      'No', 'Yes', function () {
+            var level = $('#delete_module_level').val(),
+                name = $('#delete_module_name').val(),
+                data = characters.current();
             delete data.level_info(level).DP[name];
             $.publish('level_data_changed');
             $('#delete_module_dialog').modal('hide');
@@ -977,15 +988,6 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         });
     };
 
-    /**
-     * Confirm that the user meant to remove a Module by clicking on it.
-     */
-    delete_power = function (name, level) {
-        $('#delete_module_level').val(level);
-        $('#delete_module_name').val(name);
-        $('#delete_module_dialog').modal('show');
-        return false;
-    };
 
     /**
      * Initialize the Power deletion confirmation dialog.
@@ -1168,20 +1170,6 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             }
         }
         i = 1;
-        for (name in modules) {
-            if (modules.hasOwnProperty(name)) {
-                module = modules[name];
-                parts = ['<a href="#" class="add_module"><span class="name">',
-                         name, '</span></a> (<span class="cost">', module.DP,
-                         '</span>)<br />'];
-                primary = module.Primary;
-                if (primary === 'Combat') {
-                    primary = 'Combat_Modules_' + ((i < 24) ? 1 : 2);
-                }
-                $('#' + primary).append(parts.join(''));
-                i++;
-            }
-        }
         count = names.length;
         for (i = 0; i < count; i++) {
             name = names[i];
@@ -1577,7 +1565,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
         }
         create_dialog('freelancer_dialog', 'Add Freelancer bonus to...',
                       'Cancel');
-        
+
     };
 
     /**
@@ -2165,7 +2153,7 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             return false;
         });
     };
-  
+
     $(document).ready(function () {
         ability_dp_init();
         advantage_cost_init();
