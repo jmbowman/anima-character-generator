@@ -269,7 +269,7 @@ function ($, abilities, Character, classes, essential_abilities, martial_arts,
         }
         if (name in modules) {
            if (class_name === 'Weaponsmaster') {
-             return (modules[name].DP / 2)
+             return (modules[name].WDP)
            }
            else {
              return modules[name].DP;
