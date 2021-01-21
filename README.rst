@@ -79,7 +79,7 @@ me know and I'll update it as free time allows.
 
 Update 2020:
 
-New developer - BandanaT start to continuing development on this project. I'm
+New developer - OllyT started to continuing development on this project. I'm
 an Anima player myself and had been using Jmbowman's character sheet for several
 years. As a developer myself, I decided to continue work on this project to
 help with the running of my current campaign. I had a player wanting to use a
@@ -93,3 +93,9 @@ Fixes so far:
 
 * Weapon module DP reduction for weapon masters class
 * You can now remove basic modules from your character
+
+Planned stuff:
+
+* Info boxes with what each ability does
+* Dark mode
+* React Library refactoring
