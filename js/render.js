@@ -642,6 +642,20 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         }
     };
 
+    function update_total () {
+        var total_stats = characters.current()["STR"] + 
+            characters.current()["DEX"] + 
+            characters.current()["AGI"] + 
+            characters.current()["CON"] + 
+            characters.current()["INT"] +
+            characters.current()["POW"] +
+            characters.current()["WP"] +
+            characters.current()["PER"]; 
+
+        $('#TotalValue').text(total_stats);
+
+    }
+
     /**
      * Update the basic data for the current character using the values
      * currently in the appropriate input fields and refresh the stat block.
@@ -662,6 +676,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         update_text('Gender');
         update_text('Race');
         update_int('XP');
+        update_total();
         if (first_class) {
             data.change_class(data.XP < 0 ? 0 : 1, first_class);
         }
