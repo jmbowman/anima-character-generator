@@ -95,6 +95,7 @@ Fixes and additions so far:
 * You can now remove basic modules from your character
 * Added better defaults for race and gender
 * Added addition gender options
+* Added total to primaries for point spend method 5 found in the GM toolkit
 
 Planned stuff:
 
