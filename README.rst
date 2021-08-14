@@ -93,9 +93,12 @@ Fixes so far:
 
 * Weapon module DP reduction for weapon masters class
 * You can now remove basic modules from your character
+* Added better defaults for race and gender
+* Added addition gender options
 
 Planned stuff:
 
-* Info boxes with what each ability does
 * Dark mode
+* Point counter for point spend
+* Info boxes with what each ability does
 * React Library refactoring
