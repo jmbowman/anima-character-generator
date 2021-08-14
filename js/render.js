@@ -642,19 +642,27 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         }
     };
 
+    /*  
+     *  Adjusts for 10 counting as 2 points rather than 1
+     */
+    function getStat(stat) {
+        if (stat == 10){
+            return 11;
+        } else return stat
+    }
     /*
      * Calculates the total for primary stats. Used for point spend.
      * Not stored in the json, calculated on run time.
      */
     function update_total () { 
-        var total_stats = characters.current()["STR"] + 
-            characters.current()["DEX"] + 
-            characters.current()["AGI"] + 
-            characters.current()["CON"] + 
-            characters.current()["INT"] +
-            characters.current()["POW"] +
-            characters.current()["WP"] +
-            characters.current()["PER"]; 
+        var total_stats = getStat(characters.current()["STR"]) + 
+            getStat(characters.current()["DEX"]) + 
+            getStat(characters.current()["AGI"]) + 
+            getStat(characters.current()["CON"]) + 
+            getStat(characters.current()["INT"]) +
+            getStat(characters.current()["POW"]) +
+            getStat(characters.current()["WP"]) +
+            getStat(characters.current()["PER"]); 
         if (isNaN(total_stats)){ //can happen when this is called on start-up. Lazy but functional fix
             total_stats = 40;
         }
