@@ -642,6 +642,27 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         }
     };
 
+    /*
+     * Calculates the total for primary stats. Used for point spend.
+     * Not stored in the json, calculated on run time.
+     */
+    function update_total () { 
+        var total_stats = characters.current()["STR"] + 
+            characters.current()["DEX"] + 
+            characters.current()["AGI"] + 
+            characters.current()["CON"] + 
+            characters.current()["INT"] +
+            characters.current()["POW"] +
+            characters.current()["WP"] +
+            characters.current()["PER"]; 
+        if (isNaN(total_stats)){ //can happen when this is called on start-up. Lazy but functional fix
+            total_stats = 40;
+        }
+        $('#TotalValue').text(total_stats);
+        $('#TotalValue').css( 'font-weight', 'normal');
+
+    }
+
     /**
      * Update the basic data for the current character using the values
      * currently in the appropriate input fields and refresh the stat block.
@@ -662,6 +683,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         update_text('Gender');
         update_text('Race');
         update_int('XP');
+        update_total();
         if (first_class) {
             data.change_class(data.XP < 0 ? 0 : 1, first_class);
         }
@@ -816,6 +838,7 @@ function ($, abilities, characters, essential_abilities, ki_abilities,
         set_characteristics_limits(data, 'Spiritual');
         // Reset fields to default values
         $('.characteristic, #Appearance').spinner('value', 5);
+        update_total();
         $('#XP').spinner('value', 0);
         $('#Gender, #Race, #Name').val('');
         if (data.Type !== 'Human') {
