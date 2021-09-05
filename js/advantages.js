@@ -8,11 +8,25 @@
  * @requires psychic_disciplines
  * @requires tables
  */
+
+ function getPsychicAbilities (obj) {
+    var abilities = []
+    for(var key in obj) {
+        var tree = obj[key];
+        abilities.push("------------ " + key + " ------------")
+        for (var skills in tree) {
+            abilities.push(skills);
+        }
+        
+    }
+    return abilities;
+}
+
 define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines',
-        'tables'], function ($, abilities, paths, disciplines, tables) {
+        'tables'], function ($, abilities, paths, psychic_disciplines, tables) {
     return {
-        'Access to Natural Psychic Powers': {Cost: [1, 2, 3], Options: [], Option_Title: 'Select a Power'},
-        'Access to One Psychic Discipline': {Cost: 1, Options: Object.keys(disciplines.disciplines), Option_Title: 'Select a discipline'},
+        'Access to Natural Psychic Powers': {Cost: [1, 2, 3], Options: getPsychicAbilities(psychic_disciplines.disciplines), Option_Title: 'Select a Power'},
+        'Access to One Psychic Discipline': {Cost: 1, Options: Object.keys(psychic_disciplines.disciplines), Option_Title: 'Select a discipline'},
         'Acute Senses': {Cost: 1},
         'Add One Point to a Characteristic': {Cost: 1, Options: tables.characteristics, Option_Title: 'Select the characteristic to increase'},
         Ambidextrous: {Cost: 1},
@@ -86,7 +100,7 @@ define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines',
         'Psychic Ambivalence': {Category: 'Psychic', Cost: 1},
         'Psychic Fatigue Resistance': {Category: 'Psychic', Cost: 2},  // no fatigue when a power fails.  Does not effect 3rd level powers
         'Psychic Immunity': {Cost: 1},
-        'Psychic Inclination':  {Category: 'Psychic', Cost: 2, Options: Object.keys(disciplines.disciplines), Option_Title: 'Select a discipline'}, // +1 level of greater difficulty for one of his psychic disciplines.
+        'Psychic Inclination':  {Category: 'Psychic', Cost: 2, Options: Object.keys(psychic_disciplines.disciplines), Option_Title: 'Select a discipline'}, // +1 level of greater difficulty for one of his psychic disciplines.
         'Psychic Point Recovery': {Category: 'Psychic', Cost: [1, 2, 3]},  // recover 1pt/10m 1pt/5m  1pt/1minute
         'Quick Reflexes': {Cost: [1, 2, 3]},   // +25, +45, +60 to initiative
         'Regeneration': {Cost: [1, 2, 3]},
