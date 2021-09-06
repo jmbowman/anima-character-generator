@@ -9,18 +9,6 @@
  * @requires tables
  */
 
- function getPsychicAbilities (obj) {
-    var abilities = []
-    for(var key in obj) {
-        var tree = obj[key];
-        abilities.push("------------ " + key + " ------------")
-        for (var skills in tree) {
-            abilities.push(skills);
-        }
-        
-    }
-    return abilities;
-}
 
 define(['jquery', 'abilities', 'magic_paths',  'psychic_disciplines',
         'tables'], function ($, abilities, paths, psychic_disciplines, tables) {

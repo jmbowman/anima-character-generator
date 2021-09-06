@@ -3,6 +3,29 @@
  * Data on the Psychic Disciplines and Powers.
  * @module psychic_disciplines
  */
+
+function getPsychicDisciplines (obj) {
+    var disciplines = []
+    for(var key in obj) {
+        disciplines.push("------------ " + key + " ------------")            
+    }
+    return disciplines;
+}
+
+
+function getPsychicAbilities (obj) {
+    var abilities = []
+    for(var key in obj) {
+        var tree = obj[key];
+        abilities.push("------------ " + key + " ------------")
+        for (var skills in tree) {
+            abilities.push(skills);
+        }
+        
+    }
+    return abilities;
+}
+
 define({
     disciplines: {
         Cryokinesis: {

@@ -24,15 +24,19 @@
  * @requires pubsub
  * @requires tables
  * @requires widgets
+ * @requires psychic_disciplines
  */
 define(['jquery', 'abilities', 'advantages', 'characters', 'cultural_roots',
-'disadvantages', 'essential_abilities', 'ki_abilities', 'martial_arts',
+'disadvantages', 'essential_abilities', 'ki_abilities', 'psychic_disciplines', 'martial_arts',
 'modules', 'powers', 'primaries', 'tables', 'widgets', 'combat',
 'creation_points', 'development_points', 'libs/combobox', 'libs/json2',
-'libs/utils', 'pubsub'],
+'libs/utils', 'pubsub' ],
 function ($, abilities, advantages, characters, cultural_roots, disadvantages,
-          essential_abilities, ki_abilities, martial_arts, modules, powers,
+          essential_abilities, ki_abilities, psychic_disciplines, martial_arts, modules, powers,
           primaries, tables, widgets) {
+
+    const psychicDisciplines = getPsychicDisciplines(psychic_disciplines.disciplines);
+    console.log("psychicDisciplines: ", psychicDisciplines)        
 
     var ability_dp_init,
         add_advantage,
@@ -1309,7 +1313,13 @@ function ($, abilities, advantages, characters, cultural_roots, disadvantages,
             data = characters.current();
             $.each(options, function (i, option) {
                 if (data.advantage_allowed(name, option)) {
-                    select.append($('<option>', {value: option}).text(option));
+                    if  (psychicDisciplines.includes(option))
+                    {
+                        select.append($('<option>', {value: option}).text(option).attr("disabled","disabled"));
+                    } else {
+                        select.append($('<option>', {value: option}).text(option));
+                    }
+                    
                 }
             });
             panel.append(select);
