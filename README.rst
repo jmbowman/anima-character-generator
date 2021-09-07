@@ -96,10 +96,12 @@ Fixes and additions so far:
 * Added better defaults for race and gender
 * Added addition gender options
 * Added total to primaries for point spend method 5 found in the GM toolkit
+* 'Access to Natural Psychic Powers' advantage now includes a list of the powers you can add
 
 Planned stuff:
 
 * Dark mode
-* Point counter for point spend
+* Testing framework (Playwright)
+* Point counter for psychic point spend
 * Info boxes with what each ability does
 * React Library refactoring
