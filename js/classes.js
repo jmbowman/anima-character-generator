@@ -354,7 +354,7 @@ define(function () {
     }(classes['Warrior Summoner']));
     
     // Weaponsmaster
-    // TODO: need to capture general, archetypal, and style modules half normal DP
+    // TODO: need to capture general, archetypal
     (function (c) {
         c.Archetypes = ['Fighter'];
         c['Life Point Multiple'] = 10;
